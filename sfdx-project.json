@@ -1,0 +1,21 @@
+{
+    "packageDirectories": [
+        {
+            "path": "force-app",
+            "default": true
+        },
+        {
+            "path": "utils-app",
+            "package": "Vosh Utils",
+            "versionNumber": "1.0.0.NEXT",
+            "default": false
+        }
+    ],
+    "namespace": "vosh",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "49.0",
+    "packageAliases": {
+        "Vosh Utils": "0Ho3V000000XZAHSA4",
+        "Vosh Utils@1.0.0-1": "04t3V000000208LQAQ"
+    }
+}

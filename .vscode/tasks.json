@@ -1,0 +1,30 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "sfdx-create-package-version",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub"
+        },
+        {
+            "label": "sfdx-open-devhub",
+            "type": "shell",
+            "command": "sfdx force:org:open -u VoshDevHub"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "packagePath",
+            "type": "pickString",
+            "description": "Select the directory that contains the contents of the package.",
+            "options": [
+                "utils-app"
+            ]
+        }
+    ]
+}

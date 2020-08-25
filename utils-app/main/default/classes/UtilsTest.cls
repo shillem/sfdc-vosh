@@ -1,0 +1,229 @@
+@isTest(isParallel=true)
+public class UtilsTest {
+    public class AccountTriggerHandlerTest extends TriggerHandler.Routine {
+        public override Schema.SObjectType getSObjectType() {
+            return Schema.Account.SObjectType;
+        }
+    }
+
+    @isTest
+    static void describer() {
+        Utils.Describer describ = Utils.getDescriber();
+        Schema.SObjectType accountType = Schema.Account.SObjectType;
+
+        Schema.DescribeSObjectResult accResult1 = describ.getObjectDescribe(accountType);
+        Schema.DescribeSObjectResult accResult2 = describ.getObjectDescribe(
+            String.valueOf(accountType)
+        );
+
+        System.assertEquals(accResult1.getSObjectType(), accResult2.getSObjectType());
+
+        Schema.SObjectField accountField = Schema.Account.Name;
+
+        System.assertEquals(
+            accountField,
+            describ.getObjectFieldMap(accountType).get(String.valueOf(accountField))
+        );
+
+        Schema.DescribeFieldResult fieldResult = describ.getFieldDescribe(accountField);
+
+        System.assertEquals(accountField, fieldResult.getSObjectField());
+        System.assertEquals(accountField, describ.fieldValueOf('Account.Name'));
+    }
+
+    @isTest
+    static void entry() {
+        List<Utils.Entry> entries = new List<Utils.Entry>{
+            new Utils.Entry('value1', 'label1'),
+            new Utils.Entry('value0', 'label0'),
+            new Utils.Entry('value9')
+        };
+
+        System.assertEquals('value1', entries[0].getValue());
+        System.assertEquals('value9', entries[2].getLabel());
+        System.assertEquals(entries.size(), 3);
+
+        // This will sort the entries according to their label
+        entries.sort();
+
+        System.assertEquals('label0', entries[0].getLabel());
+
+        Set<Utils.Entry> entrySet = new Set<Utils.Entry>(entries);
+
+        // This is not going to be added because it is a duplicate
+        entrySet.add(new Utils.Entry('value1', 'label1'));
+
+        System.assertEquals(entries.size(), 3);
+    }
+
+    @isTest
+    static void mapper() {
+        Utils.Entry dummy = new Utils.Entry('value1', 'label1');
+        String serializedDummy = JSON.serialize(dummy);
+
+        Utils.Mapper umapper = Utils.deserializeToMapper(serializedDummy);
+
+        System.assertEquals(dummy.getLabel(), umapper.getString('label'));
+        System.assertEquals(dummy.getValue(), umapper.getString('value'));
+    }
+
+    @isTest
+    static void recordTypeInvocableProcessor() {
+        Schema.Account acc = new Schema.Account(Name = 'Test');
+
+        insert acc;
+
+        Test.startTest();
+
+        RecordTypeInvocableProcessor.Request req = new RecordTypeInvocableProcessor.Request();
+
+        req.recordId = acc.Id;
+        req.recordTypeName = 'Test';
+
+        RecordTypeInvocableProcessor.execute(new List<RecordTypeInvocableProcessor.Request>{ req });
+
+        Test.stopTest();
+
+        System.assertEquals(acc.Id, [SELECT Id FROM Account WHERE Name = :acc.Name LIMIT 1].Id);
+    }
+
+    @isTest
+    static void requireNonNull() {
+        String message = 'Something is required';
+
+        try {
+            Utils.requireNonNull((Schema.Account) null, message);
+
+            System.assert(false, 'It should have thrown a NullPointerException');
+        } catch (NullPointerException e) {
+            System.assertEquals(message, e.getMessage());
+        }
+    }
+
+    @isTest
+    static void triggerHandler() {
+        System.Type stype = AccountTriggerHandlerTest.class;
+        List<Schema.Cs_TriggerHandlerRoutine__c> records;
+
+        TriggerHandler.enable(stype);
+
+        records = [
+            SELECT Name, Is_Disabled__c, SObjectType__c
+            FROM Cs_TriggerHandlerRoutine__c
+            WHERE Name = :stype.getName()
+        ];
+
+        System.assert(!records.isEmpty(), 'Routine record should have been present');
+        System.assert(!records[0].Is_Disabled__c, 'Routine record should have been enabled');
+        System.assertEquals(String.valueOf(Schema.Account.SObjectType), records[0].SObjectType__c);
+
+        TriggerHandler.disable(stype);
+
+        records = [
+            SELECT Name, Is_Disabled__c
+            FROM Cs_TriggerHandlerRoutine__c
+            WHERE Name = :stype.getName()
+        ];
+
+        System.assert(records[0].Is_Disabled__c, 'Routine record should have been disabled');
+    }
+
+    @isTest
+    static void uniquifiers() {
+        Utils.ValueUniquifier uni = new Utils.ValueUniquifier();
+
+        uni.addValue('A');
+        uni.addValue('B');
+        uni.addValue('C');
+
+        System.assertEquals(3, uni.getValues().size());
+
+        System.assert(!uni.addValue('A'), 'It should have prevented the value from being re-added');
+
+        Schema.Contact cnt1 = new Schema.Contact(
+            LastName = 'Contact1',
+            Email = 'example@example.com'
+        );
+        Schema.Contact cnt2 = new Schema.Contact(
+            LastName = 'Contact2',
+            Email = 'example@example.com'
+        );
+        Schema.Contact cnt3 = new Schema.Contact(LastName = 'Contact2', Email = 'demo@example.com');
+        Utils.RecordValueUniquifier recuni = new Utils.RecordValueUniquifier(Contact.Email);
+
+        System.assertEquals(cnt3.Email, recuni.getRecordValue(cnt3));
+
+        recuni.addRecordValue(cnt1);
+
+        System.assertEquals(1, recuni.getValues().size());
+        System.assert(
+            recuni.getRecord('example@example.com') != null,
+            'It should have returned the record by the email specified'
+        );
+        System.assert(
+            !recuni.addRecordValue(cnt2),
+            'It should have prevented the record value from being re-added'
+        );
+    }
+
+    @isTest
+    static void randomizerGenerator() {
+        Utils.RandomizerBuilder builder;
+        String randomizer;
+        List<String> components;
+
+        builder = new Utils.RandomizerBuilder();
+        randomizer = builder
+            .setCurrentTimeMillis(true)
+            .setLength(6)
+            .setPreferences(
+                new Set<Utils.RandomizerPreference>{
+                    Utils.RandomizerPreference.INCLUDE_LETTER,
+                    Utils.RandomizerPreference.INCLUDE_NUMBER
+                }
+            )
+            .setPrefix('TEST')
+            .build()
+            .generate();
+        components = randomizer.split('-');
+
+        System.assertEquals(
+            3,
+            components.size(),
+            'The randomizer components should have been 3: ' + randomizer
+        );
+        System.assertEquals('TEST', components[0]);
+        System.assertEquals(6, components[1].length());
+        System.assert(
+            components[1].isAlphanumeric(),
+            'The 2nd component should have been alphanumeric ' + components[1]
+        );
+
+        builder = new Utils.RandomizerBuilder();
+        randomizer = builder
+            .setPreferences(
+                new Set<Utils.RandomizerPreference>{ Utils.RandomizerPreference.INCLUDE_NUMBER }
+            )
+            .setLength(3)
+            .build()
+            .generate();
+        components = randomizer.split('-');
+
+        System.assertEquals(3, components[0].length());
+        System.assert(
+            !components[0].isAlpha(),
+            'The component should not have contained letters: ' + components[0]
+        );
+    }
+
+    @isTest
+    static void sleep() {
+        Long start = System.currentTimeMillis();
+
+        Utils.sleep(3);
+
+        Long elapsed = System.currentTimeMillis() - start;
+
+        System.assert(elapsed >= 3000, 'It should have slept for about 3 seconds');
+    }
+}
