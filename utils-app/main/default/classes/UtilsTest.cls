@@ -1,8 +1,20 @@
 @isTest(isParallel=true)
 public class UtilsTest {
-    public class AccountTriggerHandlerTest extends TriggerHandler.Routine {
+    public virtual class AccountTriggerHandlerTest extends TriggerHandler.Routine {
+        private Integer runs = 0;
+
+        public override void pre() {
+            runs++;
+        }
+
         public override Schema.SObjectType getSObjectType() {
             return Schema.Account.SObjectType;
+        }
+    }
+
+    public class AccountTriggerRecursiveHandlerTest extends AccountTriggerHandlerTest {
+        public override TriggerHandler.Recursion getRecursion() {
+            return TriggerHandler.Recursion.ENABLED;
         }
     }
 
@@ -57,6 +69,25 @@ public class UtilsTest {
     }
 
     @isTest
+    static void hasher() {
+        Utils.Hasher hs;
+
+        try {
+            hs = new Utils.Hasher('MD6');
+        } catch (UnsupportedOperationException e) {
+            System.assert(e.getMessage().contains('Algorithm must be'));
+        }
+
+        hs = new Utils.Hasher();
+        String value = 'Hash Me!';
+
+        System.assertEquals(
+            EncodingUtil.convertToHex(Crypto.generateDigest('MD5', Blob.valueOf(value))),
+            hs.hash(value)
+        );
+    }
+
+    @isTest
     static void mapper() {
         Utils.Entry dummy = new Utils.Entry('value1', 'label1');
         String serializedDummy = JSON.serialize(dummy);
@@ -102,6 +133,7 @@ public class UtilsTest {
 
     @isTest
     static void triggerHandler() {
+        // Enablement
         System.Type stype = AccountTriggerHandlerTest.class;
         List<Schema.Cs_TriggerHandlerRoutine__c> records;
 
@@ -110,7 +142,7 @@ public class UtilsTest {
         records = [
             SELECT Name, Is_Disabled__c, SObjectType__c
             FROM Cs_TriggerHandlerRoutine__c
-            WHERE Name = :stype.getName()
+            WHERE ClassName__c = :stype.getName()
         ];
 
         System.assert(!records.isEmpty(), 'Routine record should have been present');
@@ -122,10 +154,28 @@ public class UtilsTest {
         records = [
             SELECT Name, Is_Disabled__c
             FROM Cs_TriggerHandlerRoutine__c
-            WHERE Name = :stype.getName()
+            WHERE ClassName__c = :stype.getName()
         ];
 
         System.assert(records[0].Is_Disabled__c, 'Routine record should have been disabled');
+
+        // Recursion
+        AccountTriggerHandlerTest onetime = new AccountTriggerHandlerTest();
+
+        System.assert(!onetime.isReexecuting(), 'Routine should be set as not executed yet');
+
+        onetime.execute();
+        System.assertEquals(1, onetime.runs);
+        System.assert(onetime.isReexecuting(), 'Routine should have been set as executed');
+
+        onetime.execute();
+        System.assertEquals(1, onetime.runs, 'Run count should not have been incremented');
+
+        AccountTriggerRecursiveHandlerTest multipleTimes = new AccountTriggerRecursiveHandlerTest();
+
+        multipleTimes.execute();
+        multipleTimes.execute();
+        System.assertEquals(2, multipleTimes.runs);
     }
 
     @isTest

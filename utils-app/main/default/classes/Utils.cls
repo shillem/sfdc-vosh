@@ -120,6 +120,38 @@ global with sharing class Utils {
         }
     }
 
+    global class Hasher {
+        private final String algorithm;
+
+        global Hasher() {
+            this('MD5');
+        }
+
+        global Hasher(String algorithm) {
+            if (algorithm == null || !Pattern.matches('MD5|SHA1|SHA-256|SHA-512', algorithm)) {
+                throw new UnsupportedOperationException(
+                    'Algorithm must be MD5, SHA1, SHA-256 or SHA-512'
+                );
+            }
+
+            this.algorithm = algorithm;
+        }
+
+        global String hash(Blob value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            Blob digest = Crypto.generateDigest(algorithm, value);
+
+            return EncodingUtil.convertToHex(digest);
+        }
+
+        global String hash(String value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            return hash(Blob.valueOf(value));
+        }
+    }
+
     global class Mapper {
         private final Map<String, Object> values;
 
@@ -356,6 +388,15 @@ global with sharing class Utils {
 
     global static Mapper deserializeToMapper(String value) {
         return new Mapper((Map<String, Object>) JSON.deserializeUntyped(value));
+    }
+
+    global static String getClassName(Object obj) {
+        requireNonNull(obj, 'Object cannot be null');
+
+        String name = String.valueOf(obj);
+        Integer index = name.indexOf(':');
+
+        return index > 0 ? name.substring(0, index) : name;
     }
 
     global static Describer getDescriber() {

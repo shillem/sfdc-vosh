@@ -7,7 +7,7 @@
         {
             "path": "utils-app",
             "package": "Vosh Utils",
-            "versionNumber": "1.0.1.NEXT",
+            "versionNumber": "1.0.2.NEXT",
             "default": false
         }
     ],
@@ -16,6 +16,6 @@
     "sourceApiVersion": "49.0",
     "packageAliases": {
         "Vosh Utils": "0Ho3V000000XZAHSA4",
-        "Vosh Utils@1.0.1-3": "04t3V000000210GQAQ"
+        "Vosh Utils@1.0.2-2": "04t3V00000024XGQAY"
     }
 }
