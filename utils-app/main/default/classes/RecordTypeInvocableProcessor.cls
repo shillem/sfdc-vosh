@@ -1,16 +1,16 @@
-public class RecordTypeInvocableProcessor {
-    public class Request {
+global class RecordTypeInvocableProcessor {
+    global class Request {
         @InvocableVariable(required=true label='Record Id')
-        public Id recordId;
+        global Id recordId;
         @InvocableVariable(required=true label='Record Type Name')
-        public String recordTypeName;
+        global String recordTypeName;
     }
 
     @InvocableMethod(
         label='Set Record Type From Name'
         description='Maps record types by their developer name'
     )
-    public static void execute(List<Request> requests) {
+    global static void execute(List<Request> requests) {
         Map<String, Id> recordTypeIds = new Map<String, Id>();
         List<SObject> records = new List<SObject>();
 

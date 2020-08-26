@@ -1,33 +1,34 @@
-public class TriggerHandler {
-    public abstract class Routine {
-        public virtual void afterDelete(SObject record) {
+global class TriggerHandler {
+
+    global abstract class Routine {
+        global virtual void afterDelete(SObject record) {
         }
 
-        public virtual void afterInsert(SObject record) {
+        global virtual void afterInsert(SObject record) {
         }
 
-        public virtual void afterUndelete(SObject record) {
+        global virtual void afterUndelete(SObject record) {
         }
 
-        public virtual void afterUpdate(SObject stored, SObject memory) {
+        global virtual void afterUpdate(SObject stored, SObject memory) {
         }
 
-        public virtual void beforeDelete(SObject record) {
+        global virtual void beforeDelete(SObject record) {
         }
 
-        public virtual void beforeInsert(SObject record) {
+        global virtual void beforeInsert(SObject record) {
         }
 
-        public virtual void beforeUpdate(SObject stored, SObject memory) {
+        global virtual void beforeUpdate(SObject stored, SObject memory) {
         }
 
-        public virtual void pre() {
+        global virtual void pre() {
         }
 
-        public virtual void post() {
+        global virtual void post() {
         }
 
-        public void execute() {
+        global void execute() {
             pre();
 
             switch on Trigger.operationType {
@@ -71,10 +72,10 @@ public class TriggerHandler {
             post();
         }
 
-        public abstract Schema.SObjectType getSObjectType();
+        global abstract Schema.SObjectType getSObjectType();
     }
 
-    public static void execute(Schema.SObjectType stype) {
+    global static void execute(Schema.SObjectType stype) {
         List<Schema.Cs_TriggerHandlerRoutine__c> routines = [
             SELECT Name
             FROM Cs_TriggerHandlerRoutine__c
@@ -93,7 +94,7 @@ public class TriggerHandler {
         }
     }
 
-    public static void disable(System.Type stype) {
+    global static void disable(System.Type stype) {
         Utils.requireNonNull(stype, 'Type cannot be null');
 
         Schema.Cs_TriggerHandlerRoutine__c definition = Schema.Cs_TriggerHandlerRoutine__c.getValues(
@@ -109,7 +110,7 @@ public class TriggerHandler {
         update definition;
     }
 
-    public static void enable(System.Type stype) {
+    global static void enable(System.Type stype) {
         Utils.requireNonNull(stype, 'Type cannot be null');
 
         if (!Routine.class.isAssignableFrom(stype)) {

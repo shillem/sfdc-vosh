@@ -1,5 +1,5 @@
-public with sharing class Utils {
-    public class Describer {
+global with sharing class Utils {
+    global class Describer {
         private Map<String, Schema.SObjectType> globalDescriber;
         private Map<Schema.SObjectType, Schema.DescribeSObjectResult> objectDescribers;
         private Map<Schema.SObjectField, Schema.DescribeFieldResult> fieldDescribers;
@@ -7,7 +7,7 @@ public with sharing class Utils {
         private Describer() {
         }
 
-        public Map<String, SObjectType> getGlobal() {
+        global Map<String, SObjectType> getGlobal() {
             if (globalDescriber == null) {
                 globalDescriber = Schema.getGlobalDescribe();
             }
@@ -15,7 +15,7 @@ public with sharing class Utils {
             return globalDescriber;
         }
 
-        public Schema.DescribeFieldResult getFieldDescribe(Schema.SObjectField field) {
+        global Schema.DescribeFieldResult getFieldDescribe(Schema.SObjectField field) {
             if (fieldDescribers == null) {
                 fieldDescribers = new Map<Schema.SObjectField, Schema.DescribeFieldResult>();
             }
@@ -31,11 +31,11 @@ public with sharing class Utils {
             return value;
         }
 
-        public Schema.DescribeSObjectResult getObjectDescribe(String name) {
+        global Schema.DescribeSObjectResult getObjectDescribe(String name) {
             return getObjectDescribe(getGlobal().get(name));
         }
 
-        public Schema.DescribeSObjectResult getObjectDescribe(Schema.SObjectType type) {
+        global Schema.DescribeSObjectResult getObjectDescribe(Schema.SObjectType type) {
             if (objectDescribers == null) {
                 objectDescribers = new Map<Schema.SObjectType, Schema.DescribeSObjectResult>();
             }
@@ -51,31 +51,31 @@ public with sharing class Utils {
             return result;
         }
 
-        public Map<String, SObjectField> getObjectFieldMap(Schema.SObjectType type) {
+        global Map<String, SObjectField> getObjectFieldMap(Schema.SObjectType type) {
             return getObjectDescribe(type).fields.getMap();
         }
 
-        public Schema.SObjectField fieldValueOf(String pointer) {
+        global Schema.SObjectField fieldValueOf(String pointer) {
             List<String> mapping = pointer.split('\\.');
 
             return getObjectFieldMap(getGlobal().get(mapping[0])).get(mapping[1]);
         }
     }
 
-    public virtual class Entry implements Comparable {
+    global virtual class Entry implements Comparable {
         private final String label;
         private final Object value;
 
-        public Entry(Object value) {
+        global Entry(Object value) {
             this(value, String.valueOf(value));
         }
 
-        public Entry(Object value, String label) {
+        global Entry(Object value, String label) {
             this.value = value;
             this.label = label;
         }
 
-        public Integer compareTo(Object instance) {
+        global Integer compareTo(Object instance) {
             Entry other = (Entry) instance;
 
             String val1 = String.isEmpty(label) ? String.valueOf(value) : label;
@@ -92,7 +92,7 @@ public with sharing class Utils {
             return val1.compareTo(val2);
         }
 
-        public Boolean equals(Object instance) {
+        global Boolean equals(Object instance) {
             if (instance instanceof Entry) {
                 Object val1 = value;
                 Object val2 = ((Entry) instance).value;
@@ -103,15 +103,15 @@ public with sharing class Utils {
             return false;
         }
 
-        public String getLabel() {
+        global String getLabel() {
             return label;
         }
 
-        public Object getValue() {
+        global Object getValue() {
             return value;
         }
 
-        public Integer hashCode() {
+        global Integer hashCode() {
             Integer result = 5;
 
             Integer c = value != null ? value.hashCode() : 0;
@@ -120,32 +120,32 @@ public with sharing class Utils {
         }
     }
 
-    public class Mapper {
+    global class Mapper {
         private final Map<String, Object> values;
 
-        public Mapper(Map<String, Object> values) {
+        global Mapper(Map<String, Object> values) {
             requireNonNull(values, 'Values cannot be null');
 
             this.values = values;
         }
 
-        public Boolean containsKey(String key) {
+        global Boolean containsKey(String key) {
             return values.containsKey(key);
         }
 
-        public Boolean getBoolean(String key) {
+        global Boolean getBoolean(String key) {
             return (Boolean) getObject(key);
         }
 
-        public Integer getInteger(String key) {
+        global Integer getInteger(String key) {
             return (Integer) getObject(key);
         }
 
-        public Map<String, Object> getMap(String key) {
+        global Map<String, Object> getMap(String key) {
             return (Map<String, Object>) getObject(key);
         }
 
-        public List<Map<String, Object>> getMapList(String key) {
+        global List<Map<String, Object>> getMapList(String key) {
             List<Map<String, Object>> values = new List<Map<String, Object>>();
 
             for (Object o : getObjectList(key)) {
@@ -155,23 +155,23 @@ public with sharing class Utils {
             return values;
         }
 
-        public Object getObject(String key) {
+        global Object getObject(String key) {
             return values.get(key);
         }
 
-        public Mapper getObjectAsMapper(String key) {
+        global Mapper getObjectAsMapper(String key) {
             return new Mapper(getMap(key));
         }
 
-        public List<Object> getObjectList(String key) {
+        global List<Object> getObjectList(String key) {
             return (List<Object>) getObject(key);
         }
 
-        public String getString(String key) {
+        global String getString(String key) {
             return (String) getObject(key);
         }
 
-        public List<String> getStringList(String key) {
+        global List<String> getStringList(String key) {
             List<String> values = new List<String>();
 
             for (Object o : getObjectList(key)) {
@@ -182,7 +182,7 @@ public with sharing class Utils {
         }
     }
 
-    public class Randomizer {
+    global class Randomizer {
         private final Boolean currentTimeMillis;
         private final Integer length;
         private final String prefix;
@@ -195,7 +195,7 @@ public with sharing class Utils {
             length = builder.length;
         }
 
-        public String generate() {
+        global String generate() {
             String value = prefix != null && prefix.length() > 0 ? prefix + '-' : '';
 
             Iterator<RandomizerPreference> iter = prefs.iterator();
@@ -237,37 +237,37 @@ public with sharing class Utils {
         }
     }
 
-    public class RandomizerBuilder {
+    global class RandomizerBuilder {
         private Boolean currentTimeMillis;
         private Integer length;
         private String prefix;
         private Set<RandomizerPreference> prefs;
 
-        public RandomizerBuilder setCurrentTimeMillis(Boolean flag) {
+        global RandomizerBuilder setCurrentTimeMillis(Boolean flag) {
             currentTimeMillis = flag != null && flag;
 
             return this;
         }
 
-        public RandomizerBuilder setPreferences(Set<RandomizerPreference> values) {
+        global RandomizerBuilder setPreferences(Set<RandomizerPreference> values) {
             prefs = values;
 
             return this;
         }
 
-        public RandomizerBuilder setPrefix(String value) {
+        global RandomizerBuilder setPrefix(String value) {
             prefix = value;
 
             return this;
         }
 
-        public RandomizerBuilder setLength(Integer value) {
+        global RandomizerBuilder setLength(Integer value) {
             length = value;
 
             return this;
         }
 
-        public Randomizer build() {
+        global Randomizer build() {
             if (prefs == null) {
                 throw new System.UnsupportedOperationException(
                     'Preferences cannot be null or empty'
@@ -284,23 +284,23 @@ public with sharing class Utils {
         }
     }
 
-    public enum RandomizerPreference {
+    global enum RandomizerPreference {
         INCLUDE_LETTER,
         INCLUDE_NUMBER
     }
 
-    public interface Uniquifier {
+    global interface Uniquifier {
         Set<Object> getValues();
     }
 
-    public class ValueUniquifier implements Uniquifier {
+    global class ValueUniquifier implements Uniquifier {
         private final Set<Object> values;
 
-        public ValueUniquifier() {
+        global ValueUniquifier() {
             this.values = new Set<Object>();
         }
 
-        public Boolean addValue(Object value) {
+        global Boolean addValue(Object value) {
             if (values.contains(value)) {
                 return false;
             }
@@ -310,16 +310,16 @@ public with sharing class Utils {
             return true;
         }
 
-        public Set<Object> getValues() {
+        global Set<Object> getValues() {
             return values;
         }
     }
 
-    public class RecordValueUniquifier implements Uniquifier {
+    global class RecordValueUniquifier implements Uniquifier {
         private final Schema.SObjectField field;
         private final Map<Object, SObject> values;
 
-        public RecordValueUniquifier(Schema.SObjectField field) {
+        global RecordValueUniquifier(Schema.SObjectField field) {
             requireNonNull(field, 'Field cannot be null');
 
             this.field = field;
@@ -327,7 +327,7 @@ public with sharing class Utils {
             this.values = new Map<Object, SObject>();
         }
 
-        public Boolean addRecordValue(SObject record) {
+        global Boolean addRecordValue(SObject record) {
             Object value = getRecordValue(record);
 
             if (values.containsKey(value)) {
@@ -339,26 +339,26 @@ public with sharing class Utils {
             return true;
         }
 
-        public SObject getRecord(Object value) {
+        global SObject getRecord(Object value) {
             return values.get(value);
         }
 
-        public Object getRecordValue(SObject record) {
+        global Object getRecordValue(SObject record) {
             return record.get(field);
         }
 
-        public Set<Object> getValues() {
+        global Set<Object> getValues() {
             return values.keySet();
         }
     }
 
     private static Map<Id, Describer> DESCRIBER_INSTANCE;
 
-    public static Mapper deserializeToMapper(String value) {
+    global static Mapper deserializeToMapper(String value) {
         return new Mapper((Map<String, Object>) JSON.deserializeUntyped(value));
     }
 
-    public static Describer getDescriber() {
+    global static Describer getDescriber() {
         if (DESCRIBER_INSTANCE == null) {
             DESCRIBER_INSTANCE = new Map<Id, Describer>();
         }
@@ -375,7 +375,7 @@ public with sharing class Utils {
         return describ;
     }
 
-    public static Map<String, Id> getRecordTypeNames(Schema.SObjectType type) {
+    global static Map<String, Id> getRecordTypeNames(Schema.SObjectType type) {
         requireNonNull(type, 'SObject type cannot be null');
 
         List<Schema.RecordTypeInfo> infos = getDescriber()
@@ -392,7 +392,7 @@ public with sharing class Utils {
         return names;
     }
 
-    public static void requireNonNull(Object o, String message) {
+    global static void requireNonNull(Object o, String message) {
         if (o != null) {
             return;
         }
@@ -404,7 +404,7 @@ public with sharing class Utils {
         throw e;
     }
 
-    public static void sleep(Integer seconds) {
+    global static void sleep(Integer seconds) {
         if (seconds == null || seconds < 1 || seconds > 10) {
             throw new System.UnsupportedOperationException(
                 'Seconds cannot be null and must be comprised between 1 and 10'
