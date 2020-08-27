@@ -1,20 +1,8 @@
 @isTest(isParallel=true)
 public class UtilsTest {
-    public virtual class AccountTriggerHandlerTest extends TriggerHandler.Routine {
-        private Integer runs = 0;
-
-        public override void pre() {
-            runs++;
-        }
-
+    private class AccountTriggerHandlerTest extends TriggerHandler.Routine {
         public override Schema.SObjectType getSObjectType() {
             return Schema.Account.SObjectType;
-        }
-    }
-
-    public class AccountTriggerRecursiveHandlerTest extends AccountTriggerHandlerTest {
-        public override TriggerHandler.Recursion getRecursion() {
-            return TriggerHandler.Recursion.ENABLED;
         }
     }
 
@@ -159,23 +147,16 @@ public class UtilsTest {
 
         System.assert(records[0].Is_Disabled__c, 'Routine record should have been disabled');
 
-        // Recursion
-        AccountTriggerHandlerTest onetime = new AccountTriggerHandlerTest();
+        // Tagging
+        AccountTriggerHandlerTest handler = new AccountTriggerHandlerTest();
 
-        System.assert(!onetime.isReexecuting(), 'Routine should be set as not executed yet');
+        handler.tag(records[0].Id);
+        
+        System.assert(handler.isTagged(records[0].Id), 'Id should have been tagged');
 
-        onetime.execute();
-        System.assertEquals(1, onetime.runs);
-        System.assert(onetime.isReexecuting(), 'Routine should have been set as executed');
+        handler.untag(records[0].Id);
 
-        onetime.execute();
-        System.assertEquals(1, onetime.runs, 'Run count should not have been incremented');
-
-        AccountTriggerRecursiveHandlerTest multipleTimes = new AccountTriggerRecursiveHandlerTest();
-
-        multipleTimes.execute();
-        multipleTimes.execute();
-        System.assertEquals(2, multipleTimes.runs);
+        System.assert(!handler.isTagged(records[0].Id), 'Id should have been untagged');
     }
 
     @isTest

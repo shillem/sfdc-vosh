@@ -12,6 +12,14 @@
             "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub"
         },
         {
+            "label": "sfdx-create-package-version-with-no-validation",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --skipvalidation --wait 15 -v VoshDevHub"
+        },
+        {
             "label": "sfdx-open-devhub",
             "type": "shell",
             "command": "sfdx force:org:open -u VoshDevHub"

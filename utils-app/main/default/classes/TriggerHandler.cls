@@ -1,10 +1,12 @@
 global class TriggerHandler {
-    global enum Recursion {
-        DISABLED,
-        ENABLED
-    }
-
     global abstract class Routine {
+
+        private final String className;
+
+        global Routine() {
+            this.className = Utils.getClassName(this);
+        }
+
         global virtual void afterDelete(SObject record) {
         }
 
@@ -26,29 +28,11 @@ global class TriggerHandler {
         global virtual void beforeUpdate(SObject stored, SObject memory) {
         }
 
-        global virtual Recursion getRecursion() {
-            return Recursion.DISABLED;
-        }
-
-        private String identifier() {
-            return Utils.getClassName(this) + '_' + Trigger.operationType.name();
-        }
-
-        global Boolean isReexecuting() {
-            return EXECUTIONS.contains(identifier());
-        }
-
-        global virtual void pre() {
-        }
-
-        global virtual void post() {
+        private String createIdentifier(Id recordId, String suffix) {
+            return className + recordId + suffix;
         }
 
         global void execute() {
-            if (Recursion.DISABLED == getRecursion() && isReexecuting()) {
-                return;
-            }
-
             pre();
 
             switch on Trigger.operationType {
@@ -90,14 +74,42 @@ global class TriggerHandler {
             }
 
             post();
-
-            EXECUTIONS.add(identifier());
         }
 
         global abstract Schema.SObjectType getSObjectType();
+
+        global Boolean isTagged(Id recordId) {
+            return isTagged(recordId, '');
+        }
+
+        global Boolean isTagged(Id recordId, String suffix) {
+            return TAGS.contains(createIdentifier(recordId, suffix));
+        }
+
+        global virtual void pre() {
+        }
+
+        global virtual void post() {
+        }
+
+        global void tag(Id recordId) {
+            tag(recordId, '');
+        }
+
+        global void tag(Id recordId, String suffix) {
+            TAGS.add(createIdentifier(recordId, suffix));
+        }
+
+        global void untag(Id recordId) {
+            untag(recordId, '');
+        }
+
+        global void untag(Id recordId, String suffix) {
+            TAGS.remove(createIdentifier(recordId, suffix));
+        }
     }
 
-    private static final Set<String> EXECUTIONS = new Set<String>();
+    private static final Set<String> TAGS = new Set<String>();
 
     global static void execute(Schema.SObjectType stype) {
         List<Schema.Cs_TriggerHandlerRoutine__c> routines = [
