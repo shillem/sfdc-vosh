@@ -1,30 +1,89 @@
 global class TriggerHandler {
+    /**
+     * The abstract class to create a SObject trigger logic from.
+     * The class provides methods that will be be invoked depending on the trigger's operation type.
+     * Any of those methods can be overridden by the extending class to implement the needed logic.
+     * <p>
+     * This class is meant to be used exclusively in the <code>Trigger</code> context because
+     * it relies on its <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_triggers_context_variables.htm">specific variables</a>.
+     *
+     * @see TriggerHandler#enable(System.Type) enable
+     * @since 1.0.0
+     */
     global abstract class Routine {
-
         private final String className;
 
         global Routine() {
             this.className = Utils.getClassName(this);
         }
 
+        /**
+         * It can be overridden to performs operations on the record passed
+         * when the trigger operation is <code>AFTER_DELETE</code>.
+         * 
+         * @param record the record passed by the trigger
+         * @since 1.0.0
+         */
         global virtual void afterDelete(SObject record) {
         }
 
+        /**
+         * It can be overridden to performs operations on the record passed
+         * when the trigger operation is <code>AFTER_DELETE</code>.
+         * 
+         * @param record the record passed by the trigger
+         * @since 1.0.0
+         */
         global virtual void afterInsert(SObject record) {
         }
 
+        /**
+         * It can be overridden to performs operations on the record passed
+         * when the trigger operation is <code>AFTER_UNDELETE</code>.
+         * 
+         * @param record the record passed by the trigger
+         * @since 1.0.0
+         */
         global virtual void afterUndelete(SObject record) {
         }
 
+        /**
+         * It can be overridden to performs operations on the record passed
+         * when the trigger operation is <code>AFTER_UPDATE</code>.
+         * 
+         * @param record the record passed by the trigger
+         * @since 1.0.0
+         */
         global virtual void afterUpdate(SObject stored, SObject memory) {
         }
 
+        /**
+         * It can be overridden to performs operations on the record passed
+         * when the trigger operation is <code>BEFORE_DELETE</code>.
+         * 
+         * @param record the record passed by the trigger
+         * @since 1.0.0
+         */
         global virtual void beforeDelete(SObject record) {
         }
 
+        /**
+         * It can be overridden to performs operations on the record passed
+         * when the trigger operation is <code>BEFORE_INSERT</code>.
+         * 
+         * @param record the record passed by the trigger
+         * @since 1.0.0
+         */
         global virtual void beforeInsert(SObject record) {
         }
 
+        /**
+         * It can be overridden to performs operations on the record passed
+         * when the trigger operation is <code>BEFORE_UPDATE</code>.
+         * 
+         * @param record the record passed by the trigger
+         * @since 1.0.0
+         */
         global virtual void beforeUpdate(SObject stored, SObject memory) {
         }
 
@@ -32,6 +91,12 @@ global class TriggerHandler {
             return className + recordId + suffix;
         }
 
+        /**
+         * It executes the implemented logic on the records passed
+         * in the <code>Trigger</code> context.
+         * 
+         * @since 1.0.0
+         */
         global void execute() {
             pre();
 
@@ -76,34 +141,111 @@ global class TriggerHandler {
             post();
         }
 
+        /**
+         * It must be overridden to state the <code>SObject</code> type the trigger logic handles.
+         * 
+         * @return the <code>SObject</code> type
+         * @since 1.0.0
+         */
         global abstract Schema.SObjectType getSObjectType();
 
+        /**
+         * It checks whether a given record id has been tagged.
+         * <p>
+         * Trigger logic can be tricky to write. A trigger might be invoked multiple times
+         * on the same record depending on what the implementing class or other triggers do.
+         * To prevent a trigger to be run on a previously processed record it's possible to tag its
+         * id and later check for its presence in order to skip reprocessing it.
+         * 
+         * @param recordId the record id to check
+         * @return true if the record is tagged, otherwise false
+         * @see #isTagged(Id, String) isTagged
+         * @see #tag(Id) tag
+         * @see #untag(Id) untag
+         * @since 1.0.3
+         */
         global Boolean isTagged(Id recordId) {
             return isTagged(recordId, '');
         }
 
+        /**
+         * It checks whether a given record id has been tagged.
+         * 
+         * @param recordId the record id to check
+         * @param suffix an arbitrary string to couple the id with and ensure its uniqueness across different trigger logic invocations
+         * @return true if the record is tagged, otherwise false
+         * @see #isTagged(Id) isTagged
+         * @see #tag(Id) tag
+         * @see #untag(Id) tag
+         * @since 1.0.3
+         */
         global Boolean isTagged(Id recordId, String suffix) {
             return TAGS.contains(createIdentifier(recordId, suffix));
         }
 
+        /**
+         * It can be overridden to execute arbitrary logic
+         * before the <code>Trigger</code> record looping takes place.
+         * 
+         * @since 1.0.0
+         */
         global virtual void pre() {
         }
 
+        /**
+         * It can be overridden to execute arbitrary logic
+         * after the <code>Trigger</code> record has taken place.
+         * 
+         * @since 1.0.0
+         */
         global virtual void post() {
         }
 
+        /**
+         * It tags a given record id.
+         * 
+         * @param recordId the record id to check
+         * @see #isTagged(Id) isTagged
+         * @since 1.0.3
+         */
         global void tag(Id recordId) {
             tag(recordId, '');
         }
 
+        /**
+         * It tags a given record id.
+         * 
+         * @param recordId the record id to check
+         * @param suffix an arbitrary string to couple the id with and ensure its uniqueness across different trigger logic invocations
+         * @see #isTagged(Id) isTagged
+         * @see #tag(Id) tag
+         * @since 1.0.3
+         */
         global void tag(Id recordId, String suffix) {
             TAGS.add(createIdentifier(recordId, suffix));
         }
 
+        /**
+         * It untags a given record id.
+         * 
+         * @param recordId the record id to check
+         * @see #isTagged(Id) isTagged
+         * @see #untag(Id, String) untag
+         * @since 1.0.3
+         */
         global void untag(Id recordId) {
             untag(recordId, '');
         }
 
+        /**
+         * It untags a given record id.
+         * 
+         * @param recordId the record id to check
+         * @param suffix an arbitrary string to couple the id with and ensure its uniqueness across different trigger logic invocations
+         * @see #isTagged(Id) isTagged
+         * @see #untag(Id) untag
+         * @since 1.0.3
+         */
         global void untag(Id recordId, String suffix) {
             TAGS.remove(createIdentifier(recordId, suffix));
         }
@@ -111,7 +253,19 @@ global class TriggerHandler {
 
     private static final Set<String> TAGS = new Set<String>();
 
+    /**
+     * Invokes any <code>TriggerHandler.Routine</code> extending classes that have been enabled,
+     * for the SObject. The enabled classes will be retrieved by querying
+     * all the <code>Cs_TriggerHandlerRoutine__c</code> custom setting records
+     * that match the SObject type parameter.
+     *
+     * @param stype the <code>SObjectType</code> that will be used collect all the <code>TriggerHandler.Routine</code>, not null
+     * @see #enable(System.Type) enable
+     * @since 1.0.3
+     */
     global static void execute(Schema.SObjectType stype) {
+        Utils.requireNonNull(stype, 'SObject type cannot be null');
+
         List<Schema.Cs_TriggerHandlerRoutine__c> routines = [
             SELECT ClassName__c
             FROM Cs_TriggerHandlerRoutine__c
@@ -130,6 +284,16 @@ global class TriggerHandler {
         }
     }
 
+    /**
+     * Disables a <code>TriggerHandler.Routine</code> extending class that,
+     * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
+     * The method ticks as disabled a corresponding <code>Cs_TriggerHandlerRoutine__c</code>
+     * custom setting record that bears the class' name if it exists.
+     *
+     * @param stype the .class extending the abstract class <code>TriggerHandler.Routine</code>, not null
+     * @see #enable(System.Type) enable
+     * @since 1.0.3
+     */
     global static void disable(System.Type stype) {
         Utils.requireNonNull(stype, 'Type cannot be null');
 
@@ -146,6 +310,20 @@ global class TriggerHandler {
         update definition;
     }
 
+    /**
+     * Enables a <code>TriggerHandler.Routine</code> extending class that,
+     * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
+     * The coupling trigger will have to call <code>TriggerHandler.execute</code>
+     * for the class to be invoked.
+     * <p>
+     * The method creates - if it doesn't exist, or ticks as enabled, a corresponding
+     * <code>Cs_TriggerHandlerRoutine__c</code> custom setting record that bears the class' name.
+     *
+     * @param stype the .class extending the abstract class <code>TriggerHandler.Routine</code>, not null
+     * @throws UnsupportedOperationException if the type doesn't extend <code>TriggerHandler.Routine</code>
+     * @see #execute(Schema.SObjectType) execute
+     * @since 1.0.3
+     */
     global static void enable(System.Type stype) {
         Utils.requireNonNull(stype, 'Type cannot be null');
 
