@@ -22,6 +22,9 @@ yarn-error.log*
 # Dependency directories
 node_modules/
 
+force-app/
+scripts/
+
 # Eslint cache
 .eslintcache
 

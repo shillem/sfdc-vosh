@@ -1,4 +1,4 @@
-global class TriggerHandler {
+global inherited sharing class TriggerHandler {
     /**
      * The abstract class to create a SObject trigger logic from.
      * The class provides methods that will be be invoked depending on the trigger's operation type.
@@ -8,7 +8,7 @@ global class TriggerHandler {
      * it relies on its <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_triggers_context_variables.htm">specific variables</a>.
      *
      * @see TriggerHandler#enable(System.Type) enable
-     * @since 1.0.0
+     * @since 1.0.1
      */
     global abstract class Routine {
         private final String className;
@@ -22,7 +22,7 @@ global class TriggerHandler {
          * when the trigger operation is <code>AFTER_DELETE</code>.
          * 
          * @param record the record passed by the trigger
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void afterDelete(SObject record) {
         }
@@ -32,7 +32,7 @@ global class TriggerHandler {
          * when the trigger operation is <code>AFTER_DELETE</code>.
          * 
          * @param record the record passed by the trigger
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void afterInsert(SObject record) {
         }
@@ -42,7 +42,7 @@ global class TriggerHandler {
          * when the trigger operation is <code>AFTER_UNDELETE</code>.
          * 
          * @param record the record passed by the trigger
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void afterUndelete(SObject record) {
         }
@@ -52,7 +52,7 @@ global class TriggerHandler {
          * when the trigger operation is <code>AFTER_UPDATE</code>.
          * 
          * @param record the record passed by the trigger
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void afterUpdate(SObject stored, SObject memory) {
         }
@@ -62,7 +62,7 @@ global class TriggerHandler {
          * when the trigger operation is <code>BEFORE_DELETE</code>.
          * 
          * @param record the record passed by the trigger
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void beforeDelete(SObject record) {
         }
@@ -72,7 +72,7 @@ global class TriggerHandler {
          * when the trigger operation is <code>BEFORE_INSERT</code>.
          * 
          * @param record the record passed by the trigger
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void beforeInsert(SObject record) {
         }
@@ -82,7 +82,7 @@ global class TriggerHandler {
          * when the trigger operation is <code>BEFORE_UPDATE</code>.
          * 
          * @param record the record passed by the trigger
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void beforeUpdate(SObject stored, SObject memory) {
         }
@@ -95,7 +95,7 @@ global class TriggerHandler {
          * It executes the implemented logic on the records passed
          * in the <code>Trigger</code> context.
          * 
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global void execute() {
             pre();
@@ -145,7 +145,7 @@ global class TriggerHandler {
          * It must be overridden to state the <code>SObject</code> type the trigger logic handles.
          * 
          * @return the <code>SObject</code> type
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global abstract Schema.SObjectType getSObjectType();
 
@@ -187,7 +187,7 @@ global class TriggerHandler {
          * It can be overridden to execute arbitrary logic
          * before the <code>Trigger</code> record looping takes place.
          * 
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void pre() {
         }
@@ -196,7 +196,7 @@ global class TriggerHandler {
          * It can be overridden to execute arbitrary logic
          * after the <code>Trigger</code> record has taken place.
          * 
-         * @since 1.0.0
+         * @since 1.0.1
          */
         global virtual void post() {
         }
@@ -264,7 +264,7 @@ global class TriggerHandler {
      * @since 1.0.3
      */
     global static void execute(Schema.SObjectType stype) {
-        Utils.requireNonNull(stype, 'SObject type cannot be null');
+        Utils.requireNonNull(stype, 'Type cannot be null');
 
         List<Schema.Cs_TriggerHandlerRoutine__c> routines = [
             SELECT ClassName__c

@@ -8,13 +8,16 @@
         "lightningExperienceSettings": {
             "enableS1DesktopEnabled": true
         },
+        "mobileSettings": {
+            "enableS1EncryptedStoragePref2": false
+        },
+        "schemaSettings": {
+            "enableListCustomSettingCreation": true
+        },
         "securitySettings": {
             "passwordPolicies": {
                 "enableSetPasswordInApi": true
             }
-        },
-        "mobileSettings": {
-            "enableS1EncryptedStoragePref2": false
         }
     }
 }

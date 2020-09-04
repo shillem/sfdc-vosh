@@ -29,6 +29,11 @@ public class UtilsTest {
 
         System.assertEquals(accountField, fieldResult.getSObjectField());
         System.assertEquals(accountField, describ.fieldValueOf('Account.Name'));
+
+        System.assertEquals(
+            'Contacts',
+            describ.getObjectRelationshipName(accountType, Schema.Contact.SObjectType)
+        );
     }
 
     @isTest
@@ -76,125 +81,76 @@ public class UtilsTest {
     }
 
     @isTest
+    static void fieldLevelSecurity() {
+        Schema.User insufficientUser;
+
+        System.runAs(TestUtils.getUser()) {
+            // Generating user
+            insufficientUser = (Schema.User) new TestUtils.UserMaker()
+                .setProfileId(TestUtils.getProfileId('Read Only'))
+                .setName('Insufficient')
+                .setCount(1)
+                .make()
+                .get(0);
+        }
+
+        Test.startTest();
+
+        Fls sec = new Fls(Schema.Contact.SObjectType, System.AccessType.UPDATABLE)
+        .queue(
+            new Set<Schema.SObjectField>{ Schema.Contact.FirstName, Schema.Contact.LastName }
+        )
+        .queue(Schema.Contact.Title);
+
+        Fls.Report rep;
+
+        Schema.Contact anyone = new Schema.Contact(LastName = 'Anyone', HasOptedOutOfEmail = true);
+
+        System.runAs(insufficientUser) {
+            rep = Fls.audit(anyone, System.AccessType.CREATABLE);
+
+            System.assert(!rep.isAuthorized(), 'It should not have been authorized');
+
+            try {
+                rep.throwExceptionIfUnauthorized();
+
+                System.assert(false, 'It should have thrown a Fls.ReportException');
+            } catch (Fls.ReportException e) {
+                System.assert(
+                    e.getMessage().contains(String.valueOf(Schema.Contact.HasOptedOutOfEmail)),
+                    'It should have contained HasOptedOutOfEmail field: ' + e.getMessage()
+                );
+                System.assert(
+                    e.getReport().getFieldFailures().contains(Schema.Contact.HasOptedOutOfEmail),
+                    'It should have contained HasOptedOutOfEmail field: ' +
+                    e.getReport().getFieldFailures()
+                );
+            }
+
+            rep = sec.audit();
+
+            System.assert(!rep.isAuthorized(), 'It should not have been authorized');
+        }
+
+        rep = Fls.audit(anyone, System.AccessType.CREATABLE);
+
+        System.assert(rep.isAuthorized(), 'It should have been authorized');
+
+        rep = sec.audit();
+
+        System.assert(rep.isAuthorized(), 'It should have been authorized');
+    }
+
+    @isTest
     static void mapper() {
         Utils.Entry dummy = new Utils.Entry('value1', 'label1');
         String serializedDummy = JSON.serialize(dummy);
 
         Utils.Mapper umapper = Utils.deserializeToMapper(serializedDummy);
 
+        System.assert(umapper.containsKey('label'), 'It should have contained label key');
         System.assertEquals(dummy.getLabel(), umapper.getString('label'));
         System.assertEquals(dummy.getValue(), umapper.getString('value'));
-    }
-
-    @isTest
-    static void recordTypeInvocableProcessor() {
-        Schema.Account acc = new Schema.Account(Name = 'Test');
-
-        insert acc;
-
-        Test.startTest();
-
-        RecordTypeInvocableProcessor.Request req = new RecordTypeInvocableProcessor.Request();
-
-        req.recordId = acc.Id;
-        req.recordTypeName = 'Test';
-
-        RecordTypeInvocableProcessor.execute(new List<RecordTypeInvocableProcessor.Request>{ req });
-
-        Test.stopTest();
-
-        System.assertEquals(acc.Id, [SELECT Id FROM Account WHERE Name = :acc.Name LIMIT 1].Id);
-    }
-
-    @isTest
-    static void requireNonNull() {
-        String message = 'Something is required';
-
-        try {
-            Utils.requireNonNull((Schema.Account) null, message);
-
-            System.assert(false, 'It should have thrown a NullPointerException');
-        } catch (NullPointerException e) {
-            System.assertEquals(message, e.getMessage());
-        }
-    }
-
-    @isTest
-    static void triggerHandler() {
-        // Enablement
-        System.Type stype = AccountTriggerHandlerTest.class;
-        List<Schema.Cs_TriggerHandlerRoutine__c> records;
-
-        TriggerHandler.enable(stype);
-
-        records = [
-            SELECT Name, Is_Disabled__c, SObjectType__c
-            FROM Cs_TriggerHandlerRoutine__c
-            WHERE ClassName__c = :stype.getName()
-        ];
-
-        System.assert(!records.isEmpty(), 'Routine record should have been present');
-        System.assert(!records[0].Is_Disabled__c, 'Routine record should have been enabled');
-        System.assertEquals(String.valueOf(Schema.Account.SObjectType), records[0].SObjectType__c);
-
-        TriggerHandler.disable(stype);
-
-        records = [
-            SELECT Name, Is_Disabled__c
-            FROM Cs_TriggerHandlerRoutine__c
-            WHERE ClassName__c = :stype.getName()
-        ];
-
-        System.assert(records[0].Is_Disabled__c, 'Routine record should have been disabled');
-
-        // Tagging
-        AccountTriggerHandlerTest handler = new AccountTriggerHandlerTest();
-
-        handler.tag(records[0].Id);
-        
-        System.assert(handler.isTagged(records[0].Id), 'Id should have been tagged');
-
-        handler.untag(records[0].Id);
-
-        System.assert(!handler.isTagged(records[0].Id), 'Id should have been untagged');
-    }
-
-    @isTest
-    static void uniquifiers() {
-        Utils.ValueUniquifier uni = new Utils.ValueUniquifier();
-
-        uni.addValue('A');
-        uni.addValue('B');
-        uni.addValue('C');
-
-        System.assertEquals(3, uni.getValues().size());
-
-        System.assert(!uni.addValue('A'), 'It should have prevented the value from being re-added');
-
-        Schema.Contact cnt1 = new Schema.Contact(
-            LastName = 'Contact1',
-            Email = 'example@example.com'
-        );
-        Schema.Contact cnt2 = new Schema.Contact(
-            LastName = 'Contact2',
-            Email = 'example@example.com'
-        );
-        Schema.Contact cnt3 = new Schema.Contact(LastName = 'Contact2', Email = 'demo@example.com');
-        Utils.RecordValueUniquifier recuni = new Utils.RecordValueUniquifier(Contact.Email);
-
-        System.assertEquals(cnt3.Email, recuni.getRecordValue(cnt3));
-
-        recuni.addRecordValue(cnt1);
-
-        System.assertEquals(1, recuni.getValues().size());
-        System.assert(
-            recuni.getRecord('example@example.com') != null,
-            'It should have returned the record by the email specified'
-        );
-        System.assert(
-            !recuni.addRecordValue(cnt2),
-            'It should have prevented the record value from being re-added'
-        );
     }
 
     @isTest
@@ -248,6 +204,39 @@ public class UtilsTest {
     }
 
     @isTest
+    static void recordTypeInvocableProcessor() {
+        Schema.Account acc = new Schema.Account(Name = 'Test');
+
+        insert acc;
+
+        Test.startTest();
+
+        RecordTypeInvocableProcessor.Request req = new RecordTypeInvocableProcessor.Request();
+
+        req.recordId = acc.Id;
+        req.recordTypeName = 'Test';
+
+        RecordTypeInvocableProcessor.execute(new List<RecordTypeInvocableProcessor.Request>{ req });
+
+        Test.stopTest();
+
+        System.assertEquals(acc.Id, [SELECT Id FROM Account WHERE Name = :acc.Name LIMIT 1].Id);
+    }
+
+    @isTest
+    static void requireNonNull() {
+        String message = 'Something is required';
+
+        try {
+            Utils.requireNonNull((Schema.Account) null, message);
+
+            System.assert(false, 'It should have thrown a NullPointerException');
+        } catch (NullPointerException e) {
+            System.assertEquals(message, e.getMessage());
+        }
+    }
+
+    @isTest
     static void sleep() {
         Long start = System.currentTimeMillis();
 
@@ -256,5 +245,83 @@ public class UtilsTest {
         Long elapsed = System.currentTimeMillis() - start;
 
         System.assert(elapsed >= 3000, 'It should have slept for about 3 seconds');
+    }
+
+    @isTest
+    static void triggerHandler() {
+        // Enablement
+        System.Type stype = AccountTriggerHandlerTest.class;
+        List<Schema.Cs_TriggerHandlerRoutine__c> records;
+
+        TriggerHandler.enable(stype);
+
+        records = [
+            SELECT Name, Is_Disabled__c, SObjectType__c
+            FROM Cs_TriggerHandlerRoutine__c
+            WHERE ClassName__c = :stype.getName()
+        ];
+
+        System.assert(!records.isEmpty(), 'Routine record should have been present');
+        System.assert(!records[0].Is_Disabled__c, 'Routine record should have been enabled');
+        System.assertEquals(String.valueOf(Schema.Account.SObjectType), records[0].SObjectType__c);
+
+        TriggerHandler.disable(stype);
+
+        records = [
+            SELECT Name, Is_Disabled__c
+            FROM Cs_TriggerHandlerRoutine__c
+            WHERE ClassName__c = :stype.getName()
+        ];
+
+        System.assert(records[0].Is_Disabled__c, 'Routine record should have been disabled');
+
+        // Tagging
+        AccountTriggerHandlerTest handler = new AccountTriggerHandlerTest();
+
+        handler.tag(records[0].Id);
+
+        System.assert(handler.isTagged(records[0].Id), 'Id should have been tagged');
+
+        handler.untag(records[0].Id);
+
+        System.assert(!handler.isTagged(records[0].Id), 'Id should have been untagged');
+    }
+
+    @isTest
+    static void uniquifiers() {
+        Utils.ValueUniquifier uni = new Utils.ValueUniquifier();
+
+        uni.addValue('A');
+        uni.addValue('B');
+        uni.addValue('C');
+
+        System.assertEquals(3, uni.getValues().size());
+
+        System.assert(!uni.addValue('A'), 'It should have prevented the value from being re-added');
+
+        Schema.Contact cnt1 = new Schema.Contact(
+            LastName = 'Contact1',
+            Email = 'example@example.com'
+        );
+        Schema.Contact cnt2 = new Schema.Contact(
+            LastName = 'Contact2',
+            Email = 'example@example.com'
+        );
+        Schema.Contact cnt3 = new Schema.Contact(LastName = 'Contact2', Email = 'demo@example.com');
+        Utils.RecordValueUniquifier recuni = new Utils.RecordValueUniquifier(Contact.Email);
+
+        System.assertEquals(cnt3.Email, recuni.getRecordValue(cnt3));
+
+        recuni.addRecordValue(cnt1);
+
+        System.assertEquals(1, recuni.getValues().size());
+        System.assert(
+            recuni.getRecord('example@example.com') != null,
+            'It should have returned the record by the email specified'
+        );
+        System.assert(
+            !recuni.addRecordValue(cnt2),
+            'It should have prevented the record value from being re-added'
+        );
     }
 }
