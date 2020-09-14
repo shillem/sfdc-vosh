@@ -53,16 +53,6 @@ global inherited sharing class Soqler {
         }
     }
 
-    private class ConverterDate extends Converter {
-        override String convertName(String value) {
-            return 'DAY_ONLY(' + value + ')';
-        }
-
-        override String convertValue(Object value) {
-            return JSON.serialize(value).removeStart('"').removeEnd('"');
-        }
-    }
-
     private class ConverterDateTime extends Converter {
         override String convertValue(Object value) {
             return JSON.serialize(value).removeStart('"').removeEnd('"');
@@ -70,6 +60,10 @@ global inherited sharing class Soqler {
     }
 
     private class ConverterDateTimeDate extends Converter {
+        override String convertName(String value) {
+            return 'DAY_ONLY(' + value + ')';
+        }
+
         override String convertValue(Object value) {
             return JSON.serialize(((Datetime) value).dateGmt()).removeStart('"').removeEnd('"');
         }
@@ -830,7 +824,6 @@ global inherited sharing class Soqler {
         }
     }
 
-    private static final Converter C_DATE = new ConverterDate();
     private static final Converter C_DATE_TIME = new ConverterDateTime();
     private static final Converter C_DATE_TIME_DATE = new ConverterDateTimeDate();
     private static final Converter C_OBJECT = new Converter();
@@ -1075,13 +1068,13 @@ global inherited sharing class Soqler {
 
     private static Converter getValueConverter(Schema.SObjectField field, Object value) {
         if (value instanceof Date) {
-            return C_DATE;
+            return Utils.getDescriber().getFieldDescribe(field).getType() == DisplayType.DATETIME
+                ? C_DATE_TIME_DATE
+                : C_DATE_TIME;
         }
 
         if (value instanceof Datetime) {
-            return DisplayType.DATE == Utils.getDescriber().getFieldDescribe(field).getType()
-                ? C_DATE_TIME_DATE
-                : C_DATE_TIME;
+            return C_DATE_TIME_DATE;
         }
 
         if (value instanceof String) {

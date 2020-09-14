@@ -179,6 +179,14 @@ global class TestUtils {
         }
 
         /**
+         * @see #make(Map<Schema.SObjectField, Object>) make
+         * @since 1.0.4
+         */
+        global List<SObject> make() {
+            return make(new Map<Schema.SObjectField, Object>());
+        }
+
+        /**
          * It generates all the <code>SObject</code> records according to the currently set options.
          * By default the records will be automatically inserted. To prevent this behaviour disable
          * auto-insert.
@@ -187,28 +195,35 @@ global class TestUtils {
          * the <code>SObjectType</code> followed by the consecutive number of the number of records
          * generated.
          *
+         * @param values custom fixed field values
          * @return the <code>SObject</code> records generated
          * @see #setAutoInsert(Boolean) setAutoInsert
          * @see #setCount(Boolean) setCount
          * @see #setName(Boolean) setName
-         * @since 1.0.4
+         * @since 1.0.5
          */
-        global List<SObject> make() {
-            List<SObject> values = new List<SObject>();
+        global List<SObject> make(Map<Schema.SObjectField, Object> values) {
+            List<SObject> records = new List<SObject>();
 
             for (Integer i = 0; i < count; i++) {
-                values.add(makeOne(i));
+                records.add(makeOne(i, values));
             }
 
             if (autoInsert) {
-                insert values;
+                insert records;
             }
 
-            return values;
+            return records;
         }
 
-        virtual SObject makeOne(Integer index) {
-            return type.newSObject();
+        virtual SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
+            SObject instance = type.newSObject();
+
+            for (Schema.SObjectField field : values.keySet()) {
+                instance.put(field, values.get(field));
+            }
+
+            return instance;
         }
 
         /**
@@ -269,8 +284,8 @@ global class TestUtils {
             super(Schema.Account.SObjectType);
         }
 
-        override SObject makeOne(Integer index) {
-            Schema.Account obj = (Schema.Account) super.makeOne(index);
+        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
+            Schema.Account obj = (Schema.Account) super.makeOne(index, values);
             obj.Name = name + index;
             return obj;
         }
@@ -283,8 +298,8 @@ global class TestUtils {
             super(Schema.Contact.SObjectType);
         }
 
-        override SObject makeOne(Integer index) {
-            Schema.Contact obj = (Schema.Contact) super.makeOne(index);
+        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
+            Schema.Contact obj = (Schema.Contact) super.makeOne(index, values);
             obj.FirstName = firstName;
             obj.LastName = name + index;
             return obj;
@@ -309,8 +324,8 @@ global class TestUtils {
             super(Schema.Event.SObjectType);
         }
 
-        override SObject makeOne(Integer index) {
-            Schema.Event obj = (Schema.Event) super.makeOne(index);
+        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
+            Schema.Event obj = (Schema.Event) super.makeOne(index, values);
             obj.StartDateTime = Datetime.now().addDays(index);
             obj.EndDateTime = obj.StartDateTime.addHours(1);
             obj.Subject = name + index;
@@ -350,8 +365,8 @@ global class TestUtils {
                 .generate();
         }
 
-        override SObject makeOne(Integer index) {
-            Schema.User obj = (Schema.User) super.makeOne(index);
+        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
+            Schema.User obj = (Schema.User) super.makeOne(index, values);
             obj.Email = name + '@' + randomain + '.rnd';
             obj.EmailEncodingKey = 'UTF-8';
             obj.FirstName = firstName;
