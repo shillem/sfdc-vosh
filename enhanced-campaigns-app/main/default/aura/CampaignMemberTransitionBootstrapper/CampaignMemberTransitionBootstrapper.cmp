@@ -1,0 +1,18 @@
+<aura:component
+    implements="force:hasRecordId,lightning:actionOverride,lightning:hasPageReference"
+    controller="CampaignMemberTransitionController"
+    access="global"
+>
+    <!-- Private Attributes -->
+    <aura:attribute name="campaignId" type="Id" access="private" />
+
+    <!-- Handlers -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <!-- Html -->
+    <c:utils aura:id="utils" />
+
+    <c:auraModal aura:id="modal" onaction="{!c.handleModalAction}" opened="true" loading="true">
+        <c:CampaignMemberTransitionLayout aura:id="form" recordId="{!v.recordId}" />
+    </c:auraModal>
+</aura:component>

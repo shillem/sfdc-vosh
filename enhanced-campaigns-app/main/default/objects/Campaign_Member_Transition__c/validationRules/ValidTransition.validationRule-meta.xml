@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ValidTransition</fullName>
+    <active>true</active>
+    <errorConditionFormula>Initial_Status__c = Final_Status__c</errorConditionFormula>
+    <errorMessage>Initial and final status cannot be the same</errorMessage>
+</ValidationRule>

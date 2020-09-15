@@ -31,6 +31,7 @@
             "type": "pickString",
             "description": "Select the directory that contains the contents of the package.",
             "options": [
+                "enhanced-campaigns-app",
                 "extended-ui-app",
                 "utils-app"
             ]

@@ -1,0 +1,5 @@
+<design:component label="Campaign Member Transition Bootstrapper">
+    <sfdc:objects>
+        <sfdc:object>Campaign_Member_Transition__c</sfdc:object>
+    </sfdc:objects>
+</design:component>
