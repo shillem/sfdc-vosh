@@ -33,6 +33,7 @@
             "options": [
                 "enhanced-campaigns-app",
                 "extended-ui-app",
+                "maps-api-app",
                 "utils-app"
             ]
         }

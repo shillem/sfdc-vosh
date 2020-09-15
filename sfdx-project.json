@@ -37,6 +37,18 @@
                     "versionNumber": "1.0.0.LATEST"
                 }
             ]
+        },
+        {
+            "path": "maps-api-app",
+            "package": "Vosh Maps Api",
+            "versionNumber": "1.0.0.NEXT",
+            "default": false,
+            "dependencies": [
+                {
+                    "package": "Vosh Utils",
+                    "versionNumber": "1.0.5.LATEST"
+                }
+            ]
         }
     ],
     "namespace": "vosh",
@@ -47,6 +59,8 @@
         "Vosh Enhanced Campaigns@1.0.0-4": "04t3V0000002tJuQAI",
         "Vosh Extended UI": "0Ho3V000000XZAlSAO",
         "Vosh Extended UI@1.0.0-1": "04t3V0000002tJaQAI",
+        "Vosh Maps Api": "0Ho3V000000XZAgSAO",
+        "Vosh Maps Api@1.0.0-1": "04t3V0000002tIwQAI",
         "Vosh Utils": "0Ho3V000000XZAHSA4",
         "Vosh Utils@1.0.5-2": "04t3V0000002tJVQAY"
     }
