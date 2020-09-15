@@ -1,0 +1,162 @@
+<template>
+    <label if:true={label} class="slds-form-element__label" for="combobox">
+        <abbr if:true={required} class="slds-required" title="required">*</abbr>
+        {label}
+    </label>
+
+    <lightning-helptext if:true={fieldLevelHelp} content={fieldLevelHelp}></lightning-helptext>
+
+    <div class="slds-form-element__control">
+        <div class="slds-combobox_container">
+            <div
+                class={dropdownClass}
+                aria-expanded={expanded}
+                aria-haspopup="listbox"
+                role="combobox"
+            >
+                <div
+                    class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
+                    role="none"
+                >
+                    <div
+                        aria-autocomplete="list"
+                        class="slds-input slds-combobox__input slds-combobox__input-value"
+                        id="combobox"
+                        onclick={handleComboboxFocus}
+                    >
+                        <span if:true={empty} class="slds-text-color_weak">
+                            {placeholder}
+                        </span>
+                        <div if:false={empty} class="slds-media">
+                            <span class="slds-media__body">
+                                <span class="slds-truncate" title={selection.label}>
+                                    {selection.label}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <div
+                        class="slds-input__icon-group slds-input__icon-group_right"
+                        onclick={handleComboboxIconClick}
+                    >
+                        <lightning-icon
+                            class={comboboxIconClass}
+                            icon-name={comboboxIcon}
+                            size="xx-small"
+                        ></lightning-icon>
+                    </div>
+                </div>
+                <div
+                    id="listbox"
+                    class={listboxClass}
+                    onmousedown={handleListboxMouseDown}
+                    role="listbox"
+                >
+                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                        <li role="presentation" class="slds-listbox__item">
+                            <div
+                                class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_term"
+                                role="option"
+                            >
+                                <span class="slds-media__figure slds-listbox__option-icon">
+                                    <lightning-icon
+                                        icon-name="utility:search"
+                                        size="x-small"
+                                    ></lightning-icon>
+                                </span>
+                                <span class="slds-media__body">
+                                    <div
+                                        class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right"
+                                        role="none"
+                                    >
+                                        <input
+                                            autocomplete="off"
+                                            class="slds-input"
+                                            type="text"
+                                            onblur={handleInputBlur}
+                                            oninput={handleInputChange}
+                                            onkeydown={handleInputKeyDown}
+                                            onmousedown={handleInputMouseDown}
+                                            placeholder={inputPlaceholder}
+                                        />
+
+                                        <div
+                                            class="slds-input__icon-group slds-input__icon-group_right"
+                                        >
+                                            <div
+                                                if:true={loading}
+                                                class="slds-spinner slds-spinner_x-small slds-input__spinner"
+                                                role="status"
+                                            >
+                                                <span class="slds-assistive-text">Loading</span>
+                                                <div class="slds-spinner__dot-a"></div>
+                                                <div class="slds-spinner__dot-b"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </div>
+                        </li>
+                        <template for:each={results} for:item="result">
+                            <li key={result.value} role="presentation" class="slds-listbox__item">
+                                <div
+                                    aria-disabled={result.disabled}
+                                    aria-message={result.message}
+                                    aria-selected={result.selected}
+                                    class={result.containerClass}
+                                    data-value={result.value}
+                                    role="option"
+                                    onmousedown={handleOptionClick}
+                                >
+                                    <span class="slds-media__figure slds-listbox__option-icon">
+                                        <lightning-icon
+                                            if:true={result.icon}
+                                            class={result.iconClass}
+                                            icon-name={result.icon}
+                                            size="small"
+                                        ></lightning-icon>
+                                    </span>
+                                    <span if:false={result.meta} class="slds-media__body">
+                                        <span
+                                            class="slds-media__figure slds-listbox__option-icon"
+                                        ></span>
+                                        <span class="slds-media__body">
+                                            <span class="slds-truncate" title={result.label}>
+                                                <lightning-formatted-rich-text
+                                                    value={result.label_matched}
+                                                ></lightning-formatted-rich-text>
+                                            </span>
+                                        </span>
+                                    </span>
+                                    <span if:true={result.meta} class="slds-media__body">
+                                        <span
+                                            class="slds-listbox__option-text slds-listbox__option-text_entity"
+                                            ><lightning-formatted-rich-text
+                                                value={result.label_matched}
+                                            ></lightning-formatted-rich-text>
+                                        </span>
+                                        <span
+                                            class="slds-listbox__option-meta slds-listbox__option-meta_entity"
+                                            ><lightning-formatted-rich-text
+                                                value={result.meta_matched}
+                                            ></lightning-formatted-rich-text>
+                                        </span>
+                                    </span>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        if:false={validation}
+        aria-live="assertive"
+        class="slds-form-element__help"
+        data-help-text="true"
+    >
+        {validationMessage}
+    </div>
+</template>

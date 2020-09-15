@@ -1,0 +1,16 @@
+<aura:component access="global">
+
+    <aura:attribute name="left" type="Aura.Component[]" />
+    <aura:attribute name="right" type="Aura.Component[]" />
+
+    <div class="slds-form__row">
+        <div class="slds-form__item" role="listitem">
+            {!v.left}
+        </div>
+
+        <div class="slds-form__item" role="listitem">
+            {!v.right}
+        </div>
+    </div>
+
+</aura:component>	

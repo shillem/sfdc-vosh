@@ -9,12 +9,26 @@
             "package": "Vosh Utils",
             "versionNumber": "1.0.5.NEXT",
             "default": false
+        },
+        {
+            "path": "extended-ui-app",
+            "package": "Vosh Extended UI",
+            "versionNumber": "1.0.0.NEXT",
+            "default": false,
+            "dependencies": [
+                {
+                    "package": "Vosh Utils",
+                    "versionNumber": "1.0.5.LATEST"
+                }
+            ]
         }
     ],
     "namespace": "vosh",
     "sfdcLoginUrl": "https://login.salesforce.com",
     "sourceApiVersion": "49.0",
     "packageAliases": {
+        "Vosh Extended UI": "0Ho3V000000XZAlSAO",
+        "Vosh Extended UI@1.0.0-1": "04t3V0000002tJaQAI",
         "Vosh Utils": "0Ho3V000000XZAHSA4",
         "Vosh Utils@1.0.5-2": "04t3V0000002tJVQAY"
     }

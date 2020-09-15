@@ -1,0 +1,103 @@
+<template>
+    <section
+        aria-modal="true"
+        aria-hidden={closed}
+        class={sectionClass}
+        role="dialog"
+        tabindex="-1"
+    >
+        <div if:true={opened} class="slds-modal__container">
+            <header class={headerClass}>
+                <lightning-button-icon
+                    alternative-text={i18n.close}
+                    class="slds-modal__close"
+                    icon-name="utility:close"
+                    onclick={handleClose}
+                    size="large"
+                    title={i18n.close}
+                    variant="bare-inverse"
+                ></lightning-button-icon>
+
+                <h2 if:true={title} class="slds-text-heading_medium slds-hyphenate">
+                    {title}
+                </h2>
+
+                <p if:true={tagline} class="slds-m-top_x-small">
+                    {tagline}
+                </p>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium">
+                <div if:true={loading} class="slds-is-relative" style="height: 6rem;">
+                    <lightning-spinner alternative-text="..."></lightning-spinner>
+                </div>
+
+                <template if:false={loading}>
+                    <slot></slot>
+                </template>
+            </div>
+
+            <footer class="slds-modal__footer">
+                <div class="slds-grid slds-grid_vertical-align-center">
+                    <div class="slds-col slds-size_4-of-12 slds-text-align_left">
+                        <button
+                            if:true={subsequentStep}
+                            class="slds-button slds-button_neutral"
+                            title={i18n.previous}
+                            onclick={handleStepPrevious}
+                        >
+                            {i18n.previous}
+                        </button>
+                    </div>
+                    <div class="slds-col slds-text-align_center">
+                        <lightning-progress-indicator if:true={hasSteps} current-step={step}>
+                            <template for:each={steps} for:item="step">
+                                <lightning-progress-step
+                                    key={step.value}
+                                    label={step.label}
+                                    value={step.value}
+                                ></lightning-progress-step>
+                            </template>
+                        </lightning-progress-indicator>
+                    </div>
+                    <div class="slds-col slds-size_4-of-12">
+                        <template if:false={hasActions}>
+                            <button
+                                class="slds-button slds-button_neutral"
+                                onclick={handleClose}
+                                title={i18n.cancel}
+                            >
+                                {i18n.cancel}
+                            </button>
+
+                            <button
+                                if:true={lastStep}
+                                class="slds-button slds-button_brand"
+                                disabled={disabled}
+                                onclick={handleOk}
+                                title={i18n.ok}
+                            >
+                                {i18n.ok}
+                            </button>
+
+                            <button
+                                if:false={lastStep}
+                                class="slds-button slds-button_brand"
+                                onclick={handleStepNext}
+                                title={i18n.next}
+                            >
+                                {i18n.next}
+                            </button>
+                        </template>
+
+                        <template if:true={hasActions}>
+                            <slot name="actions" onslotchange={handleActionsSlotChange}></slot>
+                        </template>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </section>
+
+    <div class={backdropClass}></div>
+</template>
