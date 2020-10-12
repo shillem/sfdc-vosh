@@ -367,18 +367,19 @@ global class TestUtils {
 
         override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
             Schema.User obj = (Schema.User) super.makeOne(index, values);
-            obj.Email = name + '@' + randomain + '.rnd';
             obj.EmailEncodingKey = 'UTF-8';
             obj.FirstName = firstName;
             obj.LanguageLocaleKey = 'en_US';
             obj.LastName = name + index;
-            obj.ProfileId = profileId;
             obj.TimeZoneSidKey = 'Europe/Rome';
-            obj.Username = obj.Email;
-
+            
             obj.Alias = obj.LastName.toLowerCase().right(8);
-            obj.CommunityNickname = obj.Alias + '.' + randomain;
+            obj.Email = obj.LastName.toLowerCase() + '@' + randomain + '.rnd';
             obj.LocaleSidKey = obj.LanguageLocaleKey;
+            obj.ProfileId = profileId;
+
+            obj.Username = obj.Email;
+            obj.CommunityNickname = obj.Alias + '.' + randomain;
             return obj;
         }
 

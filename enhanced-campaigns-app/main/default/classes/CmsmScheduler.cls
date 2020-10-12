@@ -163,7 +163,7 @@ global class CmsmScheduler implements Schedulable {
                     FROM Campaign_Member_Transitions__r
                 )
             FROM Campaign
-            WHERE IsActive = TRUE
+            WHERE IsActive = true
         ];
 
         TransitionProcessor processor = new TransitionProcessor();
