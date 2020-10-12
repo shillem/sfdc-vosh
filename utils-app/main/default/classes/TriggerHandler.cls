@@ -11,12 +11,6 @@ global inherited sharing class TriggerHandler {
      * @since 1.0.1
      */
     global abstract class Routine {
-        private final String className;
-
-        global Routine() {
-            this.className = Utils.getClassName(this);
-        }
-
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>AFTER_DELETE</code>.
@@ -87,10 +81,6 @@ global inherited sharing class TriggerHandler {
         global virtual void beforeUpdate(SObject stored, SObject memory) {
         }
 
-        private String createIdentifier(Id recordId, String suffix) {
-            return className + recordId + suffix;
-        }
-
         /**
          * It executes the implemented logic on the records passed
          * in the <code>Trigger</code> context.
@@ -150,37 +140,43 @@ global inherited sharing class TriggerHandler {
         global abstract Schema.SObjectType getSObjectType();
 
         /**
-         * It checks whether a given record id has been tagged.
-         * <p>
-         * Trigger logic can be tricky to write. A trigger might be invoked multiple times
-         * on the same record depending on what the implementing class or other triggers do.
-         * To prevent a trigger to be run on a previously processed record it's possible to tag its
-         * id and later check for its presence in order to skip reprocessing it.
+         * It returns a set of record ids that have been tagged under the given key.
          * 
-         * @param recordId the record id to check
-         * @return true if the record is tagged, otherwise false
+         * @param key an arbitrary key string
+         * @return the set containing the tagged ids
          * @see #isTagged(Id, String) isTagged
-         * @see #tag(Id) tag
-         * @see #untag(Id) untag
-         * @since 1.0.3
+         * @see #tag(Id, String) tag
+         * @since 1.0.7
          */
-        global Boolean isTagged(Id recordId) {
-            return isTagged(recordId, '');
+        global Set<Id> getTags(String key) {
+            Set<Id> values = TAGS.get(key);
+
+            if (values == null) {
+                values = new Set<Id>();
+
+                TAGS.put(key, values);
+            }
+
+            return values;
         }
 
         /**
          * It checks whether a given record id has been tagged.
+         * <p>
+         * Trigger logic can be tricky to write. A trigger might be invoked multiple times
+         * on the same record depending on what the implementing class or other triggers do.
+         * To prevent a trigger to be run on a previously processed record it's possible to tag said
+         * record id and later check for its presence in order to skip reprocessing it.
          * 
          * @param recordId the record id to check
-         * @param suffix an arbitrary string to couple the id with and ensure its uniqueness across different trigger logic invocations
+         * @param key an arbitrary key string to file the id under
          * @return true if the record is tagged, otherwise false
-         * @see #isTagged(Id) isTagged
-         * @see #tag(Id) tag
-         * @see #untag(Id) tag
+         * @see #tag(Id, String) tag
+         * @see #untag(Id, String) tag
          * @since 1.0.3
          */
-        global Boolean isTagged(Id recordId, String suffix) {
-            return TAGS.contains(createIdentifier(recordId, suffix));
+        global Boolean isTagged(Id recordId, String key) {
+            return getTags(key).contains(recordId);
         }
 
         /**
@@ -205,53 +201,30 @@ global inherited sharing class TriggerHandler {
          * It tags a given record id.
          * 
          * @param recordId the record id to check
-         * @see #isTagged(Id) isTagged
+         * @param key an arbitrary key string to file the id under
+         * @see #isTagged(Id, String) isTagged
+         * @see #tag(Id, String) tag
          * @since 1.0.3
          */
-        global void tag(Id recordId) {
-            tag(recordId, '');
-        }
-
-        /**
-         * It tags a given record id.
-         * 
-         * @param recordId the record id to check
-         * @param suffix an arbitrary string to couple the id with and ensure its uniqueness across different trigger logic invocations
-         * @see #isTagged(Id) isTagged
-         * @see #tag(Id) tag
-         * @since 1.0.3
-         */
-        global void tag(Id recordId, String suffix) {
-            TAGS.add(createIdentifier(recordId, suffix));
+        global void tag(Id recordId, String key) {
+            getTags(key).add(recordId);
         }
 
         /**
          * It untags a given record id.
          * 
          * @param recordId the record id to check
-         * @see #isTagged(Id) isTagged
+         * @param key an arbitrary key string to file the id under
+         * @see #isTagged(Id, String) isTagged
          * @see #untag(Id, String) untag
          * @since 1.0.3
          */
-        global void untag(Id recordId) {
-            untag(recordId, '');
-        }
-
-        /**
-         * It untags a given record id.
-         * 
-         * @param recordId the record id to check
-         * @param suffix an arbitrary string to couple the id with and ensure its uniqueness across different trigger logic invocations
-         * @see #isTagged(Id) isTagged
-         * @see #untag(Id) untag
-         * @since 1.0.3
-         */
-        global void untag(Id recordId, String suffix) {
-            TAGS.remove(createIdentifier(recordId, suffix));
+        global void untag(Id recordId, String key) {
+            getTags(key).remove(recordId);
         }
     }
 
-    private static final Set<String> TAGS = new Set<String>();
+    private static final Map<String, Set<Id>> TAGS = new Map<String, Set<Id>>();
 
     /**
      * Invokes any <code>TriggerHandler.Routine</code> extending classes that have been enabled,

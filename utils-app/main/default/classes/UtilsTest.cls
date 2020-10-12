@@ -276,15 +276,16 @@ public class UtilsTest {
         System.assert(records[0].Is_Disabled__c, 'Routine record should have been disabled');
 
         // Tagging
+        String key = 'any';
         AccountTriggerHandlerTest handler = new AccountTriggerHandlerTest();
 
-        handler.tag(records[0].Id);
+        handler.tag(records[0].Id, key);
 
-        System.assert(handler.isTagged(records[0].Id), 'Id should have been tagged');
+        System.assert(handler.isTagged(records[0].Id, key), 'Id should have been tagged');
 
-        handler.untag(records[0].Id);
+        handler.untag(records[0].Id, key);
 
-        System.assert(!handler.isTagged(records[0].Id), 'Id should have been untagged');
+        System.assert(!handler.isTagged(records[0].Id, key), 'Id should have been untagged');
     }
 
     @isTest
