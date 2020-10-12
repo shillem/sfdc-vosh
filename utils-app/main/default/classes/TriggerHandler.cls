@@ -146,9 +146,9 @@ global inherited sharing class TriggerHandler {
          * @return the set containing the tagged ids
          * @see #isTagged(Id, String) isTagged
          * @see #tag(Id, String) tag
-         * @since 1.0.7
+         * @since 1.0.8
          */
-        global Set<Id> getTags(String key) {
+        global Set<Id> getTaggedIds(String key) {
             Set<Id> values = TAGS.get(key);
 
             if (values == null) {
@@ -176,7 +176,7 @@ global inherited sharing class TriggerHandler {
          * @since 1.0.3
          */
         global Boolean isTagged(Id recordId, String key) {
-            return getTags(key).contains(recordId);
+            return getTaggedIds(key).contains(recordId);
         }
 
         /**
@@ -207,7 +207,7 @@ global inherited sharing class TriggerHandler {
          * @since 1.0.3
          */
         global void tag(Id recordId, String key) {
-            getTags(key).add(recordId);
+            getTaggedIds(key).add(recordId);
         }
 
         /**
@@ -220,7 +220,7 @@ global inherited sharing class TriggerHandler {
          * @since 1.0.3
          */
         global void untag(Id recordId, String key) {
-            getTags(key).remove(recordId);
+            getTaggedIds(key).remove(recordId);
         }
     }
 
