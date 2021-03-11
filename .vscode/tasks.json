@@ -9,7 +9,7 @@
             "options": {
                 "cwd": "${workspaceRoot}"
             },
-            "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub"
+            "command": "sfdx force:package:version:create -c -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub"
         },
         {
             "label": "sfdx-create-package-version-with-no-validation",
