@@ -265,6 +265,8 @@ public class UtilsTest {
         System.assert(!records[0].Is_Disabled__c, 'Routine record should have been enabled');
         System.assertEquals(String.valueOf(Schema.Account.SObjectType), records[0].SObjectType__c);
 
+        TriggerHandler.execute(Schema.Account.SObjectType);
+
         TriggerHandler.disable(stype);
 
         records = [

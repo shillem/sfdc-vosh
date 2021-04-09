@@ -395,6 +395,19 @@ global class TestUtils {
     }
 
     /**
+     * It assigns the user the permission set provided.
+     *
+     * @param name the user id
+     * @return the permission set name
+     * @since 1.0.9
+     */
+    global static void assignPermission(String name, Id userId) {
+        Schema.PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = :name];
+
+        insert new Schema.PermissionSetAssignment(AssigneeId = opUser.id, PermissionSetId = ps.Id);
+    }
+
+    /**
      * It returns the profile id of the profile name provided.
      *
      * @param name the profile name
