@@ -23,6 +23,38 @@
             ]
         },
         {
+            "path": "authorization-codes-app",
+            "package": "Vosh Authorization Codes",
+            "versionNumber": "1.0.0.NEXT",
+            "default": false,
+            "dependencies": [
+                {
+                    "package": "Vosh Utils",
+                    "versionNumber": "1.0.8.LATEST"
+                }
+            ]
+        },
+        {
+            "path": "privacy-manager-app",
+            "package": "Vosh Privacy Manager",
+            "versionNumber": "1.0.0.NEXT",
+            "default": false,
+            "dependencies": [
+                {
+                    "package": "Vosh Utils",
+                    "versionNumber": "1.0.8.LATEST"
+                },
+                {
+                    "package": "Vosh Extended UI",
+                    "versionNumber": "1.0.0.LATEST"
+                },
+                {
+                    "package": "Vosh Authorization Codes",
+                    "versionNumber": "1.0.0.LATEST"
+                }
+            ]
+        },
+        {
             "path": "enhanced-campaigns-app",
             "package": "Vosh Enhanced Campaigns",
             "versionNumber": "1.0.3.NEXT",

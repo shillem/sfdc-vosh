@@ -1,0 +1,62 @@
+<template>
+    <lightning-card>
+        <span slot="title" class="slds-card__header-title">Privacy Console</span>
+        <div class="slds-card__body_inner">
+            <lightning-spinner
+                if:true={loading}
+                alternative-text="Loading"
+                size="small"
+            ></lightning-spinner>
+
+            <template if:true={unauthorized}>
+                <p>
+                    In order to access the console you must confirm your identity by type the
+                    authorization code deliverable to your email address:
+                </p>
+
+                <lightning-input
+                    label="Authorization Code"
+                    max-length="6"
+                    data-id="auth_code"
+                    onchange={handleInputCode}
+                    required
+                ></lightning-input>
+
+                <div class="slds-m-top_small">
+                    <lightning-button
+                        class="slds-m-right_small"
+                        label="Verify"
+                        onclick={handleSubmitCode}
+                        variant="brand"
+                    ></lightning-button>
+                    <a onclick={generateNewCode}>Send a new authorization code</a>
+                </div>
+            </template>
+
+            <template if:true={authorized}>
+                <p><strong>{snapshot.name.label}</strong>: {snapshot.name.value}</p>
+                <p><strong>{snapshot.email.label}</strong>: {snapshot.email.value}</p>
+
+                <lightning-tabset>
+                    <lightning-tab label="Privacy">
+                        coming soon
+                    </lightning-tab>
+                    <lightning-tab label="Forms">
+                        coming soon
+                    </lightning-tab>
+                    <lightning-tab label="Subscriptions">
+                        <ul>
+                            <template for:each={snapshot.subscriptions} for:item="sub">
+                                <li key={sub.nameId}>{sub.name}</li>
+                            </template>
+                        </ul>
+                    </lightning-tab>
+                </lightning-tabset>
+            </template>
+
+            <template if:true={error}>
+                {error}
+            </template>
+        </div>
+    </lightning-card>
+</template>
