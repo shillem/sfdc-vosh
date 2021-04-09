@@ -13,11 +13,6 @@
         },
         "schemaSettings": {
             "enableListCustomSettingCreation": true
-        },
-        "securitySettings": {
-            "passwordPolicies": {
-                "enableSetPasswordInApi": true
-            }
         }
     }
 }
