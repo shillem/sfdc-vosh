@@ -1,7 +1,7 @@
 <aura:component access="global">
-
-    <aura:attribute name="left" type="Aura.Component[]" />
-    <aura:attribute name="right" type="Aura.Component[]" />
+    <!-- Global Attributes -->
+    <aura:attribute access="global" name="left" type="Aura.Component[]" />
+    <aura:attribute access="global" name="right" type="Aura.Component[]" />
 
     <div class="slds-form__row">
         <div class="slds-form__item" role="listitem">

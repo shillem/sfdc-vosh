@@ -7,13 +7,13 @@
         {
             "path": "utils-app",
             "package": "Vosh Utils",
-            "versionNumber": "1.0.8.NEXT",
+            "versionNumber": "1.0.9.NEXT",
             "default": false
         },
         {
             "path": "extended-ui-app",
             "package": "Vosh Extended UI",
-            "versionNumber": "1.0.0.NEXT",
+            "versionNumber": "1.0.1.NEXT",
             "default": false,
             "dependencies": [
                 {

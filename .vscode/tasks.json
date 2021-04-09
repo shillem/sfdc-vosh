@@ -4,6 +4,14 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "sfdx-check-limits",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "command": "sfdx force:limits:api:display -u VoshDevHub"
+        },
+        {
             "label": "sfdx-create-package-version",
             "type": "shell",
             "options": {
