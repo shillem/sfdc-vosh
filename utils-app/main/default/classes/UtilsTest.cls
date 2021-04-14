@@ -82,12 +82,19 @@ public class UtilsTest {
 
     @isTest
     static void fieldLevelSecurity() {
+        Schema.Profile insufficientProfile = [
+            SELECT Id
+            FROM Profile
+            WHERE UserType = 'CsnOnly'
+            LIMIT 1
+        ];
+
         Schema.User insufficientUser;
 
         System.runAs(TestUtils.getUser()) {
             // Generating user
             insufficientUser = (Schema.User) new TestUtils.UserMaker()
-                .setProfileId(TestUtils.getProfileId('Read Only'))
+                .setProfileId(insufficientProfile.Id)
                 .setName('Insufficient')
                 .setCount(1)
                 .make()
@@ -97,10 +104,10 @@ public class UtilsTest {
         Test.startTest();
 
         Fls sec = new Fls(Schema.Contact.SObjectType, System.AccessType.UPDATABLE)
-        .queue(
-            new Set<Schema.SObjectField>{ Schema.Contact.FirstName, Schema.Contact.LastName }
-        )
-        .queue(Schema.Contact.Title);
+            .queue(
+                new Set<Schema.SObjectField>{ Schema.Contact.FirstName, Schema.Contact.LastName }
+            )
+            .queue(Schema.Contact.Title);
 
         Fls.Report rep;
 
@@ -264,6 +271,8 @@ public class UtilsTest {
         System.assert(!records.isEmpty(), 'Routine record should have been present');
         System.assert(!records[0].Is_Disabled__c, 'Routine record should have been enabled');
         System.assertEquals(String.valueOf(Schema.Account.SObjectType), records[0].SObjectType__c);
+
+        TriggerHandler.execute(Schema.Account.SObjectType);
 
         TriggerHandler.disable(stype);
 

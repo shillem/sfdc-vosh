@@ -1,19 +1,20 @@
 <aura:component access="global">
-    <!-- Public Attributes -->
-    <aura:attribute name="actions" type="Aura.Component[]" />
+    <!-- Global Attributes -->
+    <aura:attribute access="global" name="actions" type="Aura.Component[]" />
     <aura:attribute
+        access="global" 
         name="i18n"
         type="Map"
         default="{ cancel: 'Cancel', close: 'Close', next: 'Next', ok: 'OK', previous: 'Previous' }"
     />
-    <aura:attribute name="disabled" type="Boolean" />
-    <aura:attribute name="loading" type="Boolean" />
-    <aura:attribute name="opened" type="Boolean" />
-    <aura:attribute name="size" type="String" />
-    <aura:attribute name="step" type="String" />
-    <aura:attribute name="steps" type="List" />
-    <aura:attribute name="tagline" type="String" />
-    <aura:attribute name="title" type="String" />
+    <aura:attribute access="global" name="disabled" type="Boolean" />
+    <aura:attribute access="global" name="loading" type="Boolean" />
+    <aura:attribute access="global" name="opened" type="Boolean" />
+    <aura:attribute access="global" name="size" type="String" />
+    <aura:attribute access="global" name="step" type="String" />
+    <aura:attribute access="global" name="steps" type="List" />
+    <aura:attribute access="global" name="tagline" type="String" />
+    <aura:attribute access="global" name="title" type="String" />
 
     <!-- Private Attributes -->
     <aura:attribute name="backdropClass" type="String" access="private" default="slds-backdrop" />
@@ -27,7 +28,7 @@
     />
 
     <!-- Events -->
-    <aura:registerEvent name="onaction" type="c:componentEvent" />
+    <aura:registerEvent access="global" name="onaction" type="c:ComponentEvent" />
 
     <!-- Handlers -->
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />

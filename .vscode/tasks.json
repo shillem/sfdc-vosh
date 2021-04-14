@@ -4,12 +4,20 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "sfdx-check-limits",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "command": "sfdx force:limits:api:display -u VoshDevHub"
+        },
+        {
             "label": "sfdx-create-package-version",
             "type": "shell",
             "options": {
                 "cwd": "${workspaceRoot}"
             },
-            "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub"
+            "command": "sfdx force:package:version:create -c -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub"
         },
         {
             "label": "sfdx-create-package-version-with-no-validation",
