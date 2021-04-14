@@ -2,9 +2,16 @@
 public class SoqlerTest {
     @testSetup
     static void init() {
+        Schema.Profile insufficientProfile = [
+            SELECT Id
+            FROM Profile
+            WHERE UserType = 'CsnOnly'
+            LIMIT 1
+        ];
+
         // Generating user
         Schema.User insufficientUser = (Schema.User) new TestUtils.UserMaker()
-            .setProfileId(TestUtils.getProfileId('Read Only'))
+            .setProfileId(insufficientProfile.Id)
             .setName('Insufficient')
             .setCount(1)
             .setAutoInsert(false)
@@ -120,25 +127,20 @@ public class SoqlerTest {
 
         System.runAs(insufficientUser) {
             Soqler query = new Soqler(Schema.Contact.SObjectType);
-            Schema.SObjectField forbiddenField = Schema.Contact.HasOptedOutOfEmail;
+            Schema.SObjectField forbiddenField = Schema.Contact.Name;
 
-            query.fields().add(Schema.Contact.Name).add(forbiddenField);
+            query.fields().add(Schema.Contact.Name);
 
             try {
                 query.query();
 
                 System.assert(false, 'Query should have thrown a AuditException');
             } catch (Fls.AuditException e) {
-                System.assert(e.getMessage().contains(String.valueOf(forbiddenField)));
+                System.assert(
+                    e.getMessage().contains(String.valueOf(forbiddenField)),
+                    e.getMessage()
+                );
             }
-
-            query = new Soqler(Schema.Contact.SObjectType);
-
-            query.fields().add(Schema.Contact.Name).add(forbiddenField, true);
-
-            List<Schema.Contact> contacts = (List<Schema.Contact>) query.query();
-
-            System.assertEquals(0, contacts.size(), 'Query should have returned 0 contacts');
         }
 
         Test.stopTest();
