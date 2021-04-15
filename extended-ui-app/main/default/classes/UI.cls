@@ -1,4 +1,5 @@
 global class UI {
+    @JsonAccess(serializable='always' deserializable='always')
     global virtual class Field {
         // Description
         private final String label;
@@ -111,6 +112,7 @@ global class UI {
         }
     }
 
+    @JsonAccess(serializable='always' deserializable='always')
     global class FieldSObject extends Field {
         private transient SObjectField field;
         private transient Schema.DescribeFieldResult result;
@@ -140,6 +142,7 @@ global class UI {
         }
     }
 
+    @JsonAccess(serializable='always' deserializable='always')
     global class ListboxItem extends Utils.Entry implements Comparable {
         private Boolean disabled;
         private String icon;
@@ -184,6 +187,7 @@ global class UI {
         }
     }
 
+    @JsonAccess(serializable='always' deserializable='always')
     global class SObjectDescriptor {
         private final String label;
         private final String name;
