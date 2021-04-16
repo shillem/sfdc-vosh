@@ -179,6 +179,7 @@ global inherited sharing class Utils {
      *
      * @since 1.0.1
      */
+    @JsonAccess(serializable='always' deserializable='always')
     global virtual class Entry implements Comparable {
         private final String label;
         private final Object value;
