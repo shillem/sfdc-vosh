@@ -23,7 +23,9 @@ public class SoqlerTest {
         }
 
         // Generating accounts
-        List<SObject> accts = new TestUtils.AccountMaker().setCount(3).make();
+        List<SObject> accts = new TestUtils.AccountMaker()
+            .setCount(3)
+            .make(new Map<Schema.SObjectField, Object>{ Schema.Account.BillingCity => 'Rome' });
 
         // Generating contacts
         List<SObject> cnts = new TestUtils.ContactMaker().setCount(3).make();
@@ -81,6 +83,43 @@ public class SoqlerTest {
     }
 
     @isTest
+    static void queryAccountsAggregates() {
+        Soqler query = new Soqler(Schema.Account.SObjectType);
+        Soqler.IFieldName col = new Soqler.IFieldName(Schema.Account.Id);
+
+        try {
+            query.fields().add(col.withFunction('COUNT(Id)'));
+
+            System.assert(
+                false,
+                'Query should have thrown an exception due to function invalid syntax'
+            );
+        } catch (UnsupportedOperationException e) {
+            query.fields().add(col.withFunction('COUNT({0})'));
+        }
+
+        AggregateResult[] results = query.queryAggregates();
+
+        System.assertEquals(3, results[0].get('expr0'), 'Query should have counted 3 accounts');
+
+        query = new Soqler(Schema.Account.SObjectType);
+        query.fields().add(Schema.Account.BillingCity);
+        query.groups().add(Schema.Account.BillingCity);
+
+        results = query.queryAggregates();
+
+        System.assertEquals(
+            1,
+            results.size(),
+            'Query should have counted 1 unique BillingCity match'
+        );
+
+        for (AggregateResult result : results) {
+            System.assertEquals('Rome', result.get(String.valueOf(Schema.Account.BillingCity)));
+        }
+    }
+
+    @isTest
     static void queryEvents() {
         Soqler query = new Soqler(Schema.Event.SObjectType);
 
@@ -98,7 +137,8 @@ public class SoqlerTest {
                     .when(Schema.Lead.SObjectType, new Set<Schema.SObjectField>{ Schema.Lead.Name })
             );
 
-        query.wheres()
+        Soqler.IWhereGroup grp = new Soqler.IWhereGroup();
+        grp.wheres()
             .addOr(
                 new Soqler.IWhereTypeOf(
                     'What',
@@ -112,6 +152,13 @@ public class SoqlerTest {
                     'IN',
                     new Set<Schema.SObjectType>{ Schema.Lead.SObjectType }
                 )
+            );
+
+        query.wheres()
+            .addAnd(grp)
+            .addAnd(
+                new Soqler.IWhereName(Schema.Event.CreatedDate, '=', Date.today().year())
+                    .withFunction('CALENDAR_YEAR({0})')
             );
 
         List<Schema.Event> events = (List<Schema.Event>) query.query();
@@ -300,6 +347,24 @@ public class SoqlerTest {
             ' TYPEOF What WHEN Account THEN Phone WHEN Opportunity THEN Amount ELSE Id END' +
             ' FROM Event' +
             ' WHERE What.Type IN (\'Account\', \'Opportunity\')',
+            query.queryToString()
+        );
+
+        // Composing Aggregates
+        query = new Soqler(Schema.Event.SObjectType);
+        query.fields()
+            .add(Schema.Event.Subject)
+            .add(
+                new Soqler.IFieldName(Schema.Event.CreatedDate)
+                    .withFunction('AVG(CALENDAR_YEAR({0})')
+            );
+        query.groups().add(Schema.Event.Subject);
+
+        System.assertEquals(
+            'SELECT Subject,' +
+            ' AVG(CALENDAR_YEAR(CreatedDate)' +
+            ' FROM Event' +
+            ' GROUP BY Subject',
             query.queryToString()
         );
     }
