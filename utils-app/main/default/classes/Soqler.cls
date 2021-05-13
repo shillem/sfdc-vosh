@@ -104,6 +104,8 @@ global inherited sharing class Soqler {
     global class IFieldName extends F implements IField {
         private final Boolean droppable;
 
+        private String fn;
+
         global IFieldName(Schema.SObjectField field) {
             this(field, false);
         }
@@ -125,7 +127,34 @@ global inherited sharing class Soqler {
         }
 
         override String build() {
-            return Fls.audit(field, System.AccessType.READABLE, !droppable) ? super.build() : null;
+            if (!Fls.audit(field, System.AccessType.READABLE, !droppable)) {
+                return null;
+            }
+
+            return fn != null
+                ? String.format(fn, new List<String>{ super.build() })
+                : super.build();
+        }
+
+        /**
+         * It wraps the <code>Schema.SObjectField</code> with a function.
+         * <p>
+         * Used to return aggregate results the function must be specified
+         * with proper syntax by making use of the parameter {0} (eg. 'SUM({0})').
+         *
+         * @param value the function
+         * @return this FIELD instance
+         * @throws UnsupportedOperationException if the function syntax is invalid
+         * @since 1.0.11
+         */
+        global IFieldName withFunction(String value) {
+            if (value != null && !value.contains('{0}')) {
+                throwUnsupported('Function must contain \'{0}\' token for replacement');
+            }
+
+            fn = value;
+
+            return this;
         }
     }
 
@@ -212,6 +241,15 @@ global inherited sharing class Soqler {
             }
 
             return value.length() > 0 ? value.removeEnd(separator) : null;
+        }
+    }
+
+    global interface IGroup extends I {
+    }
+
+    global class IGroupName extends F implements IGroup {
+        global IGroupName(Schema.SObjectField field) {
+            super(field);
         }
     }
 
@@ -393,6 +431,8 @@ global inherited sharing class Soqler {
         private final String co;
         private final Object value;
 
+        private String fn;
+
         global IWhereName(Schema.SObjectField field, String co, Object value) {
             this(null, field, co, value);
         }
@@ -452,8 +492,33 @@ global inherited sharing class Soqler {
                 cvt = getValueConverter(field, value);
                 stringValue = cvt.convertValue(value);
             }
+            
+            String name = fn != null
+                ? String.format(fn, new List<String>{ super.build() })
+                : cvt.convertName(super.build());
 
-            return cvt.convertName(super.build()) + ' ' + co + ' ' + stringValue;
+            return name + ' ' + co + ' ' + stringValue;
+        }
+
+        /**
+         * It wraps the <code>Schema.SObjectField</code> with a function.
+         * <p>
+         * Used to return aggregate results the function must be specified
+         * with proper syntax by making use of the parameter {0} (eg. 'CALENDAR_YEAR({0})').
+         *
+         * @param value the function
+         * @return this FIELD instance
+         * @throws UnsupportedOperationException if the function syntax is invalid
+         * @since 1.0.11
+         */
+        global IWhereName withFunction(String value) {
+            if (value != null && !value.contains('{0}')) {
+                throwUnsupported('Function must contain \'{0}\' token for replacement');
+            }
+
+            fn = value;
+
+            return this;
         }
     }
 
@@ -702,6 +767,35 @@ global inherited sharing class Soqler {
 
     /**
      * It represents the object holding the list of instructions
+     * that will compose the GROUP BY part of the query.
+     *
+     * @since 1.0.11
+     */
+    global class LGroup extends L {
+        private LGroup add(IGroup instruction) {
+            requireNonNull(instruction, 'Instruction cannot be null');
+
+            instructions.add(instruction);
+
+            return this;
+        }
+
+        /**
+         * It adds a <code>IGroupName</code> GROUP BY instruction
+         * based on <code>Schema.SObjectField</code> to the list.
+         * The order applied will be ascending.
+         *
+         * @param field the field used to compose the instruction to be added to the list, not null
+         * @see Soqler.IGroupName
+         * @since 1.0.11
+         */
+        global LGroup add(Schema.SObjectField field) {
+            return add(new IGroupName(field));
+        }
+    }
+
+    /**
+     * It represents the object holding the list of instructions
      * that will compose the ORDER part of the query.
      *
      * @since 1.0.4
@@ -838,6 +932,7 @@ global inherited sharing class Soqler {
 
     private LWhere whrs;
     private LOrder ords;
+    private LGroup grps;
     private Integer maxCount;
     private Integer offset;
 
@@ -858,14 +953,16 @@ global inherited sharing class Soqler {
     private String build() {
         String fb = flds.build();
         String wb = whrs != null ? whrs.build() : null;
+        String gb = grps != null ? grps.build() : null;
         String ob = ords != null ? ords.build() : null;
 
         return String.format(
-            'SELECT {0} FROM {1}{2}{3}{4}{5}',
+            'SELECT {0} FROM {1}{2}{3}{4}{5}{6}',
             new List<String>{
                 fb,
                 (subquery != null ? subquery : String.valueOf(type)),
                 wb == null ? '' : ' WHERE ' + wb,
+                gb == null ? '' : ' GROUP BY ' + gb,
                 ob == null ? '' : ' ORDER BY ' + ob,
                 maxCount == null ? '' : ' LIMIT ' + maxCount,
                 offset == null ? '' : ' OFFSET ' + offset
@@ -892,6 +989,21 @@ global inherited sharing class Soqler {
      */
     global Schema.SObjectType getType() {
         return type;
+    }
+
+    /**
+     * It returns the instruction list that will compose the GROUP BY part of the query.
+     *
+     * @return the group by instruction list
+     * @see Soqler.LGroup
+     * @since 1.0.11
+     */
+    global LGroup groups() {
+        if (grps == null) {
+            grps = new LGroup();
+        }
+
+        return grps;
     }
 
     /**
@@ -941,6 +1053,18 @@ global inherited sharing class Soqler {
      */
     global List<SObject> query() {
         return (List<SObject>) Database.query(queryToString());
+    }
+
+    /**
+     * It runs the AggregateResult[] version of the dynamic SOQL currently composed.
+     *
+     * @return the aggregate results matching the dynamic SOQL
+     * @throws Fls.AuditException if not-droppable SELECT fields were specified and are inaccessible
+     * @see #queryToString() queryToString
+     * @since 1.0.11
+     */
+    global AggregateResult[] queryAggregates() {
+        return (AggregateResult[]) Database.query(queryToString());
     }
 
     /**
