@@ -1,65 +1,71 @@
 global class CmsmTriggerHandler extends TriggerHandler.Routine {
     private Map<Id, String> campaigns;
 
-    global CmsmTriggerHandler() {
-        campaigns = new Map<Id, String>();
-    }
-
     global override void afterInsert(SObject record) {
         queueCampaign((Schema.Campaign) record);
     }
 
+    global override void pre() {
+        campaigns = new Map<Id, String>();
+    }
+
     global override void post() {
+        if (campaigns.isEmpty()) {
+            return;
+        }
+
         Set<Id> campaignIds = campaigns.keySet();
-        Map<Id, List<Schema.CampaignMemberStatus>> defaultMemberStatuses = getDefaultMemberStatuses(
+        Map<Id, List<Schema.CampaignMemberStatus>> currentStatuses = getDefaultMemberStatuses(
             campaignIds
         );
         Map<String, List<Schema.Cs_Cmsm__c>> statusMappings = getMemberStatusMappings(
             new Set<String>(campaigns.values())
         );
-        List<Schema.CampaignMemberStatus> newStatusMappings = new List<Schema.CampaignMemberStatus>();
+        List<Schema.CampaignMemberStatus> newStatuses = new List<Schema.CampaignMemberStatus>();
+        List<Schema.CampaignMemberStatus> discardedStatuses = new List<Schema.CampaignMemberStatus>();
 
-        for (String campaignId : campaignIds) {
-            String campaignType = campaigns.get(campaignId);
-            List<Schema.Cs_Cmsm__c> campaignStatusMappings = statusMappings.get(campaignType);
+        for (Id campaignId : campaignIds) {
+            List<Schema.Cs_Cmsm__c> campaignStatusMappings = statusMappings.get(
+                campaigns.get(campaignId)
+            );
 
             if (campaignStatusMappings == null) {
                 campaignStatusMappings = statusMappings.get('*');
             }
 
             if (campaignStatusMappings == null) {
-                defaultMemberStatuses.remove(campaignId);
+                currentStatuses.remove(campaignId);
 
                 continue;
             }
 
-            for (Schema.Cs_Cmsm__c statusMapping : campaignStatusMappings) {
-                newStatusMappings.add(
-                    new Schema.CampaignMemberStatus(
-                        CampaignId = campaignId,
-                        HasResponded = statusMapping.Has_Responded__c,
-                        IsDefault = statusMapping.Is_Default__c,
-                        Label = statusMapping.Campaign_Member_Status__c,
-                        SortOrder = (Integer) statusMapping.Sort_Order__c
-                    )
-                );
+            List<Schema.CampaignMemberStatus> cs = currentStatuses.get(campaignId);
+
+            if (cs == null) {
+                cs = new List<Schema.CampaignMemberStatus>();
+            }
+            
+            List<Schema.CampaignMemberStatus> ns = rejigCampaignMemberStatuses(
+                campaignId,
+                cs,
+                campaignStatusMappings
+            );
+
+            newStatuses.addAll(ns);
+
+            for (Integer i = ns.size(); i < cs.size(); i++) {
+                discardedStatuses.add(cs.get(i));
             }
         }
 
-        if (newStatusMappings.isEmpty()) {
+        if (newStatuses.isEmpty()) {
             return;
         }
 
-        insert newStatusMappings;
+        upsert newStatuses;
 
-        List<Schema.CampaignMemberStatus> previousStatusMappings = new List<Schema.CampaignMemberStatus>();
-
-        for (List<Schema.CampaignMemberStatus> ls : defaultMemberStatuses.values()) {
-            previousStatusMappings.addAll(ls);
-        }
-
-        if (!previousStatusMappings.isEmpty()) {
-            delete previousStatusMappings;
+        if (!discardedStatuses.isEmpty()) {
+            delete discardedStatuses;
         }
     }
 
@@ -69,9 +75,10 @@ global class CmsmTriggerHandler extends TriggerHandler.Routine {
         Map<Id, List<Schema.CampaignMemberStatus>> statuses = new Map<Id, List<Schema.CampaignMemberStatus>>();
 
         for (Schema.CampaignMemberStatus status : [
-            SELECT CampaignId
+            SELECT CampaignId, IsDefault, SortOrder
             FROM CampaignMemberStatus
             WHERE CampaignId IN :campaignIds
+            ORDER BY SortOrder
         ]) {
             List<Schema.CampaignMemberStatus> bucket = statuses.get(status.CampaignId);
 
@@ -99,7 +106,7 @@ global class CmsmTriggerHandler extends TriggerHandler.Routine {
                 Sort_Order__c
             FROM Cs_Cmsm__c
             WHERE Campaign_Type__c IN :types OR Campaign_Type__c = '*'
-            ORDER BY Campaign_Type__c
+            ORDER BY Campaign_Type__c, Sort_Order__c
         ]) {
             List<Schema.Cs_Cmsm__c> bucket = statuses.get(mapping.Campaign_Type__c);
 
@@ -121,5 +128,33 @@ global class CmsmTriggerHandler extends TriggerHandler.Routine {
 
     private void queueCampaign(Schema.Campaign campaign) {
         campaigns.put(campaign.Id, campaign.Type);
+    }
+
+    private List<Schema.CampaignMemberStatus> rejigCampaignMemberStatuses(
+        Id campaignId,
+        List<Schema.CampaignMemberStatus> currentStatuses,
+        List<Schema.Cs_Cmsm__c> newMappings
+    ) {
+        List<Schema.CampaignMemberStatus> rejigged = new List<Schema.CampaignMemberStatus>();
+
+        for (Integer i = 0; i < newMappings.size(); i++) {
+            Schema.Cs_Cmsm__c newMapping = newMappings[i];
+            Schema.CampaignMemberStatus status;
+
+            if (i < currentStatuses.size()) {
+                status = currentStatuses[i];
+            } else {
+                status = new Schema.CampaignMemberStatus(CampaignId = campaignId);
+            }
+
+            status.HasResponded = newMapping.Has_Responded__c;
+            status.IsDefault = newMapping.Is_Default__c;
+            status.Label = newMapping.Campaign_Member_Status__c;
+            status.SortOrder = (Integer) newMapping.Sort_Order__c;
+
+            rejigged.add(status);
+        }
+
+        return rejigged;
     }
 }

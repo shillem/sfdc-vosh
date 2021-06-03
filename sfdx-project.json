@@ -25,16 +25,16 @@
         {
             "path": "enhanced-campaigns-app",
             "package": "Vosh Enhanced Campaigns",
-            "versionNumber": "1.0.0.NEXT",
+            "versionNumber": "1.0.1.NEXT",
             "default": false,
             "dependencies": [
                 {
                     "package": "Vosh Utils",
-                    "versionNumber": "1.0.5.LATEST"
+                    "versionNumber": "1.0.11.LATEST"
                 },
                 {
                     "package": "Vosh Extended UI",
-                    "versionNumber": "1.0.0.LATEST"
+                    "versionNumber": "1.0.2.LATEST"
                 }
             ]
         }
@@ -44,12 +44,11 @@
     "sourceApiVersion": "49.0",
     "packageAliases": {
         "Vosh Enhanced Campaigns": "0Ho3V000000XZAqSAO",
-        "Vosh Enhanced Campaigns@1.0.0-4": "04t3V0000002tJuQAI",
+        "Vosh Enhanced Campaigns@1.0.1-1": "04t3V000000EHmMQAW",
         "Vosh Extended UI": "0Ho3V000000XZAlSAO",
         "Vosh Extended UI@1.0.0-1": "04t3V0000002tJaQAI",
         "Vosh Extended UI@1.0.2-2": "04t3V000000EHdAQAW",
         "Vosh Utils": "0Ho3V000000XZAHSA4",
-        "Vosh Utils@1.0.5-2": "04t3V0000002tJVQAY",
         "Vosh Utils@1.0.9-4": "04t3V000000EHcqQAG",
         "Vosh Utils@1.0.11-2": "04t3V000000EHjXQAW"
     }
