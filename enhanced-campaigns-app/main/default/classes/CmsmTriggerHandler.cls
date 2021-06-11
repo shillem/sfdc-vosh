@@ -1,4 +1,168 @@
 global class CmsmTriggerHandler extends TriggerHandler.Routine {
+    private class Rejiggler {
+        private final Id campaignId;
+        private final Map<String, Schema.CampaignMemberStatus> statuses;
+
+        private Set<Schema.CampaignMemberStatus> upserts;
+        private Set<Schema.CampaignMemberStatus> deletes;
+
+        private Rejiggler(Id campaignId, Map<String, Schema.CampaignMemberStatus> statuses) {
+            this.campaignId = campaignId;
+            this.statuses = statuses;
+        }
+
+        private void rejiggle(List<Schema.Cs_Cmsm__c> mappings) {
+            Schema.CampaignMemberStatus defaultStatus = getDefaultStatus();
+
+            upserts = new Set<Schema.CampaignMemberStatus>();
+            deletes = new Set<Schema.CampaignMemberStatus>();
+
+            for (Schema.Cs_Cmsm__c mapping : mappings) {
+                Schema.CampaignMemberStatus status = statuses.get(
+                    mapping.Campaign_Member_Status__c
+                );
+                Integer sortOrder = 100 + (Integer) mapping.Sort_Order__c;
+
+                if (status != null) {
+                    status.SortOrder = sortOrder;
+                    upserts.add(status);
+                    statuses.remove(mapping.Campaign_Member_Status__c);
+
+                    continue;
+                }
+
+                Schema.CampaignMemberStatus newStatus = new Schema.CampaignMemberStatus(
+                    CampaignId = campaignId,
+                    HasResponded = mapping.Has_Responded__c,
+                    IsDefault = mapping.Is_Default__c,
+                    Label = mapping.Campaign_Member_Status__c,
+                    SortOrder = sortOrder
+                );
+
+                upserts.add(newStatus);
+
+                if (mapping.Is_Default__c && defaultStatus != null) {
+                    defaultStatus.IsDefault = false;
+
+                    upserts.add(defaultStatus);
+                }
+            }
+
+            deletes.addAll(statuses.values());
+        }
+
+        private Schema.CampaignMemberStatus getDefaultStatus() {
+            for (Schema.CampaignMemberStatus status : statuses.values()) {
+                if (status.IsDefault) {
+                    return status;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    private class MemberStatusProcessor {
+        private final Map<Id, String> campaigns;
+        private final Map<String, List<Schema.Cs_Cmsm__c>> mappings;
+        private final Map<Id, Map<String, Schema.CampaignMemberStatus>> statuses;
+
+        private MemberStatusProcessor(Map<Id, String> campaigns) {
+            this.campaigns = campaigns;
+            this.mappings = getMappings();
+            this.statuses = getStatuses();
+        }
+
+        private Map<String, List<Schema.Cs_Cmsm__c>> getMappings() {
+            Set<String> types = new Set<String>(campaigns.values());
+            Map<String, List<Schema.Cs_Cmsm__c>> values = new Map<String, List<Schema.Cs_Cmsm__c>>();
+
+            for (Schema.Cs_Cmsm__c value : [
+                SELECT
+                    Campaign_Member_Status__c,
+                    Campaign_Type__c,
+                    Is_Default__c,
+                    Has_Responded__c,
+                    Sort_Order__c
+                FROM Cs_Cmsm__c
+                WHERE Campaign_Type__c IN :types OR Campaign_Type__c = '*'
+            ]) {
+                List<Schema.Cs_Cmsm__c> bucket = values.get(value.Campaign_Type__c);
+
+                if (bucket == null) {
+                    bucket = new List<Schema.Cs_Cmsm__c>();
+
+                    values.put(value.Campaign_Type__c, bucket);
+                }
+
+                bucket.add(value);
+            }
+
+            return values;
+        }
+
+        private Map<Id, Map<String, Schema.CampaignMemberStatus>> getStatuses() {
+            Map<Id, Map<String, Schema.CampaignMemberStatus>> statuses = new Map<Id, Map<String, Schema.CampaignMemberStatus>>();
+
+            for (Schema.CampaignMemberStatus status : [
+                SELECT CampaignId, IsDefault, Label, SortOrder
+                FROM CampaignMemberStatus
+                WHERE CampaignId IN :campaigns.keySet()
+            ]) {
+                Map<String, Schema.CampaignMemberStatus> labels = statuses.get(status.CampaignId);
+
+                if (labels == null) {
+                    labels = new Map<String, Schema.CampaignMemberStatus>();
+
+                    statuses.put(status.CampaignId, labels);
+                }
+
+                labels.put(status.Label, status);
+            }
+
+            return statuses;
+        }
+
+        private void process() {
+            Set<Schema.CampaignMemberStatus> upserts = new Set<Schema.CampaignMemberStatus>();
+            Set<Schema.CampaignMemberStatus> deletes = new Set<Schema.CampaignMemberStatus>();
+
+            for (Id campaignId : campaigns.keySet()) {
+                List<Schema.Cs_Cmsm__c> campaignMappings = mappings.get(campaigns.get(campaignId));
+
+                if (campaignMappings == null) {
+                    campaignMappings = mappings.get('*');
+                }
+
+                if (campaignMappings == null) {
+                    continue;
+                }
+
+                Map<String, Schema.CampaignMemberStatus> campaignStatuses = statuses.get(campaignId);
+
+                if (campaignStatuses == null) {
+                    campaignStatuses = new Map<String, Schema.CampaignMemberStatus>();
+                }
+
+                Rejiggler rej = new Rejiggler(campaignId, campaignStatuses);
+                rej.rejiggle(campaignMappings);
+
+                upserts.addAll(rej.upserts);
+                deletes.addAll(rej.deletes);
+            }
+
+            if (upserts.isEmpty()) {
+                return;
+            }
+
+            upsert new List<Schema.CampaignMemberStatus>(upserts);
+
+            if (!deletes.isEmpty()) {
+                delete new List<Schema.CampaignMemberStatus>(deletes);
+            }
+        }
+    }
+
     private Map<Id, String> campaigns;
 
     global override void afterInsert(SObject record) {
@@ -14,112 +178,7 @@ global class CmsmTriggerHandler extends TriggerHandler.Routine {
             return;
         }
 
-        Set<Id> campaignIds = campaigns.keySet();
-        Map<Id, List<Schema.CampaignMemberStatus>> currentStatuses = getDefaultMemberStatuses(
-            campaignIds
-        );
-        Map<String, List<Schema.Cs_Cmsm__c>> statusMappings = getMemberStatusMappings(
-            new Set<String>(campaigns.values())
-        );
-        List<Schema.CampaignMemberStatus> newStatuses = new List<Schema.CampaignMemberStatus>();
-        List<Schema.CampaignMemberStatus> discardedStatuses = new List<Schema.CampaignMemberStatus>();
-
-        for (Id campaignId : campaignIds) {
-            List<Schema.Cs_Cmsm__c> campaignStatusMappings = statusMappings.get(
-                campaigns.get(campaignId)
-            );
-
-            if (campaignStatusMappings == null) {
-                campaignStatusMappings = statusMappings.get('*');
-            }
-
-            if (campaignStatusMappings == null) {
-                currentStatuses.remove(campaignId);
-
-                continue;
-            }
-
-            List<Schema.CampaignMemberStatus> cs = currentStatuses.get(campaignId);
-
-            if (cs == null) {
-                cs = new List<Schema.CampaignMemberStatus>();
-            }
-            
-            List<Schema.CampaignMemberStatus> ns = rejigCampaignMemberStatuses(
-                campaignId,
-                cs,
-                campaignStatusMappings
-            );
-
-            newStatuses.addAll(ns);
-
-            for (Integer i = ns.size(); i < cs.size(); i++) {
-                discardedStatuses.add(cs.get(i));
-            }
-        }
-
-        if (newStatuses.isEmpty()) {
-            return;
-        }
-
-        upsert newStatuses;
-
-        if (!discardedStatuses.isEmpty()) {
-            delete discardedStatuses;
-        }
-    }
-
-    private Map<Id, List<Schema.CampaignMemberStatus>> getDefaultMemberStatuses(
-        Set<Id> campaignIds
-    ) {
-        Map<Id, List<Schema.CampaignMemberStatus>> statuses = new Map<Id, List<Schema.CampaignMemberStatus>>();
-
-        for (Schema.CampaignMemberStatus status : [
-            SELECT CampaignId, IsDefault, SortOrder
-            FROM CampaignMemberStatus
-            WHERE CampaignId IN :campaignIds
-            ORDER BY SortOrder
-        ]) {
-            List<Schema.CampaignMemberStatus> bucket = statuses.get(status.CampaignId);
-
-            if (bucket == null) {
-                bucket = new List<Schema.CampaignMemberStatus>();
-
-                statuses.put(status.CampaignId, bucket);
-            }
-
-            bucket.add(status);
-        }
-
-        return statuses;
-    }
-
-    private Map<String, List<Schema.Cs_Cmsm__c>> getMemberStatusMappings(Set<String> types) {
-        Map<String, List<Schema.Cs_Cmsm__c>> statuses = new Map<String, List<Schema.Cs_Cmsm__c>>();
-
-        for (Schema.Cs_Cmsm__c mapping : [
-            SELECT
-                Campaign_Member_Status__c,
-                Campaign_Type__c,
-                Is_Default__c,
-                Has_Responded__c,
-                Sort_Order__c
-            FROM Cs_Cmsm__c
-            WHERE Campaign_Type__c IN :types OR Campaign_Type__c = '*'
-            ORDER BY Campaign_Type__c, Sort_Order__c
-        ]) {
-            List<Schema.Cs_Cmsm__c> bucket = statuses.get(mapping.Campaign_Type__c);
-
-            if (bucket == null) {
-                bucket = new List<Schema.Cs_Cmsm__c>();
-
-                statuses.put(mapping.Campaign_Type__c, bucket);
-            }
-
-            bucket.add(mapping);
-        }
-
-        return statuses;
+        new MemberStatusProcessor(campaigns).process();
     }
 
     global override Schema.SObjectType getSObjectType() {
@@ -128,33 +187,5 @@ global class CmsmTriggerHandler extends TriggerHandler.Routine {
 
     private void queueCampaign(Schema.Campaign campaign) {
         campaigns.put(campaign.Id, campaign.Type);
-    }
-
-    private List<Schema.CampaignMemberStatus> rejigCampaignMemberStatuses(
-        Id campaignId,
-        List<Schema.CampaignMemberStatus> currentStatuses,
-        List<Schema.Cs_Cmsm__c> newMappings
-    ) {
-        List<Schema.CampaignMemberStatus> rejigged = new List<Schema.CampaignMemberStatus>();
-
-        for (Integer i = 0; i < newMappings.size(); i++) {
-            Schema.Cs_Cmsm__c newMapping = newMappings[i];
-            Schema.CampaignMemberStatus status;
-
-            if (i < currentStatuses.size()) {
-                status = currentStatuses[i];
-            } else {
-                status = new Schema.CampaignMemberStatus(CampaignId = campaignId);
-            }
-
-            status.HasResponded = newMapping.Has_Responded__c;
-            status.IsDefault = newMapping.Is_Default__c;
-            status.Label = newMapping.Campaign_Member_Status__c;
-            status.SortOrder = (Integer) newMapping.Sort_Order__c;
-
-            rejigged.add(status);
-        }
-
-        return rejigged;
     }
 }
