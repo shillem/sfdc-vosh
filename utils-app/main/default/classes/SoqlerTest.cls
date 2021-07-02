@@ -2,16 +2,9 @@
 public class SoqlerTest {
     @testSetup
     static void init() {
-        Schema.Profile insufficientProfile = [
-            SELECT Id
-            FROM Profile
-            WHERE UserType = 'CsnOnly'
-            LIMIT 1
-        ];
-
         // Generating user
         Schema.User insufficientUser = (Schema.User) new TestUtils.UserMaker()
-            .setProfileId(insufficientProfile.Id)
+            .setProfileId(TestUtils.getProfileId('Minimum Access - Salesforce'))
             .setName('Insufficient')
             .setCount(1)
             .setAutoInsert(false)

@@ -219,6 +219,10 @@ global class TestUtils {
         virtual SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
             SObject instance = type.newSObject();
 
+            if (ownerId != null) {
+                instance.put('OwnerId', ownerId);
+            }
+
             for (Schema.SObjectField field : values.keySet()) {
                 instance.put(field, values.get(field));
             }
@@ -256,7 +260,7 @@ global class TestUtils {
          * along with the consecutive number according to the count set,
          * once the <code>make()</code> is invoked.
          *
-         * @param value the count
+         * @param value the name
          * @return the maker instance
          * @since 1.0.4
          */
@@ -269,7 +273,7 @@ global class TestUtils {
          * It sets the <code>OwnerId</code> field for any record that will be generated
          * by the <code>make()</code> method.
          *
-         * @param value the count
+         * @param value the owner id
          * @return the maker instance
          * @since 1.0.4
          */
@@ -345,6 +349,72 @@ global class TestUtils {
         }
     }
 
+    global class LeadMaker extends SObjectMaker {
+        private String company;
+        private String firstName;
+
+        global LeadMaker() {
+            super(Schema.Lead.SObjectType);
+        }
+
+        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
+            Schema.Lead obj = (Schema.Lead) super.makeOne(index, values);
+            obj.Company = company;
+            obj.FirstName = firstName;
+            obj.LastName = name + index;
+            return obj;
+        }
+
+        global LeadMaker setCompany(String value) {
+            company = value;
+            return this;
+        }
+
+        global LeadMaker setFirstName(String value) {
+            firstName = value;
+            return this;
+        }
+
+        global LeadMaker setLastName(String value) {
+            setName(value);
+            return this;
+        }
+    }
+
+    global class OpportunityMaker extends SObjectMaker {
+        private Id accountId;
+        private Date closeDate;
+        private String stageName;
+
+        global OpportunityMaker() {
+            super(Schema.Opportunity.SObjectType);
+        }
+
+        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
+            Schema.Opportunity obj = (Schema.Opportunity) super.makeOne(index, values);
+            obj.Name = name + index;
+            obj.AccountId = accountId;
+            obj.CloseDate = closeDate;
+            obj.StageName = stageName;
+            return obj;
+        }
+
+        global OpportunityMaker setAccountId(Id value) {
+            accountId = value;
+            return this;
+        }
+
+        global OpportunityMaker setCloseDate(Date value) {
+            closeDate = value;
+            return this;
+        }
+
+        global OpportunityMaker setStageName(String value) {
+            stageName = value;
+            return this;
+        }
+    }
+
     global class UserMaker extends SObjectMaker {
         private String firstName;
         private Id profileId;
@@ -388,7 +458,7 @@ global class TestUtils {
             return this;
         }
 
-        global UserMaker setProfileId(String value) {
+        global UserMaker setProfileId(Id value) {
             profileId = value;
             return this;
         }
