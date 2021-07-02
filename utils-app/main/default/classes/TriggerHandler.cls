@@ -14,7 +14,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>AFTER_DELETE</code>.
-         * 
+         *
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
@@ -24,7 +24,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>AFTER_DELETE</code>.
-         * 
+         *
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
@@ -34,7 +34,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>AFTER_UNDELETE</code>.
-         * 
+         *
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
@@ -44,7 +44,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>AFTER_UPDATE</code>.
-         * 
+         *
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
@@ -54,7 +54,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>BEFORE_DELETE</code>.
-         * 
+         *
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
@@ -64,7 +64,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>BEFORE_INSERT</code>.
-         * 
+         *
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
@@ -74,7 +74,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>BEFORE_UPDATE</code>.
-         * 
+         *
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
@@ -84,7 +84,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It executes the implemented logic on the records passed
          * in the <code>Trigger</code> context.
-         * 
+         *
          * @since 1.0.1
          */
         global void execute() {
@@ -133,7 +133,7 @@ global inherited sharing class TriggerHandler {
 
         /**
          * It must be overridden to state the <code>SObject</code> type the trigger logic handles.
-         * 
+         *
          * @return the <code>SObject</code> type
          * @since 1.0.1
          */
@@ -141,7 +141,7 @@ global inherited sharing class TriggerHandler {
 
         /**
          * It returns a set of record ids that have been tagged under the given key.
-         * 
+         *
          * @param key an arbitrary key string
          * @return the set containing the tagged ids
          * @see #isTagged(Id, String) isTagged
@@ -167,7 +167,7 @@ global inherited sharing class TriggerHandler {
          * on the same record depending on what the implementing class or other triggers do.
          * To prevent a trigger to be run on a previously processed record it's possible to tag said
          * record id and later check for its presence in order to skip reprocessing it.
-         * 
+         *
          * @param recordId the record id to check
          * @param key an arbitrary key string to file the id under
          * @return true if the record is tagged, otherwise false
@@ -182,7 +182,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to execute arbitrary logic
          * before the <code>Trigger</code> record looping takes place.
-         * 
+         *
          * @since 1.0.1
          */
         global virtual void pre() {
@@ -191,7 +191,7 @@ global inherited sharing class TriggerHandler {
         /**
          * It can be overridden to execute arbitrary logic
          * after the <code>Trigger</code> record has taken place.
-         * 
+         *
          * @since 1.0.1
          */
         global virtual void post() {
@@ -199,7 +199,7 @@ global inherited sharing class TriggerHandler {
 
         /**
          * It tags a given record id.
-         * 
+         *
          * @param recordId the record id to check
          * @param key an arbitrary key string to file the id under
          * @see #isTagged(Id, String) isTagged
@@ -212,7 +212,7 @@ global inherited sharing class TriggerHandler {
 
         /**
          * It untags a given record id.
-         * 
+         *
          * @param recordId the record id to check
          * @param key an arbitrary key string to file the id under
          * @see #isTagged(Id, String) isTagged
@@ -221,6 +221,36 @@ global inherited sharing class TriggerHandler {
          */
         global void untag(Id recordId, String key) {
             getTaggedIds(key).remove(recordId);
+        }
+    }
+
+    private class STypeManager {
+        private final System.Type t;
+        private final String hashedName;
+        private final Decimal order;
+
+        private Cs_TriggerHandlerRoutine__c record;
+
+        private STypeManager(System.Type t, String hashedName, Decimal order) {
+            this.t = t;
+            this.hashedName = hashedName;
+            this.order = order;
+        }
+
+        private void enable() {
+            if (record == null) {
+                record = new Schema.Cs_TriggerHandlerRoutine__c(
+                    ClassName__c = t.getName(),
+                    SObjectType__c = String.valueOf(((Routine) t.newInstance()).getSObjectType())
+                );
+            }
+
+            record.Name = hashedName;
+            record.Is_Disabled__c = false;
+
+            if (order != null) {
+                record.Sort_Order__c = order;
+            }
         }
     }
 
@@ -264,23 +294,48 @@ global inherited sharing class TriggerHandler {
      * custom setting record that bears the class' name if it exists.
      *
      * @param stype the .class extending the abstract class <code>TriggerHandler.Routine</code>, not null
-     * @see #enable(System.Type) enable
+     * @see #disable(Set<System.Type>) disable
      * @since 1.0.3
      */
-    global static void disable(System.Type stype) {
-        Utils.requireNonNull(stype, 'Type cannot be null');
+    global static void disable(System.Type t) {
+        disable(new Set<System.Type>{ t });
+    }
 
-        Schema.Cs_TriggerHandlerRoutine__c definition = Schema.Cs_TriggerHandlerRoutine__c.getValues(
-            new Utils.Hasher().hash(stype.getName())
-        );
+    /**
+     * Disables <code>TriggerHandler.Routine</code> extending classes that,
+     * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
+     * The method ticks as disabled the corresponding <code>Cs_TriggerHandlerRoutine__c</code>
+     * custom setting records that bear the class' name if it exists.
+     *
+     * @param stype the list containing classes extending the abstract class <code>TriggerHandler.Routine</code>, not null
+     * @see #enable(System.Type) enable
+     * @see #enable(Map<System.Type, Decimal>) enable
+     * @since 1.0.12
+     */
+    global static void disable(Set<System.Type> types) {
+        Utils.requireNonNull(types, 'Types cannot be null');
 
-        if (definition == null || definition.Is_Disabled__c) {
+        if (types.isEmpty()) {
             return;
         }
 
-        definition.Is_Disabled__c = true;
+        Set<String> typeNames = new Set<String>();
 
-        update definition;
+        for (System.Type t : types) {
+            typeNames.add(t.getName());
+        }
+
+        List<Schema.Cs_TriggerHandlerRoutine__c> records = [
+            SELECT ClassName__c
+            FROM Cs_TriggerHandlerRoutine__c
+            WHERE ClassName__c IN :typeNames AND Is_Disabled__c = FALSE
+        ];
+
+        for (Schema.Cs_TriggerHandlerRoutine__c r : records) {
+            r.Is_Disabled__c = true;
+        }
+
+        update records;
     }
 
     /**
@@ -292,41 +347,68 @@ global inherited sharing class TriggerHandler {
      * The method creates - if it doesn't exist, or ticks as enabled, a corresponding
      * <code>Cs_TriggerHandlerRoutine__c</code> custom setting record that bears the class' name.
      *
-     * @param stype the .class extending the abstract class <code>TriggerHandler.Routine</code>, not null
+     * @param stype the class extending the abstract class <code>TriggerHandler.Routine</code>, not null
      * @throws UnsupportedOperationException if the type doesn't extend <code>TriggerHandler.Routine</code>
-     * @see #execute(Schema.SObjectType) execute
+     * @see #enable(Map<System.Type, Integer>) enable
      * @since 1.0.3
      */
     global static void enable(System.Type stype) {
-        Utils.requireNonNull(stype, 'Type cannot be null');
+        enable(new Map<System.Type, Integer>{ stype => null });
+    }
 
-        String sname = stype.getName();
-        String snameHashed = new Utils.Hasher().hash(sname);
+    /**
+     * Enables <code>TriggerHandler.Routine</code> extending classes that,
+     * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
+     * The coupling trigger will have to call <code>TriggerHandler.execute</code>
+     * for the classes to be invoked.
+     * <p>
+     * The method creates - if they don't exist, or ticks as enabled, the corresponding
+     * <code>Cs_TriggerHandlerRoutine__c</code> custom setting record that bears the class' name.
+     *
+     * @param stypes the map containing the classes extending the abstract class <code>TriggerHandler.Routine</code>, not null
+     * @throws UnsupportedOperationException if a type doesn't extend <code>TriggerHandler.Routine</code>
+     * @see #execute(Schema.SObjectType) execute
+     * @since 1.0.12
+     */
+    global static void enable(Map<System.Type, Decimal> types) {
+        Utils.requireNonNull(types, 'Types cannot be null');
 
-        if (!Routine.class.isAssignableFrom(stype)) {
-            throw new UnsupportedOperationException(
-                'Cannot enable ' +
-                sname +
-                ' because it does not extend TriggerHandler.Routine class'
-            );
-        }
-
-        Schema.Cs_TriggerHandlerRoutine__c definition = Schema.Cs_TriggerHandlerRoutine__c.getValues(
-            snameHashed
-        );
-
-        if (definition == null) {
-            definition = new Schema.Cs_TriggerHandlerRoutine__c(
-                Name = snameHashed,
-                ClassName__c = sname,
-                SObjectType__c = String.valueOf(((Routine) stype.newInstance()).getSObjectType())
-            );
-        } else if (!definition.Is_Disabled__c) {
+        if (types.isEmpty()) {
             return;
         }
 
-        definition.Is_Disabled__c = false;
+        Map<String, STypeManager> tms = new Map<String, STypeManager>();
 
-        upsert definition;
+        for (System.Type t : types.keySet()) {
+            String name = t.getName();
+            String hashedName = new Utils.Hasher().hash(name);
+
+            if (!Routine.class.isAssignableFrom(t)) {
+                throw new UnsupportedOperationException(
+                    'Cannot enable ' +
+                    name +
+                    ' because it does not extend vosh.TriggerHandler.Routine class'
+                );
+            }
+
+            tms.put(name, new STypeManager(t, hashedName, types.get(t)));
+        }
+
+        for (Schema.Cs_TriggerHandlerRoutine__c r : [
+            SELECT ClassName__c
+            FROM Cs_TriggerHandlerRoutine__c
+            WHERE ClassName__c IN :tms.keySet()
+        ]) {
+            tms.get(r.ClassName__c).record = r;
+        }
+
+        List<Schema.Cs_TriggerHandlerRoutine__c> records = new List<Schema.Cs_TriggerHandlerRoutine__c>();
+
+        for (STypeManager stm : tms.values()) {
+            stm.enable();
+            records.add(stm.record);
+        }
+
+        upsert records;
     }
 }

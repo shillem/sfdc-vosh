@@ -1,6 +1,12 @@
 @isTest(isParallel=true)
 public class UtilsTest {
-    private class AccountTriggerHandlerTest extends TriggerHandler.Routine {
+    private class AccountTriggerHandlerTest1 extends TriggerHandler.Routine {
+        public override Schema.SObjectType getSObjectType() {
+            return Schema.Account.SObjectType;
+        }
+    }
+
+    private class AccountTriggerHandlerTest2 extends TriggerHandler.Routine {
         public override Schema.SObjectType getSObjectType() {
             return Schema.Account.SObjectType;
         }
@@ -257,36 +263,48 @@ public class UtilsTest {
     @isTest
     static void triggerHandler() {
         // Enablement
-        System.Type stype = AccountTriggerHandlerTest.class;
+        String acctTypeName = String.valueOf(Schema.Account.SObjectType);
+        System.Type stype1 = AccountTriggerHandlerTest1.class;
+        System.Type stype2 = AccountTriggerHandlerTest2.class;
         List<Schema.Cs_TriggerHandlerRoutine__c> records;
 
-        TriggerHandler.enable(stype);
+        TriggerHandler.enable(stype1);
+        TriggerHandler.enable(new Map<System.Type, Decimal>{ stype2 => 2 });
 
         records = [
-            SELECT Name, Is_Disabled__c, SObjectType__c
+            SELECT Name, ClassName__c, Is_Disabled__c, SObjectType__c, Sort_Order__c
             FROM Cs_TriggerHandlerRoutine__c
-            WHERE ClassName__c = :stype.getName()
+            WHERE SObjectType__c = :acctTypeName
+            ORDER BY Sort_Order__c ASC
         ];
 
-        System.assert(!records.isEmpty(), 'Routine record should have been present');
+        System.assertEquals(2, records.size());
         System.assert(!records[0].Is_Disabled__c, 'Routine record should have been enabled');
-        System.assertEquals(String.valueOf(Schema.Account.SObjectType), records[0].SObjectType__c);
+        System.assertEquals(stype1.getName(), records[0].ClassName__c);
+        System.assertEquals(acctTypeName, records[0].SObjectType__c);
+        System.assertEquals(1, records[0].Sort_Order__c);
+        System.assertEquals(2, records[1].Sort_Order__c);
 
         TriggerHandler.execute(Schema.Account.SObjectType);
 
-        TriggerHandler.disable(stype);
+        TriggerHandler.disable(stype2);
 
         records = [
             SELECT Name, Is_Disabled__c
             FROM Cs_TriggerHandlerRoutine__c
-            WHERE ClassName__c = :stype.getName()
+            WHERE ClassName__c = :stype2.getName()
         ];
 
-        System.assert(records[0].Is_Disabled__c, 'Routine record should have been disabled');
+        System.assert(
+            records[0].Is_Disabled__c,
+            'Routine ' +
+            stype2.getName() +
+            ' record should have been disabled'
+        );
 
         // Tagging
         String key = 'any';
-        AccountTriggerHandlerTest handler = new AccountTriggerHandlerTest();
+        AccountTriggerHandlerTest1 handler = new AccountTriggerHandlerTest1();
 
         handler.tag(records[0].Id, key);
 
