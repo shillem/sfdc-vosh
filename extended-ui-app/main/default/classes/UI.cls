@@ -190,6 +190,7 @@ global class UI {
     @JsonAccess(serializable='always' deserializable='always')
     global class SObjectDescriptor {
         private final String label;
+        private final String labelPlural;
         private final String name;
         private final Map<String, Field> fieldMap;
 
@@ -201,8 +202,10 @@ global class UI {
 
         global SObjectDescriptor(Schema.SObjectType type, Set<Schema.SObjectField> fields) {
             Utils.Describer describer = Utils.getDescriber();
+            Schema.DescribeSObjectResult typeRes = describer.getObjectDescribe(type);
 
-            label = describer.getObjectDescribe(type).getLabel();
+            label = typeRes.getLabel();
+            labelPlural = typeRes.getLabelPlural();
             name = String.valueOf(type);
             fieldMap = new Map<String, Field>();
 
@@ -217,6 +220,10 @@ global class UI {
 
         global String getLabel() {
             return label;
+        }
+
+        global String getLabelPlural() {
+            return labelPlural;
         }
 
         global String getName() {
