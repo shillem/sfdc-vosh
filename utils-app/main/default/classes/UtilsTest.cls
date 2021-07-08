@@ -258,24 +258,31 @@ public class UtilsTest {
         };
 
         Utils.SObjectCollector soc = new Utils.SObjectCollector();
-        Utils.SoccField criteria = new Utils.SoccField(Schema.Account.BillingCountry);
         soc.addAll(accts);
 
-        Map<Object, List<SObject>> lists = soc.makeMapOfLists(criteria);
+        Utils.SoccField criteria1 = new Utils.SoccField(Schema.Account.BillingCountry);
 
+        Map<Object, List<SObject>> lists = soc.makeMapOfLists(criteria1);
         System.assertEquals(2, lists.size());
         System.assert(lists.containsKey('Italy'));
 
-        Map<Object, Map<Id, SObject>> maps = soc.makeMapOfMaps(criteria);
-
-        System.assertEquals(0, maps.size());
-
         insert accts;
 
-        maps = soc.makeMapOfMaps(criteria);
-
-        System.assertEquals(2, maps.size());
+        Map<Object, Map<Id, SObject>> maps = soc.makeMapOfMaps(criteria1);
         System.assertEquals(2, maps.get('Germany').size());
+
+        accts[2].Name = 'C of B';
+        accts[2].ParentId = accts[1].Id;
+
+        update accts[2];
+
+        Utils.SoccField criteria2 = new Utils.SoccField(Schema.Account.ParentId);
+
+        Map<Id, List<SObject>> idLists = soc.makeIdMapOfLists(criteria2);
+        System.assertEquals(1, idLists.size());
+
+        Map<Id, Map<Id, SObject>> idMaps = soc.makeIdMapOfMaps(criteria2);
+        System.assert(idMaps.get(accts[1].Id).containsKey(accts[2].Id));
     }
 
     @isTest
