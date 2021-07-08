@@ -696,6 +696,66 @@ global inherited sharing class Utils {
         }
 
         /**
+         * It creates an id map of <code>SObject</code> lists based on the criteria.
+         * The criteria key value must support casting to the <code>Id</code> type.
+         *
+         * @param criteria the criteria, not null
+         * @return the map of <code>SObject</code> record lists as organized by the criteria
+         * @since 1.0.14
+         */
+        global Map<Id, List<SObject>> makeIdMapOfLists(SObjectCollectorCriteria criteria) {
+            requireNonNull(criteria, 'Criteria cannot be null');
+
+            Map<Id, List<SObject>> values = new Map<Id, List<SObject>>();
+
+            for (SObject record : records) {
+                if (criteria.matches(record)) {
+                    Id key = (Id) criteria.getKey(record);
+                    List<SObject> l = values.get(key);
+
+                    if (l == null) {
+                        l = new List<SObject>();
+                        values.put(key, l);
+                    }
+
+                    l.add(record);
+                }
+            }
+
+            return values;
+        }
+
+        /**
+         * It creates an id map of <code>SObject</code> maps based on the criteria.
+         * The criteria key value must support casting to the <code>Id</code> type.
+         *
+         * @param criteria the criteria, not null
+         * @return the map of <code>SObject</code> record maps as organized by the criteria
+         * @since 1.0.14
+         */
+        global Map<Id, Map<Id, SObject>> makeIdMapOfMaps(SObjectCollectorCriteria criteria) {
+            requireNonNull(criteria, 'Criteria cannot be null');
+
+            Map<Id, Map<Id, SObject>> values = new Map<Id, Map<Id, SObject>>();
+
+            for (SObject record : records) {
+                if (record.Id != null && criteria.matches(record)) {
+                    Id key = (Id) criteria.getKey(record);
+                    Map<Id, SObject> m = values.get(key);
+
+                    if (m == null) {
+                        m = new Map<Id, SObject>();
+                        values.put(key, m);
+                    }
+
+                    m.put(record.Id, record);
+                }
+            }
+
+            return values;
+        }
+
+        /**
          * It creates a map of <code>SObject</code> lists based on the criteria.
          *
          * @param criteria the criteria, not null
@@ -710,12 +770,10 @@ global inherited sharing class Utils {
             for (SObject record : records) {
                 if (criteria.matches(record)) {
                     Object key = criteria.getKey(record);
-
                     List<SObject> l = values.get(key);
 
                     if (l == null) {
                         l = new List<SObject>();
-
                         values.put(key, l);
                     }
 
@@ -741,12 +799,10 @@ global inherited sharing class Utils {
             for (SObject record : records) {
                 if (record.Id != null && criteria.matches(record)) {
                     Object key = criteria.getKey(record);
-
                     Map<Id, SObject> m = values.get(key);
 
                     if (m == null) {
                         m = new Map<Id, SObject>();
-
                         values.put(key, m);
                     }
 
