@@ -663,9 +663,183 @@ global inherited sharing class Utils {
     }
 
     /**
+     * A record organizer for <code>SObject</code>.
+     * It outputs a map having a key based on the specified criteria
+     * and subsequent <code>SObject</code> record falling under that key.
+     *
+     * @see Utils.SObjectCollectorCriteria
+     * @since 1.0.13
+     */
+    global class SObjectCollector {
+        private final Set<SObject> records = new Set<SObject>();
+
+        /**
+         * It add the record to the list of records that will be evaluated
+         * by the criteria organizing them.
+         *
+         * @param record the record
+         * @since 1.0.13
+         */
+        global void add(SObject record) {
+            records.add(record);
+        }
+
+        /**
+         * It add the record to the list of records that will be evaluated
+         * by the criteria organizing them.
+         *
+         * @param records the records
+         * @since 1.0.13
+         */
+        global void addAll(List<SObject> records) {
+            this.records.addAll(records);
+        }
+
+        /**
+         * It creates a map of <code>SObject</code> lists based on the criteria.
+         *
+         * @param criteria the criteria, not null
+         * @return the map of <code>SObject</code> record lists as organized by the criteria
+         * @since 1.0.13
+         */
+        global Map<Object, List<SObject>> makeMapOfLists(SObjectCollectorCriteria criteria) {
+            requireNonNull(criteria, 'Criteria cannot be null');
+
+            Map<Object, List<SObject>> values = new Map<Object, List<SObject>>();
+
+            for (SObject record : records) {
+                if (criteria.matches(record)) {
+                    Object key = criteria.getKey(record);
+
+                    List<SObject> l = values.get(key);
+
+                    if (l == null) {
+                        l = new List<SObject>();
+
+                        values.put(key, l);
+                    }
+
+                    l.add(record);
+                }
+            }
+
+            return values;
+        }
+
+        /**
+         * It creates a map of <code>SObject</code> maps based on the criteria.
+         *
+         * @param criteria the criteria, not null
+         * @return the map of <code>SObject</code> record maps as organized by the criteria
+         * @since 1.0.13
+         */
+        global Map<Object, Map<Id, SObject>> makeMapOfMaps(SObjectCollectorCriteria criteria) {
+            requireNonNull(criteria, 'Criteria cannot be null');
+
+            Map<Object, Map<Id, SObject>> values = new Map<Object, Map<Id, SObject>>();
+
+            for (SObject record : records) {
+                if (record.Id != null && criteria.matches(record)) {
+                    Object key = criteria.getKey(record);
+
+                    Map<Id, SObject> m = values.get(key);
+
+                    if (m == null) {
+                        m = new Map<Id, SObject>();
+
+                        values.put(key, m);
+                    }
+
+                    m.put(record.Id, record);
+                }
+            }
+
+            return values;
+        }
+    }
+
+    /**
+     * The criteria object used by a <code>Utils.SObjectCollector</code>
+     * to organize <code>SObject</code> records.
+     *
+     * @see Utils.SObjectCollector
+     * @since 1.0.13
+     */
+    global interface SObjectCollectorCriteria {
+        /**
+         * It returns the value that will be used as key
+         * by the <code>Utils.SObjectCollector</code>.
+         *
+         * @param record the record
+         * @return the key value
+         * @since 1.0.13
+         */
+        Object getKey(SObject record);
+
+        /**
+         * It returns the value that will be used as key
+         * by the <code>Utils.SObjectCollector</code>.
+         *
+         * @param record the record
+         * @return true if the record matches
+         * @since 1.0.13
+         */
+        Boolean matches(SObject record);
+    }
+
+    /**
+     * An implementation of <code>Utils.SObjectCollectorCriteria</code>
+     * based on <code>Schema.SObjectField</code>.
+     *
+     * @see Utils.SObjectCollector
+     * @see Utils.SObjectCollectorCriteria
+     * @since 1.0.13
+     */
+    global class SoccField implements SObjectCollectorCriteria {
+        private final Schema.SObjectField field;
+
+        /**
+         * It creates a criteria that will use the specified field
+         * to read the key value for any given record.
+         *
+         * @param field the field
+         * @since 1.0.13
+         */
+        global SoccField(Schema.SObjectField field) {
+            requireNonNull(field, 'Field cannot be null');
+
+            this.field = field;
+        }
+
+        /**
+         * It reads the record value.
+         *
+         * @param record the record
+         * @return the value
+         * @since 1.0.13
+         */
+        global Object getKey(SObject record) {
+            return record.get(field);
+        }
+
+        /**
+         * It checks whether the record can be included.
+         *
+         * @param record the record
+         * @return true if the record matches
+         * @since 1.0.13
+         */
+        global Boolean matches(SObject record) {
+            return record.get(field) != null;
+        }
+    }
+
+    /**
      * A wrapper for <code>Set</code>.
      * The idea is to implement this interface to provide helper methods
      * to work with the <code>Set</code>.
+     *
+     * @since 1.0.1
      */
     global interface Uniquifier {
         /**
@@ -675,114 +849,6 @@ global inherited sharing class Utils {
          * @since 1.0.1
          */
         Set<Object> getValues();
-    }
-
-    /**
-     * An object that creates a URL query.
-     *
-     * @since 1.0.4
-     */
-    global class UrlQuery {
-        private final Map<String, Object> values;
-
-        /**
-         * It creates an empty instance of what will make the query.
-         *
-         * @since 1.0.4
-         */
-        global UrlQuery() {
-            this(new Map<String, Object>());
-        }
-
-        /**
-         * It creates an instance of the passed values that will make the query.
-         *
-         * @param values the query values, not null
-         * @since 1.0.4
-         */
-        global UrlQuery(Map<String, Object> values) {
-            requireNonNull(values, 'Parameters cannot be null');
-
-            this.values = values;
-        }
-
-        private String encode(Object value) {
-            return EncodingUtil.urlEncode(String.valueOf(value), 'UTF-8');
-        }
-
-        /**
-         * It adds a query parameter.
-         *
-         * @param name the parameter name, not null
-         * @param value the parameter value
-         * @throws UnsupportedOperationException if the parameter name is empty
-         * @since 1.0.4
-         */
-        global UrlQuery put(String name, Object value) {
-            if (String.isEmpty(name)) {
-                throw new UnsupportedOperationException('Label cannot be empty');
-            }
-
-            values.put(name, value);
-
-            return this;
-        }
-
-        global override String toString() {
-            if (values.isEmpty()) {
-                return '';
-            }
-
-            String value = '';
-
-            for (String param : values.keySet()) {
-                value += '&' + encode(param) + '=' + encode(values.get(param));
-            }
-
-            return '?' + value.substring(1);
-        }
-    }
-
-    /**
-     * An implementation of <code>Uniquifier</code>.
-     *
-     * @since 1.0.1
-     * @see Utils.Uniquifier
-     */
-    global class ValueUniquifier implements Uniquifier {
-        private final Set<Object> values;
-
-        global ValueUniquifier() {
-            this.values = new Set<Object>();
-        }
-
-        /**
-         * It adds a value to the set if it's not already present.
-         *
-         * @param value the value to add to the set
-         * @return true if the value was not present in the set, otherwise false
-         * @since 1.0.1
-         */
-        global Boolean addValue(Object value) {
-            if (values.contains(value)) {
-                return false;
-            }
-
-            values.add(value);
-
-            return true;
-        }
-
-        /**
-         * It returns the set of values the class is managing.
-         *
-         * @return the set of values
-         * @see Utils.Uniquifier#getValues() getValues
-         * @since 1.0.1
-         */
-        global Set<Object> getValues() {
-            return values;
-        }
     }
 
     /**
@@ -861,13 +927,121 @@ global inherited sharing class Utils {
         }
     }
 
+    /**
+     * An implementation of <code>Uniquifier</code>.
+     *
+     * @since 1.0.1
+     * @see Utils.Uniquifier
+     */
+    global class ValueUniquifier implements Uniquifier {
+        private final Set<Object> values;
+
+        global ValueUniquifier() {
+            this.values = new Set<Object>();
+        }
+
+        /**
+         * It adds a value to the set if it's not already present.
+         *
+         * @param value the value to add to the set
+         * @return true if the value was not present in the set, otherwise false
+         * @since 1.0.1
+         */
+        global Boolean addValue(Object value) {
+            if (values.contains(value)) {
+                return false;
+            }
+
+            values.add(value);
+
+            return true;
+        }
+
+        /**
+         * It returns the set of values the class is managing.
+         *
+         * @return the set of values
+         * @see Utils.Uniquifier#getValues() getValues
+         * @since 1.0.1
+         */
+        global Set<Object> getValues() {
+            return values;
+        }
+    }
+
+    /**
+     * An object that creates a URL query.
+     *
+     * @since 1.0.4
+     */
+    global class UrlQuery {
+        private final Map<String, Object> values;
+
+        /**
+         * It creates an empty instance of what will make the query.
+         *
+         * @since 1.0.4
+         */
+        global UrlQuery() {
+            this(new Map<String, Object>());
+        }
+
+        /**
+         * It creates an instance of the passed values that will make the query.
+         *
+         * @param values the query values, not null
+         * @since 1.0.4
+         */
+        global UrlQuery(Map<String, Object> values) {
+            requireNonNull(values, 'Parameters cannot be null');
+
+            this.values = values;
+        }
+
+        private String encode(Object value) {
+            return EncodingUtil.urlEncode(String.valueOf(value), 'UTF-8');
+        }
+
+        /**
+         * It adds a query parameter.
+         *
+         * @param name the parameter name, not null
+         * @param value the parameter value
+         * @throws UnsupportedOperationException if the parameter name is empty
+         * @since 1.0.4
+         */
+        global UrlQuery put(String name, Object value) {
+            if (String.isEmpty(name)) {
+                throw new UnsupportedOperationException('Label cannot be empty');
+            }
+
+            values.put(name, value);
+
+            return this;
+        }
+
+        global override String toString() {
+            if (values.isEmpty()) {
+                return '';
+            }
+
+            String value = '';
+
+            for (String param : values.keySet()) {
+                value += '&' + encode(param) + '=' + encode(values.get(param));
+            }
+
+            return '?' + value.substring(1);
+        }
+    }
+
     private static Map<Id, Describer> DESCRIBER_INSTANCE;
 
     /**
-     * It deserializes a map-representing JSON string wrapped in a <code>Mapper</code> object.
+     * It deserializes a map-representing JSON string wrapped in a <code>Utils.Mapper</code> object.
      *
      * @param value the JSON string representing a map, not null
-     * @return the <code>Mapper</code> object wrapping the map
+     * @return the <code>Utils.Mapper</code> object wrapping the map
      * @see Utils.Mapper
      * @since 1.0.1
      */

@@ -250,6 +250,35 @@ public class UtilsTest {
     }
 
     @isTest
+    static void sobjectCollector() {
+        List<Schema.Account> accts = new List<Schema.Account>{
+            new Account(Name = 'A', BillingCountry = 'Italy'),
+            new Account(Name = 'B', BillingCountry = 'Germany'),
+            new Account(Name = 'C', BillingCountry = 'Germany')
+        };
+
+        Utils.SObjectCollector soc = new Utils.SObjectCollector();
+        Utils.SoccField criteria = new Utils.SoccField(Schema.Account.BillingCountry);
+        soc.addAll(accts);
+
+        Map<Object, List<SObject>> lists = soc.makeMapOfLists(criteria);
+
+        System.assertEquals(2, lists.size());
+        System.assert(lists.containsKey('Italy'));
+
+        Map<Object, Map<Id, SObject>> maps = soc.makeMapOfMaps(criteria);
+
+        System.assertEquals(0, maps.size());
+
+        insert accts;
+
+        maps = soc.makeMapOfMaps(criteria);
+
+        System.assertEquals(2, maps.size());
+        System.assertEquals(2, maps.get('Germany').size());
+    }
+
+    @isTest
     static void sleep() {
         Long start = System.currentTimeMillis();
 
