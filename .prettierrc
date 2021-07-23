@@ -1,6 +1,13 @@
 {
     "arrowParens": "always",
+    "plugins": [
+        "./node_modules/prettier-plugin-apex"
+    ],
     "overrides": [
+        {
+            "files": "*.{cls,trigger}",
+            "options": { "parser": "apex" }
+        },
         {
             "files": "*.{cmp,page,component}",
             "options": { "parser": "html" }
