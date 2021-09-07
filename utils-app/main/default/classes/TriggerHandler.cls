@@ -11,6 +11,9 @@ global inherited sharing class TriggerHandler {
      * @since 1.0.1
      */
     global abstract class Routine {
+        private Map<Id, String> recordTypeIds;
+        private Map<String, Id> recordTypeDeveloperNames;
+
         /**
          * It can be overridden to performs operations on the record passed
          * when the trigger operation is <code>AFTER_DELETE</code>.
@@ -129,6 +132,50 @@ global inherited sharing class TriggerHandler {
             }
 
             post();
+        }
+
+        /**
+         * It returns the record type <code>Id</code> of a record type developer name.
+         *
+         * @param value the record type developer name
+         * @return the <code>Id</code> associated with the record type developer name
+         * @since 1.0.16
+         */
+        global Id getRecordTypeId(String value) {
+            return getRecordTypeDeveloperNames().get(value);
+        }
+
+        private Map<Id, String> getRecordTypeIds() {
+            if (recordTypeIds == null) {
+                getRecordTypeDeveloperNames();
+
+                recordTypeIds = new Map<Id, String>();
+
+                for (String developerName : recordTypeDeveloperNames.keySet()) {
+                    recordTypeIds.put(recordTypeDeveloperNames.get(developerName), developerName);
+                }
+            }
+
+            return recordTypeIds;
+        }
+
+        /**
+         * It returns the record type developer name of a record type <code>Id</code>.
+         *
+         * @param value the record type <code>Id</code>
+         * @return the record type developer name associated with the <code>Id</code>
+         * @since 1.0.16
+         */
+        global Id getRecordTypeDeveloperName(Id value) {
+            return getRecordTypeIds().get(value);
+        }
+
+        private Map<String, Id> getRecordTypeDeveloperNames() {
+            if (recordTypeDeveloperNames == null) {
+                recordTypeDeveloperNames = Utils.getRecordTypeNames(getSObjectType());
+            }
+
+            return recordTypeDeveloperNames;
         }
 
         /**
