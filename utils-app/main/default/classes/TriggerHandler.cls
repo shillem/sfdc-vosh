@@ -166,7 +166,7 @@ global inherited sharing class TriggerHandler {
          * @return the record type developer name associated with the <code>Id</code>
          * @since 1.0.16
          */
-        global Id getRecordTypeDeveloperName(Id value) {
+        global String getRecordTypeDeveloperName(Id value) {
             return getRecordTypeIds().get(value);
         }
 
