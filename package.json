@@ -16,10 +16,10 @@
     "prettier:verify": "prettier --list-different \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\""
   },
   "devDependencies": {
-    "@prettier/plugin-xml": "^0.13.1",
+    "@prettier/plugin-xml": "^1.0.2",
     "@salesforce/eslint-config-lwc": "^2.0.0",
     "@salesforce/eslint-plugin-aura": "^2.0.0",
-    "@salesforce/sfdx-lwc-jest": "^0.12.6",
+    "@salesforce/sfdx-lwc-jest": "^1.0.1",
     "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
     "husky": "^7.0.1",
