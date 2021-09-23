@@ -121,7 +121,7 @@ public class UtilsTest {
             // Generating user
             insufficientUser = (Schema.User) new TestUtils.UserMaker()
                 .setProfileId(insufficientProfile.Id)
-                .setName('Insufficient')
+                .setLastName('Insufficient')
                 .setCount(1)
                 .make()
                 .get(0);

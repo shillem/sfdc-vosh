@@ -5,7 +5,7 @@ public class SoqlerTest {
         // Generating user
         Schema.User insufficientUser = (Schema.User) new TestUtils.UserMaker()
             .setProfileId(TestUtils.getProfileId('Minimum Access - Salesforce'))
-            .setName('Insufficient')
+            .setLastName('Insufficient')
             .setCount(1)
             .setAutoInsert(false)
             .make()
@@ -18,7 +18,8 @@ public class SoqlerTest {
         // Generating accounts
         List<SObject> accts = new TestUtils.AccountMaker()
             .setCount(3)
-            .make(new Map<Schema.SObjectField, Object>{ Schema.Account.BillingCity => 'Rome' });
+            .set(Schema.Account.BillingCity, 'Rome')
+            .make();
 
         // Generating contacts
         List<SObject> cnts = new TestUtils.ContactMaker().setCount(3).make();
