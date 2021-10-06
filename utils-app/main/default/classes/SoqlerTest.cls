@@ -8,6 +8,7 @@ public class SoqlerTest {
             .setLastName('Insufficient')
             .setCount(1)
             .setAutoInsert(false)
+            .enumerate(Schema.User.LastName)
             .make()
             .get(0);
 
@@ -17,15 +18,20 @@ public class SoqlerTest {
 
         // Generating accounts
         List<SObject> accts = new TestUtils.AccountMaker()
-            .setCount(3)
+            .setName('Account')
             .set(Schema.Account.BillingCity, 'Rome')
+            .setCount(3)
+            .enumerate(Schema.Account.Name)
             .make();
 
         // Generating contacts
-        List<SObject> cnts = new TestUtils.ContactMaker().setCount(3).make();
+        List<SObject> cnts = new TestUtils.ContactMaker().setLastName('Dummy').setCount(3).make();
 
         // Generating events
         List<SObject> evts = new TestUtils.EventMaker()
+            .setEntryTime(0, Datetime.now().addMinutes(10), Datetime.now().addMinutes(20))
+            .setEntryTime(1, Datetime.now().addMinutes(30), Datetime.now().addMinutes(40))
+            .setEntryTime(2, Datetime.now().addMinutes(50), Datetime.now().addMinutes(60))
             .setWhatId(accts[0].Id)
             .setOwnerId(insufficientUser.Id)
             .setCount(3)

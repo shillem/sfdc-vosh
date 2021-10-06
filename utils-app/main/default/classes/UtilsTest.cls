@@ -369,6 +369,23 @@ public class UtilsTest {
         handler.untag(records[0].Id, key);
 
         System.assert(!handler.isTagged(records[0].Id, key), 'Id should have been untagged');
+
+        // Matching
+        List<Schema.Account> accts = new TestUtils.AccountMaker()
+            .setName('Dummy')
+            .set(Schema.Account.Phone, '0000')
+            .setCount(2)
+            .make();
+
+        System.assert(
+            !handler.match(accts[0], accts[1], Schema.Account.Id),
+            'Account Ids should have mismatched'
+        );
+
+        System.assert(
+            handler.match(accts[0], accts[1], Schema.Account.Phone),
+            'Account phone numbers should have matched'
+        );
     }
 
     @isTest

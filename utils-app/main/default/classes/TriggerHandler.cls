@@ -227,6 +227,19 @@ global inherited sharing class TriggerHandler {
         }
 
         /**
+         * It checks whether the value of a given field matches between 2 records.
+         *
+         * @param record1 the first record check
+         * @param record2 the second record check
+         * @param field the field to check upon
+         * @return true if the field value is the same for both records, otherwise false
+         * @since 1.0.18
+         */
+        global Boolean match(SObject record1, SObject record2, Schema.SObjectField field) {
+            return record1.get(field) == record2.get(field);
+        }
+
+        /**
          * It can be overridden to execute arbitrary logic
          * before the <code>Trigger</code> record looping takes place.
          *
