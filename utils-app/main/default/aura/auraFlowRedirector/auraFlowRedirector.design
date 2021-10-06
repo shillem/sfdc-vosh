@@ -1,0 +1,18 @@
+<design:component label="Redirect">
+    <design:attribute
+        description="Valid action names include: home, list, new, clone, edit, view"
+        label="Action Name"
+        name="actionName"
+    />
+    <design:attribute label="Filter Name" name="filterName" />
+    <design:attribute label="Object API name" name="objectApiName" />
+    <design:attribute label="Record Id" name="recordId" />
+    <design:attribute
+        description="Valid types are: object, record, recordRelationship, web"
+        label="Type"
+        name="type"
+        required="true"
+    />
+    <design:attribute label="Relationship API Name" name="relationshipApiName" />
+    <design:attribute label="URL" name="url" />
+</design:component>

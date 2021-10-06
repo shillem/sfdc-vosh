@@ -158,10 +158,12 @@ global class TestUtils {
      */
     global virtual class SObjectMaker {
         private final Schema.SObjectType type;
+        private final Map<Schema.SObjectField, Object> defaults;
+        private final List<Schema.SObjectField> enumerables;
+        private final Map<Integer, Map<Schema.SObjectField, Object>> specifics;
 
         private Boolean autoInsert;
         private Integer count;
-        private String name;
         private Id ownerId;
 
         /**
@@ -173,40 +175,38 @@ global class TestUtils {
          */
         global SObjectMaker(Schema.SObjectType type) {
             this.type = type;
+            this.defaults = new Map<Schema.SObjectField, Object>();
+            this.enumerables = new List<Schema.SObjectField>();
+            this.specifics = new Map<Integer, Map<Schema.SObjectField, Object>>();
 
             this.autoInsert = true;
-            this.name = String.valueOf(type);
         }
 
         /**
-         * @see #make(Map<Schema.SObjectField, Object>) make
-         * @since 1.0.4
+         * It flags the given field to append an index enumeration to the value provided.
+         * The enumeration will be applied once the <code>make()</code> is invoked.
+         *
+         * @param field the field
+         * @return the maker instance
+         * @since 1.0.18
          */
-        global List<SObject> make() {
-            return make(new Map<Schema.SObjectField, Object>());
+        global SObjectMaker enumerate(Schema.SObjectField field) {
+            enumerables.add(field);
+            return this;
         }
 
         /**
          * It generates all the <code>SObject</code> records according to the currently set options.
          * By default the records will be automatically inserted. To prevent this behaviour disable
          * auto-insert.
-         * <p>
-         * The <code>Name</code> field for records generated will be generate on the basis of
-         * the <code>SObjectType</code> followed by the consecutive number of the number of records
-         * generated.
          *
-         * @param values custom fixed field values
-         * @return the <code>SObject</code> records generated
-         * @see #setAutoInsert(Boolean) setAutoInsert
-         * @see #setCount(Boolean) setCount
-         * @see #setName(Boolean) setName
-         * @since 1.0.5
+         * @since 1.0.4
          */
-        global List<SObject> make(Map<Schema.SObjectField, Object> values) {
+        global List<SObject> make() {
             List<SObject> records = new List<SObject>();
 
             for (Integer i = 0; i < count; i++) {
-                records.add(makeOne(i, values));
+                records.add(makeOne(i));
             }
 
             if (autoInsert) {
@@ -216,18 +216,70 @@ global class TestUtils {
             return records;
         }
 
-        virtual SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
+        virtual SObject makeOne(Integer index) {
             SObject instance = type.newSObject();
 
             if (ownerId != null) {
                 instance.put('OwnerId', ownerId);
             }
 
-            for (Schema.SObjectField field : values.keySet()) {
-                instance.put(field, values.get(field));
+            for (Schema.SObjectField field : defaults.keySet()) {
+                instance.put(
+                    field,
+                    enumerables.contains(field)
+                        ? (String) defaults.get(field) + index
+                        : defaults.get(field)
+                );
+            }
+
+            Map<Schema.SObjectField, Object> specs = specifics.get(index);
+
+            if (specs != null) {
+                for (Schema.SObjectField field : specs.keySet()) {
+                    instance.put(field, specs.get(field));
+                }
             }
 
             return instance;
+        }
+
+        /**
+         * It registers a default field value that will be set
+         * for each generated record once the <code>make()</code> is invoked.
+         *
+         * @param field the field
+         * @param value the value
+         * @return the maker instance
+         * @since 1.0.18
+         */
+        global SObjectMaker set(Schema.SObjectField field, Object value) {
+            defaults.put(field, value);
+
+            return this;
+        }
+
+        /**
+         * It registers a default field value that will be set
+         * for an index-specific generated record once the <code>make()</code> is invoked.
+         *
+         * @param index the index
+         * @param field the field
+         * @param value the value
+         * @return the maker instance
+         * @since 1.0.18
+         */
+        global SObjectMaker setEntry(Integer index, Schema.SObjectField field, Object value) {
+            Map<Schema.SObjectField, Object> values = specifics.get(index);
+
+            if (values == null) {
+                values = new Map<Schema.SObjectField, Object>();
+
+                specifics.put(index, values);
+            }
+
+            values.put(field, value);
+
+            return this;
         }
 
         /**
@@ -256,20 +308,6 @@ global class TestUtils {
         }
 
         /**
-         * It sets the value that will be used to fill out the <code>Name</code> field,
-         * along with the consecutive number according to the count set,
-         * once the <code>make()</code> is invoked.
-         *
-         * @param value the name
-         * @return the maker instance
-         * @since 1.0.4
-         */
-        global SObjectMaker setName(String value) {
-            name = value;
-            return this;
-        }
-
-        /**
          * It sets the <code>OwnerId</code> field for any record that will be generated
          * by the <code>make()</code> method.
          *
@@ -284,139 +322,213 @@ global class TestUtils {
     }
 
     global class AccountMaker extends SObjectMaker {
+        private String name;
+
         global AccountMaker() {
             super(Schema.Account.SObjectType);
         }
 
-        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
-            Schema.Account obj = (Schema.Account) super.makeOne(index, values);
-            obj.Name = name + index;
-            return obj;
+        global AccountMaker setName(String value) {
+            return (AccountMaker) set(Schema.Account.Name, value);
         }
     }
 
     global class ContactMaker extends SObjectMaker {
-        private String firstName;
-
         global ContactMaker() {
             super(Schema.Contact.SObjectType);
         }
 
-        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
-            Schema.Contact obj = (Schema.Contact) super.makeOne(index, values);
-            obj.FirstName = firstName;
-            obj.LastName = name + index;
-            return obj;
-        }
-
         global ContactMaker setFirstName(String value) {
-            firstName = value;
-            return this;
+            return (ContactMaker) set(Schema.Contact.FirstName, value);
         }
 
         global ContactMaker setLastName(String value) {
-            setName(value);
-            return this;
+            return (ContactMaker) set(Schema.Contact.LastName, value);
         }
     }
 
     global class EventMaker extends SObjectMaker {
-        private Id whatId;
-        private Id whoId;
-
         global EventMaker() {
             super(Schema.Event.SObjectType);
         }
 
-        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
-            Schema.Event obj = (Schema.Event) super.makeOne(index, values);
-            obj.StartDateTime = Datetime.now().addDays(index);
-            obj.EndDateTime = obj.StartDateTime.addHours(1);
-            obj.Subject = name + index;
-            obj.WhatId = whatId;
-            obj.WhoId = whoId;
-            return obj;
+        global EventMaker setEntryTime(Integer index, Datetime startTime, Datetime endTime) {
+            setEntry(index, Schema.Event.StartDateTime, startTime);
+            setEntry(index, Schema.Event.EndDateTime, endTime);
+
+            return this;
         }
 
+        global EventMaker setSubject(Id value) {
+            return (EventMaker) set(Schema.Event.Subject, value);
+        }
+
+        global EventMaker setTime(Datetime startTime, Datetime endTime) {
+            set(Schema.Event.StartDateTime, startTime);
+            set(Schema.Event.EndDateTime, endTime);
+
+            return this;
+        }
+        
         global EventMaker setWhatId(Id value) {
-            whatId = value;
-            return this;
+            return (EventMaker) set(Schema.Event.WhatId, value);
         }
-
+        
         global EventMaker setWhoId(Id value) {
-            whoId = value;
-            return this;
+            return (EventMaker) set(Schema.Event.WhoId, value);
         }
     }
 
     global class LeadMaker extends SObjectMaker {
-        private String company;
-        private String firstName;
-
         global LeadMaker() {
             super(Schema.Lead.SObjectType);
         }
 
-        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
-            Schema.Lead obj = (Schema.Lead) super.makeOne(index, values);
-            obj.Company = company;
-            obj.FirstName = firstName;
-            obj.LastName = name + index;
-            return obj;
-        }
-
         global LeadMaker setCompany(String value) {
-            company = value;
-            return this;
+            return (LeadMaker) set(Schema.Lead.Company, value);
         }
-
+        
         global LeadMaker setFirstName(String value) {
-            firstName = value;
-            return this;
+            return (LeadMaker) set(Schema.Lead.FirstName, value);
         }
-
+        
         global LeadMaker setLastName(String value) {
-            setName(value);
-            return this;
+            return (LeadMaker) set(Schema.Lead.LastName, value);
         }
     }
 
     global class OpportunityMaker extends SObjectMaker {
-        private Id accountId;
-        private Date closeDate;
-        private String stageName;
-
         global OpportunityMaker() {
             super(Schema.Opportunity.SObjectType);
         }
 
-        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
-            Schema.Opportunity obj = (Schema.Opportunity) super.makeOne(index, values);
-            obj.Name = name + index;
-            obj.AccountId = accountId;
-            obj.CloseDate = closeDate;
-            obj.StageName = stageName;
-            return obj;
+        global OpportunityMaker setAccountId(Id value) {
+            return (OpportunityMaker) set(Schema.Opportunity.AccountId, value);
         }
 
-        global OpportunityMaker setAccountId(Id value) {
-            accountId = value;
+        global OpportunityMaker setActiveStageName() {
+            List<Schema.PicklistEntry> stageNames = Utils.getDescriber()
+                .getFieldDescribe(Schema.Opportunity.StageName)
+                .getPicklistValues();
+
+            for (Schema.PicklistEntry entry : stageNames) {
+                if (entry.isActive()) {
+                    return (OpportunityMaker) setStageName(entry.getValue());
+                }
+            }
+
             return this;
         }
 
         global OpportunityMaker setCloseDate(Date value) {
-            closeDate = value;
-            return this;
+            return (OpportunityMaker) set(Schema.Opportunity.CloseDate, value);
+        }
+
+        global OpportunityMaker setName(String value) {
+            return (OpportunityMaker) set(Schema.Opportunity.Name, value);
         }
 
         global OpportunityMaker setStageName(String value) {
-            stageName = value;
+            return (OpportunityMaker) set(Schema.Opportunity.StageName, value);
+        }
+    }
+
+    global class ProductPriceMaker {
+        private SObjectMaker pricebookEntryMaker;
+        private SObjectMaker productMaker;
+
+        global ProductPriceMaker() {
+            pricebookEntryMaker = new SObjectMaker(Schema.PricebookEntry.SObjectType);
+            productMaker = new SObjectMaker(Schema.Product2.SObjectType);
+        }
+
+        global List<ProductPricePair> make() {
+            List<Schema.Product2> products = (List<Schema.Product2>) productMaker.make();
+
+            for (Integer index = 0; index < products.size(); index++) {
+                pricebookEntryMaker.setEntry(
+                    index,
+                    Schema.PricebookEntry.Product2Id,
+                    products.get(index).Id
+                );
+            }
+
+            List<Schema.PricebookEntry> prices = (List<Schema.PricebookEntry>) pricebookEntryMaker.make();
+
+            List<ProductPricePair> pairs = new List<ProductPricePair>();
+
+            for (Integer index = 0; index < products.size(); index++) {
+                Schema.Product2 pro = products.get(index);
+
+                pairs.add(new ProductPricePair(pro, prices.get(index)));
+            }
+
+            return pairs;
+        }
+
+        global ProductPriceMaker setActive(Boolean value) {
+            pricebookEntryMaker.set(Schema.PricebookEntry.IsActive, value);
             return this;
+        }
+
+        global ProductPriceMaker setCount(Integer value) {
+            pricebookEntryMaker.setCount(value);
+            productMaker.setCount(value);
+            return this;
+        }
+
+        global ProductPriceMaker setName(String value) {
+            productMaker.set(Schema.Product2.Name, value);
+            return this;
+        }
+
+        global ProductPriceMaker setFamily(String value) {
+            productMaker.set(Schema.Product2.Family, value);
+            return this;
+        }
+
+        global ProductPriceMaker setPricebookEntry(
+            Integer index,
+            Schema.SObjectField field,
+            Object value
+        ) {
+            pricebookEntryMaker.setEntry(index, field, value);
+            return this;
+        }
+
+        global ProductPriceMaker setPricebookId(Id value) {
+            pricebookEntryMaker.set(Schema.PricebookEntry.Pricebook2Id, value);
+            return this;
+        }
+
+        global ProductPriceMaker setProductEntry(
+            Integer index,
+            Schema.SObjectField field,
+            Object value
+        ) {
+            productMaker.setEntry(index, field, value);
+            return this;
+        }
+
+        global ProductPriceMaker setUnitPrice(Decimal value) {
+            pricebookEntryMaker.set(Schema.PricebookEntry.UnitPrice, value);
+            return this;
+        }
+    }
+
+    global class ProductPricePair {
+        global final Schema.PricebookEntry price;
+        global final Schema.Product2 product;
+
+        private ProductPricePair(Schema.Product2 product, Schema.PricebookEntry price) {
+            this.price = price;
+            this.product = product;
         }
     }
 
     global class UserMaker extends SObjectMaker {
         private String firstName;
+        private String lastName;
         private Id profileId;
         private String randomain;
 
@@ -435,18 +547,15 @@ global class TestUtils {
                 .generate();
         }
 
-        override SObject makeOne(Integer index, Map<Schema.SObjectField, Object> values) {
-            Schema.User obj = (Schema.User) super.makeOne(index, values);
+        override SObject makeOne(Integer index) {
+            Schema.User obj = (Schema.User) super.makeOne(index);
             obj.EmailEncodingKey = 'UTF-8';
-            obj.FirstName = firstName;
             obj.LanguageLocaleKey = 'en_US';
-            obj.LastName = name + index;
             obj.TimeZoneSidKey = 'Europe/Rome';
-            
+
             obj.Alias = obj.LastName.toLowerCase().right(8);
             obj.Email = obj.LastName.toLowerCase() + '@' + randomain + '.rnd';
             obj.LocaleSidKey = obj.LanguageLocaleKey;
-            obj.ProfileId = profileId;
 
             obj.Username = obj.Email;
             obj.CommunityNickname = obj.Alias + '.' + randomain;
@@ -454,14 +563,33 @@ global class TestUtils {
         }
 
         global UserMaker setFirstName(String value) {
-            firstName = value;
-            return this;
+            return (UserMaker) set(Schema.User.FirstName, value);
+        }
+        
+        global UserMaker setLastName(String value) {
+            return (UserMaker) set(Schema.User.LastName, value);
         }
 
         global UserMaker setProfileId(Id value) {
-            profileId = value;
-            return this;
+            return (UserMaker) set(Schema.User.ProfileId, value);
         }
+    }
+
+    /**
+     * It activates the standard Pricebook.
+     *
+     * @param userId the standard pricebook id
+     * @since 1.0.18
+     */
+    global static Id activateStandardPricebook() {
+        Schema.Pricebook2 pricebook = new Schema.Pricebook2(
+            Id = Test.getStandardPricebookId(),
+            IsActive = true
+        );
+
+        update pricebook;
+
+        return pricebook.Id;
     }
 
     /**

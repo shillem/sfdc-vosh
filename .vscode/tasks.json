@@ -9,7 +9,8 @@
             "options": {
                 "cwd": "${workspaceRoot}"
             },
-            "command": "sfdx force:limits:api:display -u VoshDevHub"
+            "command": "sfdx force:limits:api:display -u VoshDevHub",
+            "problemMatcher": []
         },
         {
             "label": "sfdx-create-package-version",
@@ -17,7 +18,8 @@
             "options": {
                 "cwd": "${workspaceRoot}"
             },
-            "command": "sfdx force:package:version:create -c -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub"
+            "command": "sfdx force:package:version:create -c -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub",
+            "problemMatcher": []
         },
         {
             "label": "sfdx-create-package-version-with-no-validation",
@@ -25,12 +27,14 @@
             "options": {
                 "cwd": "${workspaceRoot}"
             },
-            "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --skipvalidation --wait 15 -v VoshDevHub"
+            "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --skipvalidation --wait 15 -v VoshDevHub",
+            "problemMatcher": []
         },
         {
             "label": "sfdx-open-devhub",
             "type": "shell",
-            "command": "sfdx force:org:open -u VoshDevHub"
+            "command": "sfdx force:org:open -u VoshDevHub",
+            "problemMatcher": []
         }
     ],
     "inputs": [
