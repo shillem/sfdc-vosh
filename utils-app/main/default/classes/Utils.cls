@@ -696,6 +696,17 @@ global inherited sharing class Utils {
         }
 
         /**
+         * It returns whether the collection is empty or not.
+         *
+         * @param records the records
+         * @return true if the collection is empty
+         * @since 1.0.19
+         */
+        global Boolean isEmpty() {
+            return records.isEmpty();
+        }
+
+        /**
          * It creates an id map of <code>SObject</code> lists based on the criteria.
          * The criteria key value must support casting to the <code>Id</code> type.
          *
@@ -756,6 +767,16 @@ global inherited sharing class Utils {
         }
 
         /**
+         * It returns a map of the records based on their id.
+         *
+         * @return a map of the records
+         * @since 1.0.19
+         */
+        global Map<Id, SObject> makeMap() {
+            return new Map<Id, SObject>(new List<SObject>(records));
+        }
+
+        /**
          * It creates a map of <code>SObject</code> lists based on the criteria.
          *
          * @param criteria the criteria, not null
@@ -811,6 +832,16 @@ global inherited sharing class Utils {
             }
 
             return values;
+        }
+
+        /**
+         * It returns the current set of records.
+         *
+         * @return the set records
+         * @since 1.0.19
+         */
+        global Set<SObject> values() {
+            return records;
         }
     }
 
