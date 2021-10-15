@@ -7,7 +7,7 @@
         {
             "path": "utils-app",
             "package": "Vosh Utils",
-            "versionNumber": "1.0.19.NEXT",
+            "versionNumber": "1.0.20.NEXT",
             "default": false
         },
         {
@@ -54,6 +54,12 @@
         "Vosh Utils@1.0.12-1": "04t3V000000EHrlQAG",
         "Vosh Utils@1.0.17-1": "04t3V000000EHx0QAG",
         "Vosh Utils@1.0.18-21": "04t3V000000EHzzQAG",
-        "Vosh Utils@1.0.19-4": "04t3V000000EI0YQAW"
+        "Vosh Utils@1.0.19-4": "04t3V000000EI0YQAW",
+        "Vosh Utils@1.0.20-1": "04t3V000000EI0iQAG",
+        "Vosh Utils@1.0.20-2": "04t3V000000EI0nQAG",
+        "Vosh Utils@1.0.20-3": "04t3V000000EI0sQAG",
+        "Vosh Utils@1.0.20-4": "04t3V000000EI0xQAG",
+        "Vosh Utils@1.0.20-5": "04t3V000000EI12QAG",
+        "Vosh Utils@1.0.20-6": "04t3V000000EI1MQAW"
     }
 }
