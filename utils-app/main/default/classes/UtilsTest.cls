@@ -63,6 +63,22 @@ public class UtilsTest {
     }
 
     @isTest
+    static void easyDecimal() {
+        Utils.EasyDecimal hundred = new Utils.EasyDecimal(100.0);
+
+        System.assertEquals(88.2, hundred.addPct(-10).addPct(-2).decimalValue());
+        System.assertEquals(112.2, hundred.addPct(10).addPct(2).decimalValue());
+        System.assertEquals(-10, hundred.minus(hundred).minus(10).decimalValue());
+        System.assertEquals(100, hundred.multiply(2).divide(2).decimalValue());
+        System.assertEquals(40, hundred.multiply(2).pct(20).decimalValue());
+        System.assertEquals(40, hundred.pctOf(250));
+        System.assertEquals(210, hundred.plus(10).plus(hundred).decimalValue());
+        System.assertEquals(70, hundred.rightPctOf(70));
+        System.assertEquals(hundred, new Utils.EasyDecimal(100.0));
+        System.assertEquals(hundred, hundred.copy());
+    }
+
+    @isTest
     static void entry() {
         List<Utils.Entry> entries = new List<Utils.Entry>{
             new Utils.Entry('value1', 'label1'),

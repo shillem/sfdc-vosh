@@ -174,6 +174,213 @@ global inherited sharing class Utils {
     }
 
     /**
+     * A wrapper for <code>Decimal</code> that makes it easy to perform common math computations.
+     *
+     * @since 1.0.20
+     */
+    global class EasyDecimal {
+        private Decimal value;
+
+        /**
+         * It creates an instance with the provided <code>Decimal</code> value.
+         *
+         * @param value the value, not null
+         * @since 1.0.20
+         */
+        global EasyDecimal(Decimal value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            this.value = value;
+        }
+
+        /**
+         * It creates a new instance whose value equals to the original value
+         * plus the calculated percentage value.
+         *
+         * @param percentage the percentage, not null
+         * @return the new instance
+         * @since 1.0.20
+         */
+        global EasyDecimal addPct(Decimal percentage) {
+            requireNonNull(percentage, 'Percentage cannot be null');
+
+            return new EasyDecimal(value + (value / 100 * percentage));
+        }
+
+        /**
+         * It returns a clone instance.
+         *
+         * @return the <code>Decimal</code> value
+         * @since 1.0.20
+         */
+        global EasyDecimal copy() {
+            return new EasyDecimal(value);
+        }
+
+        /**
+         * It returns the <code>Decimal</code> value associated with the instance.
+         *
+         * @return the <code>Decimal</code> value
+         * @since 1.0.20
+         */
+        global Decimal decimalValue() {
+            return value;
+        }
+
+        /**
+         * It creates a new instance whose value equals to the original value
+         * divided by the provided factor.
+         *
+         * @param factor the factor, not null
+         * @return the new instance
+         * @since 1.0.20
+         */
+        global EasyDecimal divide(Decimal factor) {
+            requireNonNull(factor, 'Factor cannot be null');
+
+            return new EasyDecimal(value / factor);
+        }
+
+        /**
+         * @see Object#equals(Object) equals
+         * @since 1.0.20
+         */
+        global Boolean equals(Object instance) {
+            if (instance instanceof EasyDecimal) {
+                return value == ((EasyDecimal) instance).value;
+            }
+
+            return false;
+        }
+
+        /**
+         * @see Object#hashCode() hashCode
+         * @since 1.0.20
+         */
+        global Integer hashCode() {
+            return 31 * 7 + String.valueOf(value).hashCode();
+        }
+
+        /**
+         * It creates a new instance whose value equals to the original value
+         * minus the provided value.
+         *
+         * @param value the value, not null
+         * @return the new instance
+         * @see #minus(EasyDecimal) minus
+         * @since 1.0.20
+         */
+        global EasyDecimal minus(Decimal value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            return new EasyDecimal(this.value - value);
+        }
+
+        /**
+         * It creates a new instance whose value equals to the original value
+         * minus the provided value.
+         *
+         * @param value the value, not null
+         * @return the new instance
+         * @see #minus(Decimal) minus
+         * @since 1.0.20
+         */
+        global EasyDecimal minus(EasyDecimal value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            return new EasyDecimal(this.value - value.value);
+        }
+
+        /**
+         * It creates a new instance whose value equals to the original value
+         * multiplied by the provided factor.
+         *
+         * @param factor the factor, not null
+         * @return the new instance
+         * @since 1.0.20
+         */
+        global EasyDecimal multiply(Decimal factor) {
+            requireNonNull(factor, 'Factor cannot be null');
+
+            return new EasyDecimal(value * factor);
+        }
+
+        /**
+         * It returns the value in percentage of the provided value in the instance value.
+         *
+         * @param value the value, not null
+         * @return the value
+         * @since 1.0.20
+         */
+        global Decimal rightPctOf(Decimal value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            return value / this.value * 100;
+        }
+
+        /**
+         * It creates a new instance whose value equals to the calculated percentage value
+         * of the instance value.
+         *
+         * @param percentage the percentage, not null
+         * @return the new instance
+         * @since 1.0.20
+         */
+        global EasyDecimal pct(Decimal percentage) {
+            requireNonNull(percentage, 'Percentage cannot be null');
+
+            return new EasyDecimal(value / 100 * percentage);
+        }
+
+        /**
+         * It returns the value in percentage of the instance value in the provided value.
+         *
+         * @param value the value, not null
+         * @return the value
+         * @since 1.0.20
+         */
+        global Decimal pctOf(Decimal value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            return this.value / value * 100;
+        }
+
+        /**
+         * It creates a new instance whose value equals to the original value
+         * plus the provided factor.
+         *
+         * @param value the value, not null
+         * @return the new instance
+         * @see #plus(EasyDecimal) plus
+         * @since 1.0.20
+         */
+        global EasyDecimal plus(Decimal value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            return new EasyDecimal(this.value + value);
+        }
+
+        /**
+         * It creates a new instance whose value equals to the original value
+         * minus the provided value.
+         *
+         * @param value the value, not null
+         * @return the new instance
+         * @see #plus(Decimal) plus
+         * @since 1.0.20
+         */
+        global EasyDecimal plus(EasyDecimal value) {
+            requireNonNull(value, 'Value cannot be null');
+
+            return new EasyDecimal(this.value + value.value);
+        }
+
+        global override String toString() {
+            return String.valueOf(value);
+        }
+    }
+
+    /**
      * An object that holds a key-value pair.
      * The objects implements <code>Comparable</code> on the key value for sorting purposes.
      *
@@ -917,7 +1124,7 @@ global inherited sharing class Utils {
          * @since 1.0.13
          */
         global Boolean matches(SObject record) {
-            return record.get(field) != null;
+            return getKey(record) != null;
         }
     }
 
