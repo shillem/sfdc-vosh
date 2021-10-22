@@ -102,28 +102,19 @@ global inherited sharing class Soqler {
     }
 
     global class IFieldName extends F implements IField {
-        private final Boolean droppable;
-
+        private Boolean droppable;
         private String fn;
+        private Boolean toLabel;
 
         global IFieldName(Schema.SObjectField field) {
-            this(field, false);
-        }
-
-        global IFieldName(Schema.SObjectField field, Boolean droppable) {
-            this(null, field, droppable);
+            this(null, field);
         }
 
         global IFieldName(String crossReference, Schema.SObjectField field) {
-            this(crossReference, field, false);
-        }
-
-        global IFieldName(String crossReference, Schema.SObjectField field, Boolean droppable) {
             super(crossReference, field);
 
-            requireNonNull(droppable, 'Droppable cannot be null');
-
-            this.droppable = droppable;
+            this.droppable = false;
+            this.toLabel = false;
         }
 
         override String build() {
@@ -131,9 +122,54 @@ global inherited sharing class Soqler {
                 return null;
             }
 
-            return fn != null
-                ? String.format(fn, new List<String>{ super.build() })
-                : super.build();
+            String value = super.build();
+
+            if (fn != null) {
+                return String.format(fn, new List<String>{ value });
+            }
+
+            if (toLabel) {
+                switch on (Utils.getDescriber().getFieldDescribe(field).getType()) {
+                    when MultiPicklist, Picklist {
+                        return 'toLabel(' + value + ')';
+                    }
+                }
+            }
+
+            return value;
+        }
+
+        /**
+         * It flags the <code>Schema.SObjectField</code> as droppable or not.
+         * <p>
+         * When the query will be built, or run,
+         * if the field-level-security check fails for the field and droppable is true the query
+         * will still work but not return the field value, otherwise it will throw an exception.
+         *
+         * @param value the option to specify whether the field is droppable or not
+         * @return this FIELD instance
+         * @since 1.0.21
+         */
+        global IFieldName setDroppable(Boolean value) {
+            droppable = value != null && value;
+
+            return this;
+        }
+
+        /**
+         * It flags the <code>Schema.SObjectField</code> to return the label instead of the value.
+         * <p>
+         * It works only if the field type is Picklist or MultiPicklist.
+         * If it is not nothing this option will be ignored.
+         *
+         * @param value the function
+         * @return this FIELD instance
+         * @since 1.0.21
+         */
+        global IFieldName setToLabel(Boolean value) {
+            toLabel = value != null && value;
+
+            return this;
         }
 
         /**
@@ -697,28 +733,7 @@ global inherited sharing class Soqler {
          * @since 1.0.4
          */
         global LField add(Schema.SObjectField field) {
-            add(field, false);
-
-            return this;
-        }
-
-        /**
-         * It adds a <code>IFieldName</code> SELECT instruction
-         * based on <code>Schema.SObjectField</code> to the list.
-         * <p>
-         * When the query will be built, or run,
-         * if the field-level-security check fails for the field and droppable is true the query
-         * will still work but not return the field value, otherwise it will throw an exception.
-         *
-         * @param field the field used to compose the instruction to be added to the list, not null
-         * @param droppable the option to specify whether the field is droppable or not, not null
-         * @return this SELECT field list instance
-         * @see Soqler.IFieldName
-         * @see #add(Schema.SObjectField) add
-         * @since 1.0.4
-         */
-        global LField add(Schema.SObjectField field, Boolean droppable) {
-            add(new IFieldName(field, droppable));
+            add(new IFieldName(field));
 
             return this;
         }
