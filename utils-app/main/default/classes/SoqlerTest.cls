@@ -224,10 +224,14 @@ public class SoqlerTest {
 
         query.fields()
             .add(new Soqler.IFieldName(Schema.Account.Name))
-            .add(new Soqler.IFieldName(Schema.Account.Phone, true))
+            .add(new Soqler.IFieldName(Schema.Account.Type).setToLabel(true))
+            .add(new Soqler.IFieldName(Schema.Account.Phone).setDroppable(true).setToLabel(true))
             .add(new Soqler.IFieldName('Owner', Schema.User.Name));
 
-        System.assertEquals('SELECT Name, Phone, Owner.Name FROM Account', query.queryToString());
+        System.assertEquals(
+            'SELECT Name, toLabel(Type), Phone, Owner.Name FROM Account',
+            query.queryToString()
+        );
         System.assertEquals(query.queryToString(), query.queryLocator().getQuery());
 
         subquery = new Soqler(Schema.Contact.SObjectType);
@@ -237,7 +241,7 @@ public class SoqlerTest {
         query.fields().add(subquery);
 
         System.assertEquals(
-            'SELECT Name, Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account',
+            'SELECT Name, toLabel(Type), Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account',
             query.queryToString()
         );
 
@@ -255,7 +259,7 @@ public class SoqlerTest {
             .addAnd(Schema.Account.Id, subquery);
 
         System.assertEquals(
-            'SELECT Name, Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account' +
+            'SELECT Name, toLabel(Type), Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account' +
             ' WHERE Id NOT IN (\'FAKE_ID\')' +
             ' AND Owner.Name != \'Test Test\'' +
             ' AND Id IN (SELECT AccountId FROM Contact)',
