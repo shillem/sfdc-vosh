@@ -87,8 +87,8 @@ global class TestUtils {
         /**
          * @since 1.0.4
          */
-        global HttpResponseMock setBody(Blob body) {
-            this.body = body;
+        global HttpResponseMock setBody(Blob value) {
+            body = value;
 
             return this;
         }
@@ -96,8 +96,8 @@ global class TestUtils {
         /**
          * @since 1.0.4
          */
-        global HttpResponseMock setBody(String body) {
-            this.body = body;
+        global HttpResponseMock setBody(String value) {
+            body = value;
 
             return this;
         }
@@ -131,16 +131,10 @@ global class TestUtils {
                 LIMIT 1
             ];
 
-            String body;
+            body = resource.Body.toString();
 
             if (key != null) {
-                Map<String, Object> value = (Map<String, Object>) JSON.deserializeUntyped(
-                    resource.Body.toString()
-                );
-
-                body = JSON.serialize(value.get(key));
-            } else {
-                body = resource.Body.toString();
+                body = JSON.serialize(Utils.deserializeToMapper((String) body).getObject(key));
             }
 
             for (Integer i = 0; i < variables.size(); i++) {

@@ -4,6 +4,15 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "sfdx-create-scratch",
+            "type": "shell",
+            "command": "scripts/shell/create_project_scratch.sh -u Vosh",
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "sfdx-check-limits",
             "type": "shell",
             "options": {
