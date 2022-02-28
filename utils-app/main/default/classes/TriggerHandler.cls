@@ -332,7 +332,7 @@ global inherited sharing class TriggerHandler {
         List<Schema.Cs_TriggerHandlerRoutine__c> routines = [
             SELECT ClassName__c
             FROM Cs_TriggerHandlerRoutine__c
-            WHERE SObjectType__c = :String.valueOf(stype)
+            WHERE SObjectType__c = :String.valueOf(stype) AND Is_Disabled__c = FALSE
             ORDER BY Sort_Order__c, ClassName__c
         ];
 
