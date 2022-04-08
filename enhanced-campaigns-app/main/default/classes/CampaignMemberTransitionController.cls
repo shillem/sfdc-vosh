@@ -187,12 +187,10 @@ public with sharing class CampaignMemberTransitionController {
     private static Set<Utils.Entry> getOrgWideEmailAddresses() {
         Set<Utils.Entry> values = new Set<Utils.Entry>();
 
-        List<Schema.OrgWideEmailAddress> records = [
+        for (Schema.OrgWideEmailAddress record : [
             SELECT Id, Address, DisplayName
             FROM OrgWideEmailAddress
-        ];
-
-        for (Schema.OrgWideEmailAddress record : records) {
+        ]) {
             values.add(
                 new Utils.Entry(
                     record.Id,
