@@ -5,7 +5,7 @@
     handleEmailTemplateChange: function (cmp, event, helper) {
         const record = cmp.get("v.record");
 
-        record.Email_Template_Id__c = event.getParam("value");
+        record.vosh__Email_Template_Id__c = event.getParam("value");
 
         cmp.set("v.record", record);
     },
