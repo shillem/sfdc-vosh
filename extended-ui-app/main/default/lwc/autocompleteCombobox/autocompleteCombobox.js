@@ -7,7 +7,6 @@ export default class AutocompleteCombobox extends LightningElement {
     @api length = 5;
     @api messageWhenValueMissing = "Complete this field.";
     @api minimum = 3;
-    @api options;
     @api placeholder;
     @api required = false;
     @api variant = "standard";
@@ -16,6 +15,9 @@ export default class AutocompleteCombobox extends LightningElement {
     focused = false;
     loading = false;
     results = [];
+    selection = {};
+
+    _options;
     _value;
 
     validation = true;
@@ -62,6 +64,24 @@ export default class AutocompleteCombobox extends LightningElement {
         return `slds-dropdown slds-dropdown_length-${this.length} slds-dropdown_fluid`;
     }
 
+    @api get options() {
+        return this._options;
+    }
+
+    set options(values) {
+        this._options = values;
+
+        if (!Array.isArray(values) || this.empty) {
+            this.selection = {};
+
+            return;
+        }
+
+        const selected = values.find((v) => v.value === this._value);
+
+        this.selection = selected ? selected : {};
+    }
+
     @api get value() {
         return this._value;
     }
@@ -83,7 +103,7 @@ export default class AutocompleteCombobox extends LightningElement {
 
         if (
             findValueOn(val, this.results) ||
-            (Array.isArray(this.options) && findValueOn(val, this.options))
+            (Array.isArray(this._options) && findValueOn(val, this._options))
         ) {
             return;
         }
@@ -127,7 +147,14 @@ export default class AutocompleteCombobox extends LightningElement {
 
         this.expanded = true;
         this.focused = true;
-        this.results = [];
+
+        if (this.minimum > 0) {
+            this.results = [];
+
+            return;
+        }
+
+        this.lookup("");
     }
 
     handleInputBlur() {
@@ -220,6 +247,9 @@ export default class AutocompleteCombobox extends LightningElement {
                     detail: {
                         failure: (error) => {
                             this.results = [transformResult({ disabled: true, label: error })];
+
+                            this.lookupTimeout = null;
+                            this.loading = false;
                         },
                         success: (results) => {
                             const dressed = results.map(transformResult);
@@ -238,14 +268,14 @@ export default class AutocompleteCombobox extends LightningElement {
 
                             this.results = dressed;
                             this.expanded = true;
+
+                            this.lookupTimeout = null;
+                            this.loading = false;
                         },
                         term
                     }
                 })
             );
-
-            this.lookupTimeout = null;
-            this.loading = false;
         }, this.delay);
     }
 

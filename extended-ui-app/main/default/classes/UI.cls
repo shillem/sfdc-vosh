@@ -118,7 +118,7 @@ global class UI {
         private transient Schema.DescribeFieldResult result;
 
         global FieldSObject(SObjectField field) {
-            this(field, Utils.getDescriber().getFieldDescribe(field));
+            this(field, Describer.getInstance().getFieldDescribe(field));
         }
 
         private FieldSObject(SObjectField field, Schema.DescribeFieldResult result) {
@@ -201,7 +201,7 @@ global class UI {
         }
 
         global SObjectDescriptor(Schema.SObjectType type, Set<Schema.SObjectField> fields) {
-            Utils.Describer describer = Utils.getDescriber();
+            Describer describer = Describer.getInstance();
             Schema.DescribeSObjectResult typeRes = describer.getObjectDescribe(type);
 
             label = typeRes.getLabel();

@@ -2,14 +2,14 @@ global with sharing class Aura {
 
     @AuraEnabled(cacheable=true)
     global static String getFieldLabel(String pointer) {
-        Utils.Describer describ = Utils.getDescriber();
+        Describer describ = Describer.getInstance();
 
         return describ.getFieldDescribe(describ.fieldValueOf(pointer)).getLabel();
     }
 
     @AuraEnabled(cacheable=true)
     global static String getSObjectLabel(String name) {
-        Utils.Describer describ = Utils.getDescriber();
+        Describer describ = Describer.getInstance();
 
         return describ.getObjectDescribe(name).getLabel();
     }

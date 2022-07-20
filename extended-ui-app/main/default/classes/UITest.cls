@@ -53,7 +53,7 @@ public class UITest {
     @isTest
     static void fieldSObject() {
         SObjectField field = Schema.Account.Type;
-        Schema.DescribeFieldResult result = Utils.getDescriber().getFieldDescribe(field);
+        Schema.DescribeFieldResult result = Describer.getInstance().getFieldDescribe(field);
         UI.FieldSObject uiField = new UI.FieldSObject(field);
 
         // Testing basic options
