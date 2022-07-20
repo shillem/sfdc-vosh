@@ -7,7 +7,7 @@
         {
             "path": "utils-app",
             "package": "Vosh Utils",
-            "versionNumber": "1.0.23.NEXT",
+            "versionNumber": "1.0.24.NEXT",
             "default": false
         },
         {
@@ -49,6 +49,7 @@
         "Vosh Extended UI@1.0.3-1": "04t3V000000EIP9QAO",
         "Vosh Utils": "0Ho3V000000XZAHSA4",
         "Vosh Utils@1.0.9-4": "04t3V000000EHcqQAG",
-        "Vosh Utils@1.0.23-1": "04t3V000000EIP4QAO"
+        "Vosh Utils@1.0.23-1": "04t3V000000EIP4QAO",
+        "Vosh Utils@1.0.24-1": "04t3V000000EIPEQA4"
     }
 }

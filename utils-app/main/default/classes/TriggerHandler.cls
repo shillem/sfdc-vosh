@@ -146,6 +146,16 @@ global inherited sharing class TriggerHandler {
         }
 
         /**
+         * It returns the trigger operation type.
+         *
+         * @return the operation type
+         * @since 1.0.24
+         */
+        global System.TriggerOperation getOperationType() {
+            return Trigger.operationType;
+        }
+
+        /**
          * It returns the record type <code>Id</code> of a record type developer name.
          *
          * @param value the record type developer name
@@ -258,7 +268,7 @@ global inherited sharing class TriggerHandler {
          * @return the trigger operation type to execute, null if it needs to be aborted
          */
         public virtual System.TriggerOperation pre() {
-            return Trigger.operationType;
+            return getOperationType();
         }
 
         /**
