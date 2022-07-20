@@ -20,7 +20,7 @@ global class RecordTypeInvocableProcessor {
             Id recordTypeId = recordTypeIds.get(key);
 
             if (recordTypeId == null) {
-                Schema.RecordTypeInfo info = Utils.getDescriber()
+                Schema.RecordTypeInfo info = Describer.getInstance()
                     .getObjectDescribe(type)
                     .getRecordTypeInfosByDeveloperName()
                     .get(req.recordTypeName);

@@ -116,7 +116,7 @@ global inherited sharing class Fls {
     ) {
         Boolean result;
 
-        DescribeFieldResult dfr = Utils.getDescriber().getFieldDescribe(field);
+        DescribeFieldResult dfr = Describer.getInstance().getFieldDescribe(field);
 
         switch on (aType) {
             when CREATABLE {
@@ -155,7 +155,7 @@ global inherited sharing class Fls {
 
         Boolean result;
 
-        DescribeSObjectResult dsr = Utils.getDescriber().getObjectDescribe(sType);
+        DescribeSObjectResult dsr = Describer.getInstance().getObjectDescribe(sType);
 
         switch on (aType) {
             when CREATABLE {
@@ -184,7 +184,7 @@ global inherited sharing class Fls {
 
         Fls instance = new Fls(record.getSObjectType(), aType);
 
-        Map<String, SObjectField> fields = Utils.getDescriber().getObjectFieldMap(instance.sType);
+        Map<String, SObjectField> fields = Describer.getInstance().getObjectFieldMap(instance.sType);
 
         for (String field : record.getPopulatedFieldsAsMap().keySet()) {
             instance.queue(fields.get(field));

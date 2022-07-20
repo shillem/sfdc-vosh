@@ -4,6 +4,7 @@
  * @since 1.0.4
  */
 @isTest
+@SuppressWarnings('PMD.ExcessivePublicCount')
 global class TestUtils {
     /**
      * @since 1.0.4
@@ -401,7 +402,7 @@ global class TestUtils {
         }
 
         global OpportunityMaker setActiveStageName() {
-            List<Schema.PicklistEntry> stageNames = Utils.getDescriber()
+            List<Schema.PicklistEntry> stageNames = Describer.getInstance()
                 .getFieldDescribe(Schema.Opportunity.StageName)
                 .getPicklistValues();
 

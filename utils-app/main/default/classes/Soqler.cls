@@ -10,6 +10,7 @@
  *
  * @since 1.0.4
  */
+@SuppressWarnings('PMD.CyclomaticComplexity, PMD.ExcessiveClassLength, PMD.ExcessivePublicCount')
 global inherited sharing class Soqler {
     private abstract class A {
         void requireNonNull(Object obj, String message) {
@@ -129,7 +130,7 @@ global inherited sharing class Soqler {
             }
 
             if (toLabel) {
-                switch on (Utils.getDescriber().getFieldDescribe(field).getType()) {
+                switch on (Describer.getInstance().getFieldDescribe(field).getType()) {
                     when MultiPicklist, Picklist {
                         return 'toLabel(' + value + ')';
                     }
@@ -199,7 +200,7 @@ global inherited sharing class Soqler {
 
         IFieldQuery(Soqler query, Schema.SObjectType superType) {
             instance = query.setAsSubquery(
-                Utils.getDescriber().getObjectRelationshipName(superType, query.getType())
+                Describer.getInstance().getObjectRelationshipName(superType, query.getType())
             );
         }
 
@@ -346,34 +347,46 @@ global inherited sharing class Soqler {
     }
 
     global class IOrderName extends F implements IOrder {
-        private final Boolean descendingOrder;
+        private final OrderType ot;
 
         global IOrderName(Schema.SObjectField field) {
-            this(field, false);
+            this(field, OrderType.ASCENDING_NULLS_FIRST);
         }
 
-        global IOrderName(Schema.SObjectField field, Boolean descendingOrder) {
-            this(null, field, descendingOrder);
+        global IOrderName(Schema.SObjectField field, OrderType ot) {
+            this(null, field, ot);
         }
 
         global IOrderName(String crossReference, Schema.SObjectField field) {
-            this(crossReference, field, false);
+            this(crossReference, field, OrderType.ASCENDING_NULLS_FIRST);
         }
 
-        global IOrderName(
-            String crossReference,
-            Schema.SObjectField field,
-            Boolean descendingOrder
-        ) {
+        global IOrderName(String crossReference, Schema.SObjectField field, OrderType ot) {
             super(crossReference, field);
 
-            requireNonNull(descendingOrder, 'Descending order cannot be null');
+            requireNonNull(ot, 'Order type cannot be null');
 
-            this.descendingOrder = descendingOrder;
+            this.ot = ot;
         }
 
         override String build() {
-            return super.build() + (descendingOrder ? ' DESC' : '');
+            return super.build() + orderTypeToString();
+        }
+
+        private String orderTypeToString() {
+            switch on (ot) {
+                when ASCENDING_NULLS_LAST {
+                    return ' ASC NULLS LAST';
+                }
+                when DESCENDING_NULLS_FIRST {
+                    return ' DESC';
+                }
+                when DESCENDING_NULLS_LAST {
+                    return ' DESC NULLS LAST';
+                }
+            }
+
+            return '';
         }
     }
 
@@ -429,13 +442,8 @@ global inherited sharing class Soqler {
 
             this.co = co.trim();
 
-            switch on (this.co) {
-                when '<', '>' {
-                    // Supported
-                }
-                when else {
-                    throwUnsupported(this.co + ' comparison operator is not supported');
-                }
+            if (!(this.co.equals('<') || this.co.equals('>'))) {
+                throwUnsupported(this.co + ' comparison operator is not supported');
             }
 
             this.lat = lat;
@@ -528,7 +536,7 @@ global inherited sharing class Soqler {
                 cvt = getValueConverter(field, value);
                 stringValue = cvt.convertValue(value);
             }
-            
+
             String name = fn != null
                 ? String.format(fn, new List<String>{ super.build() })
                 : cvt.convertName(super.build());
@@ -587,13 +595,8 @@ global inherited sharing class Soqler {
 
             this.co = co.trim();
 
-            switch on (this.co) {
-                when 'IN', 'NOT IN' {
-                    // It's good
-                }
-                when else {
-                    throwUnsupported(this.co + ' comparison operator is not supported');
-                }
+            if (!(this.co.equals('IN') || this.co.equals('NOT IN'))) {
+                throwUnsupported(this.co + ' comparison operator is not supported');
             }
 
             if (types == null || types.isEmpty()) {
@@ -752,7 +755,7 @@ global inherited sharing class Soqler {
         global LField addAll() {
             return addAll(
                 new Set<Schema.SObjectField>(
-                    Utils.getDescriber().getObjectFieldMap(query.getType()).values()
+                    Describer.getInstance().getObjectFieldMap(query.getType()).values()
                 )
             );
         }
@@ -841,7 +844,7 @@ global inherited sharing class Soqler {
          * @since 1.0.4
          */
         global LOrder add(Schema.SObjectField field) {
-            return add(field, false);
+            return add(field, OrderType.ASCENDING_NULLS_FIRST);
         }
 
         /**
@@ -850,12 +853,12 @@ global inherited sharing class Soqler {
          * The order applied will be ascending.
          *
          * @param field the field used to compose the instruction to be added to the list, not null
-         * @param descendingOrder the order applied, descending if true, ascending if false, not null
+         * @param ot the order applied, not null
          * @see Soqler.IOrderName
          * @since 1.0.4
          */
-        global LOrder add(Schema.SObjectField field, Boolean descendingOrder) {
-            return add(new IOrderName(field, descendingOrder));
+        global LOrder add(Schema.SObjectField field, OrderType ot) {
+            return add(new IOrderName(field, ot));
         }
     }
 
@@ -933,6 +936,13 @@ global inherited sharing class Soqler {
         }
     }
 
+    global enum OrderType {
+        ASCENDING_NULLS_FIRST,
+        ASCENDING_NULLS_LAST,
+        DESCENDING_NULLS_FIRST,
+        DESCENDING_NULLS_LAST
+    }
+
     private static final Converter C_DATE_TIME = new ConverterDateTime();
     private static final Converter C_DATE_TIME_DATE = new ConverterDateTimeDate();
     private static final Converter C_OBJECT = new Converter();
@@ -965,6 +975,7 @@ global inherited sharing class Soqler {
         this.flds = new LField(this);
     }
 
+    // prettier-ignore
     private String build() {
         String fb = flds.build();
         String wb = whrs != null ? whrs.build() : null;
@@ -984,7 +995,6 @@ global inherited sharing class Soqler {
             }
         );
     }
-
     /**
      * It returns the instruction list that will compose the SELECT part of the query.
      *
@@ -1207,7 +1217,7 @@ global inherited sharing class Soqler {
 
     private static Converter getValueConverter(Schema.SObjectField field, Object value) {
         if (value instanceof Date) {
-            return Utils.getDescriber().getFieldDescribe(field).getType() == DisplayType.DATETIME
+            return Describer.getInstance().getFieldDescribe(field).getType() == DisplayType.DATETIME
                 ? C_DATE_TIME_DATE
                 : C_DATE_TIME;
         }

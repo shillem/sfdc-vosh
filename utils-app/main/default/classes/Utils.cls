@@ -1,178 +1,5 @@
+@SuppressWarnings('PMD.ExcessiveClassLength, PMD.ExcessivePublicCount, PMD.StdCyclomaticComplexity')
 global inherited sharing class Utils {
-    /**
-     * A helper class that for <code>SObjectType</code> objects and what revolves around them:
-     * <code>DescribeSObjectResult, DescribeFieldResult</code>.
-     * <p>
-     * This class is meant to be used through a static instance since it wants to leverage cache
-     * for reuse as opposed to calling Salesforce methods directly which would become time-expensive.
-     *
-     * @see Utils#getDescriber() getDescriber
-     * @since 1.0.1
-     */
-    global class Describer {
-        private Map<String, Schema.SObjectType> globalDescriber;
-        private Map<Schema.SObjectType, Schema.DescribeSObjectResult> objectDescribers;
-        private Map<Schema.SObjectType, Map<Schema.SObjectType, String>> objectRelationshipNames;
-        private Map<Schema.SObjectField, Schema.DescribeFieldResult> fieldDescribers;
-
-        private Describer() {
-        }
-
-        /**
-         * It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_global_describe.htm">global describe</a>.
-         *
-         * @return the global describe
-         * @since 1.0.1
-         */
-        global Map<String, SObjectType> getGlobal() {
-            if (globalDescriber == null) {
-                globalDescriber = Schema.getGlobalDescribe();
-            }
-
-            return globalDescriber;
-        }
-
-        /**
-         * It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_methods_system_fields_describe.htm">DescribeFieldResult</a>
-         * of a given <code>SObjectField</code> field.
-         *
-         * @param field the field, not null
-         * @return the field describe result
-         * @since 1.0.1
-         */
-        global Schema.DescribeFieldResult getFieldDescribe(Schema.SObjectField field) {
-            requireNonNull(field, 'Field cannot be null');
-
-            if (fieldDescribers == null) {
-                fieldDescribers = new Map<Schema.SObjectField, Schema.DescribeFieldResult>();
-            }
-
-            Schema.DescribeFieldResult value = fieldDescribers.get(field);
-
-            if (value == null) {
-                value = field.getDescribe();
-
-                fieldDescribers.put(field, value);
-            }
-
-            return value;
-        }
-
-        /**
-         * It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_methods_system_sobject_describe.htm#apex_methods_system_sobject_describe">DescribeSObjectResult</a>
-         * of a given <code>SObject</code>.
-         *
-         * @param name the <code>SObject</code> name, not null
-         * @return the <code>SObject</code> describe result
-         * @see #getObjectDescribe(Schema.SObjectType) getObjectDescribe
-         * @since 1.0.1
-         */
-        global Schema.DescribeSObjectResult getObjectDescribe(String name) {
-            requireNonNull(name, 'Name cannot be null');
-
-            return getObjectDescribe(getGlobal().get(name));
-        }
-
-        /**
-         * @param type the <code>SObject</code> type, not null
-         * @return the <code>SObject</code> describe result
-         * @see #getObjectDescribe(String) getObjectDescribe
-         * @since 1.0.1
-         */
-        global Schema.DescribeSObjectResult getObjectDescribe(Schema.SObjectType type) {
-            requireNonNull(type, 'Type cannot be null');
-
-            if (objectDescribers == null) {
-                objectDescribers = new Map<Schema.SObjectType, Schema.DescribeSObjectResult>();
-            }
-
-            Schema.DescribeSObjectResult result = objectDescribers.get(type);
-
-            if (result == null) {
-                result = type.getDescribe();
-
-                objectDescribers.put(type, result);
-            }
-
-            return result;
-        }
-
-        /**
-         * It returns a map of all the fields defined for a given <code>SObject</code>.
-         * The map keys represent the field names
-         * while the values are the <code>SObjectField</code> objects.
-         *
-         * @param type the <code>SObject</code> type, not null
-         * @return the map containing all the fields defined for the <code>SObject</code>
-         * @since 1.0.1
-         */
-        global Map<String, SObjectField> getObjectFieldMap(Schema.SObjectType type) {
-            return getObjectDescribe(type).fields.getMap();
-        }
-
-        /**
-         * It returns the relationship name between two <code>SObjectType</code> objects.
-         *
-         * @param parent the parent <code>SObject</code> type, not null
-         * @param child the child <code>SObject</code> type, not null
-         * @return the relationship name between parent and child
-         * @since 1.0.4
-         */
-        global String getObjectRelationshipName(
-            Schema.SObjectType parent,
-            Schema.SObjectType child
-        ) {
-            requireNonNull(parent, 'Parent SObject type cannot be null');
-            requireNonNull(child, 'Child SObject type cannot be null');
-
-            if (objectRelationshipNames == null) {
-                objectRelationshipNames = new Map<Schema.SObjectType, Map<Schema.SObjectType, String>>();
-            }
-
-            Map<Schema.SObjectType, String> children = objectRelationshipNames.get(parent);
-
-            if (children == null) {
-                children = new Map<Schema.SObjectType, String>();
-
-                for (
-                    Schema.ChildRelationship rel : getObjectDescribe(parent).getChildRelationships()
-                ) {
-                    children.put(rel.getChildSObject(), rel.getRelationshipName());
-                }
-
-                objectRelationshipNames.put(parent, children);
-            }
-
-            String value = children.get(child);
-
-            if (value == null) {
-                throw new UnsupportedOperationException(
-                    parent +
-                    ' does not have relationship with ' +
-                    child
-                );
-            }
-
-            return value;
-        }
-
-        /**
-         * It returns the <code>SObjectField</code> object representation of a given field name.
-         * The value must be represented as <code>SObject.SObjectField</code> (e.g.: <code>Account.Name</code>).
-         *
-         * @param value the string representing the <code>SObjectField</code>, not null
-         * @return the <code>SObjectField</code> represented by the String or null if the field doesn't exist
-         * @since 1.0.1
-         */
-        global Schema.SObjectField fieldValueOf(String value) {
-            requireNonNull(value, 'Value cannot be null');
-
-            List<String> mapping = value.split('\\.');
-
-            return getObjectFieldMap(getGlobal().get(mapping[0])).get(mapping[1]);
-        }
-    }
-
     /**
      * A wrapper for <code>Decimal</code> that makes it easy to perform common math computations.
      *
@@ -1188,6 +1015,20 @@ global inherited sharing class Utils {
         }
 
         /**
+         * It adds the record field values of a given record list to the set if it's not already present.
+         *
+         * @param records the record list the field value will be read from
+         * @since 1.0.23
+         */
+        global void addRecordValues(List<SObject> records) {
+            requireNonNull(records, 'Records cannot be null');
+
+            for (SObject record : records) {
+                values.put(getRecordValue(record), record);
+            }
+        }
+
+        /**
          * It returns the record associated with the given value if present in the set.
          *
          * @param record the record the field value will be read from
@@ -1207,6 +1048,17 @@ global inherited sharing class Utils {
          */
         global Object getRecordValue(SObject record) {
             return record.get(field);
+        }
+
+        /**
+         * It returns the set of records the class is managing.
+         *
+         * @return the set of records
+         * @see Utils.Uniquifier#getValues() getValues
+         * @since 1.0.23
+         */
+        global List<SObject> getRecords() {
+            return values.values();
         }
 
         /**
@@ -1329,8 +1181,6 @@ global inherited sharing class Utils {
         }
     }
 
-    private static Map<Id, Describer> DESCRIBER_INSTANCE;
-
     /**
      * It deserializes a map-representing JSON string wrapped in a <code>Utils.Mapper</code> object.
      *
@@ -1350,64 +1200,54 @@ global inherited sharing class Utils {
      * @return the class name of the object
      * @since 1.0.3
      */
+    @SuppressWarnings('PMD.CyclomaticComplexity, PMD.StdCyclomaticComplexity')
     global static String getClassName(Object obj) {
         requireNonNull(obj, 'Object cannot be null');
 
-        if (obj instanceof Blob)
+        if (obj instanceof Blob) {
             return 'Blob';
-        if (obj instanceof Boolean)
+        }
+        if (obj instanceof Boolean) {
             return 'Boolean';
-        if (obj instanceof Date)
+        }
+        if (obj instanceof Date) {
             return 'Date';
-        if (obj instanceof Datetime)
+        }
+        if (obj instanceof Datetime) {
             return 'Datetime';
-        if (obj instanceof Decimal)
+        }
+        if (obj instanceof Decimal) {
             return 'Decimal';
-        if (obj instanceof Double)
+        }
+        if (obj instanceof Double) {
             return 'Double';
-        if (obj instanceof Id)
+        }
+        if (obj instanceof Id) {
             return 'Id';
-        if (obj instanceof Integer)
+        }
+        if (obj instanceof Integer) {
             return 'Integer';
-        if (obj instanceof List<Object>)
+        }
+        if (obj instanceof List<Object>) {
             return 'List';
-        if (obj instanceof Long)
+        }
+        if (obj instanceof Long) {
             return 'Long';
-        if (obj instanceof SObject)
+        }
+        if (obj instanceof SObject) {
             return String.valueOf(obj);
-        if (obj instanceof String)
+        }
+        if (obj instanceof String) {
             return 'String';
-        if (obj instanceof Time)
+        }
+        if (obj instanceof Time) {
             return 'Time';
+        }
 
         String name = String.valueOf(obj);
         Integer index = name.indexOf(':');
 
         return index > 0 ? name.substring(0, index) : name;
-    }
-
-    /**
-     * It returns the static instance of <code>Describer</code>.
-     *
-     * @return the static instance of <code>Describer</code>
-     * @see Utils.Describer
-     * @since 1.0.1
-     */
-    global static Describer getDescriber() {
-        if (DESCRIBER_INSTANCE == null) {
-            DESCRIBER_INSTANCE = new Map<Id, Describer>();
-        }
-
-        Id userId = UserInfo.getUserId();
-        Describer describ = DESCRIBER_INSTANCE.get(userId);
-
-        if (describ == null) {
-            describ = new Describer();
-
-            DESCRIBER_INSTANCE.put(userId, describ);
-        }
-
-        return describ;
     }
 
     /**
@@ -1422,7 +1262,7 @@ global inherited sharing class Utils {
     global static Map<String, Id> getRecordTypeNames(Schema.SObjectType type) {
         requireNonNull(type, 'SObject type cannot be null');
 
-        List<Schema.RecordTypeInfo> infos = getDescriber()
+        List<Schema.RecordTypeInfo> infos = Describer.getInstance()
             .getObjectDescribe(type)
             .getRecordTypeInfosByDeveloperName()
             .values();
@@ -1434,6 +1274,104 @@ global inherited sharing class Utils {
         }
 
         return names;
+    }
+
+    /**
+     * It returns whether the <code>DisplayType</code> is of numeric type.
+     *
+     * @param value the display type
+     * @return true if the display type is number-like
+     * @since 1.0.23
+     */
+    global static Boolean isDisplayTypeNumeric(Schema.DisplayType value) {
+        requireNonNull(value, 'Display type cannot be null');
+
+        switch on (value) {
+            when CURRENCY, DOUBLE, INTEGER, LONG, PERCENT {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * It returns whether the <code>DisplayType</code> is of text type.
+     *
+     * @param value the display type
+     * @return true if the display type is text-like
+     * @since 1.0.23
+     */
+    global static Boolean isDisplayTypeTextual(Schema.DisplayType value) {
+        requireNonNull(value, 'Display type cannot be null');
+
+        switch on (value) {
+            when EMAIL, ID, MULTIPICKLIST, PHONE, PICKLIST, REFERENCE, STRING, TEXTAREA, URL {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * It returns the first value if not null, otherwise the alternative.
+     *
+     * @param value the value
+     * @param alternative the alternative
+     * @return the value if not null otherwise the alternative
+     * @since 1.0.23
+     */
+    global static Boolean optBooleanOrElse(Boolean value, Boolean alternative) {
+        return value != null ? value : alternative;
+    }
+
+    /**
+     * It returns the first value if not null, otherwise the alternative.
+     *
+     * @param value the value
+     * @param alternative the alternative
+     * @return the value if not null otherwise the alternative
+     * @since 1.0.23
+     */
+    global static Decimal optDecimalOrElse(Decimal value, Decimal alternative) {
+        return value != null ? value : alternative;
+    }
+
+    /**
+     * It returns the first value if not null, otherwise the alternative.
+     *
+     * @param value the value
+     * @param alternative the alternative
+     * @return the value if not null otherwise the alternative
+     * @since 1.0.23
+     */
+    global static Integer optIntegerOrElse(Decimal value, Integer alternative) {
+        return value != null ? value.intValue() : alternative;
+    }
+
+    /**
+     * It returns the first value if not null, otherwise the alternative.
+     *
+     * @param value the value
+     * @param alternative the alternative
+     * @return the value if not null otherwise the alternative
+     * @since 1.0.23
+     */
+    global static Integer optIntegerOrElse(Integer value, Integer alternative) {
+        return value != null ? value : alternative;
+    }
+
+    /**
+     * It returns the first value if not null, otherwise the alternative.
+     *
+     * @param value the value
+     * @param alternative the alternative
+     * @return the value if not null otherwise the alternative
+     * @since 1.0.23
+     */
+    global static String optStringOrElse(String value, String alternative) {
+        return value != null ? value : alternative;
     }
 
     /**

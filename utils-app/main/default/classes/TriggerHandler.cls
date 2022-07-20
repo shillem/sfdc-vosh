@@ -21,6 +21,7 @@ global inherited sharing class TriggerHandler {
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
+        @SuppressWarnings('PMD.EmptyStatementBlock')
         global virtual void afterDelete(SObject record) {
         }
 
@@ -31,6 +32,7 @@ global inherited sharing class TriggerHandler {
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
+        @SuppressWarnings('PMD.EmptyStatementBlock')
         global virtual void afterInsert(SObject record) {
         }
 
@@ -41,6 +43,7 @@ global inherited sharing class TriggerHandler {
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
+        @SuppressWarnings('PMD.EmptyStatementBlock')
         global virtual void afterUndelete(SObject record) {
         }
 
@@ -51,6 +54,7 @@ global inherited sharing class TriggerHandler {
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
+        @SuppressWarnings('PMD.EmptyStatementBlock')
         global virtual void afterUpdate(SObject stored, SObject memory) {
         }
 
@@ -61,6 +65,7 @@ global inherited sharing class TriggerHandler {
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
+        @SuppressWarnings('PMD.EmptyStatementBlock')
         global virtual void beforeDelete(SObject record) {
         }
 
@@ -71,6 +76,7 @@ global inherited sharing class TriggerHandler {
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
+        @SuppressWarnings('PMD.EmptyStatementBlock')
         global virtual void beforeInsert(SObject record) {
         }
 
@@ -81,6 +87,7 @@ global inherited sharing class TriggerHandler {
          * @param record the record passed by the trigger
          * @since 1.0.1
          */
+        @SuppressWarnings('PMD.EmptyStatementBlock')
         global virtual void beforeUpdate(SObject stored, SObject memory) {
         }
 
@@ -91,9 +98,13 @@ global inherited sharing class TriggerHandler {
          * @since 1.0.1
          */
         global void execute() {
-            pre();
+            System.TriggerOperation operation = pre();
 
-            switch on Trigger.operationType {
+            if (operation == null) {
+                return;
+            }
+
+            switch on (operation) {
                 when BEFORE_INSERT {
                     for (SObject record : Trigger.new) {
                         beforeInsert(record);
@@ -244,8 +255,10 @@ global inherited sharing class TriggerHandler {
          * before the <code>Trigger</code> record looping takes place.
          *
          * @since 1.0.1
+         * @return the trigger operation type to execute, null if it needs to be aborted
          */
-        global virtual void pre() {
+        public virtual System.TriggerOperation pre() {
+            return Trigger.operationType;
         }
 
         /**
@@ -254,6 +267,7 @@ global inherited sharing class TriggerHandler {
          *
          * @since 1.0.1
          */
+        @SuppressWarnings('PMD.EmptyStatementBlock')
         global virtual void post() {
         }
 
@@ -326,6 +340,7 @@ global inherited sharing class TriggerHandler {
      * @see #enable(System.Type) enable
      * @since 1.0.3
      */
+    @SuppressWarnings('PMD.ApexCRUDViolation')
     global static void execute(Schema.SObjectType stype) {
         Utils.requireNonNull(stype, 'Type cannot be null');
 
@@ -372,6 +387,7 @@ global inherited sharing class TriggerHandler {
      * @see #enable(Map<System.Type, Decimal>) enable
      * @since 1.0.12
      */
+    @SuppressWarnings('PMD.ApexCRUDViolation')
     global static void disable(Set<System.Type> types) {
         Utils.requireNonNull(types, 'Types cannot be null');
 
@@ -430,6 +446,7 @@ global inherited sharing class TriggerHandler {
      * @see #execute(Schema.SObjectType) execute
      * @since 1.0.12
      */
+    @SuppressWarnings('PMD.ApexCRUDViolation')
     global static void enable(Map<System.Type, Decimal> types) {
         Utils.requireNonNull(types, 'Types cannot be null');
 

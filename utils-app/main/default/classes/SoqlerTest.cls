@@ -68,7 +68,7 @@ public class SoqlerTest {
 
         query.wheres().addAnd(new Soqler.IWhereName(Account.OwnerId, 'IN', new List<Id>(ownerIds)));
 
-        query.orders().add(Account.Name, true);
+        query.orders().add(Account.Name, Soqler.OrderType.DESCENDING_NULLS_FIRST);
 
         query.setMaxCount(2);
 
@@ -199,21 +199,21 @@ public class SoqlerTest {
         Soqler query, subquery;
 
         // Composing COUNT()
-        query = new Soqler(Schema.Account.SObjectType);
+        query = new Soqler(Schema.Organization.SObjectType);
 
-        System.assertEquals('SELECT COUNT() FROM Account', query.queryCountToString());
+        System.assertEquals('SELECT COUNT() FROM Organization', query.queryCountToString());
 
         // Adding all fields
-        query = new Soqler(Schema.Account.SObjectType);
+        query = new Soqler(Schema.Organization.SObjectType);
 
         List<String> fieldNames = new List<String>(
-            Utils.getDescriber().getObjectFieldMap(query.getType()).keySet()
+            Describer.getInstance().getObjectFieldMap(query.getType()).keySet()
         );
 
         query.fields().addAll();
 
         System.assertEquals(
-            ('SELECT ' + String.join(fieldNames, ', ') + ' FROM Account').toLowerCase(),
+            ('SELECT ' + String.join(fieldNames, ', ') + ' FROM Organization').toLowerCase(),
             query.queryToString().toLowerCase()
         );
 
@@ -304,14 +304,16 @@ public class SoqlerTest {
             .add(new Soqler.IOrderLocation(Schema.Account.BillingAddress, 45.0, 11.0))
             .add(new Soqler.IOrderName(Schema.Account.Name))
             .add(new Soqler.IOrderName('Owner', Schema.User.Name))
-            .add(new Soqler.IOrderName(Schema.Account.Phone, true));
+            .add(
+                new Soqler.IOrderName(Schema.Account.Phone, Soqler.OrderType.DESCENDING_NULLS_LAST)
+            );
 
         System.assertEquals(
             'SELECT Id FROM Account' +
             ' ORDER BY DISTANCE(BillingAddress, GEOLOCATION(45.0, 11.0), \'km\')' +
             ', Name' +
             ', Owner.Name' +
-            ', Phone DESC' +
+            ', Phone DESC NULLS LAST' +
             ' LIMIT 1000' +
             ' OFFSET 90',
             query.queryToString()
