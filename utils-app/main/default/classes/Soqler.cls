@@ -1164,7 +1164,7 @@ global inherited sharing class Soqler {
    * @since 1.0.4
    */
   global Soqler setMaxCount(Integer value) {
-    if (value != null && value < 1) {
+    if (value != null && value < 0) {
       throw new UnsupportedOperationException('Query max count cannot be lower than 1');
     }
 
