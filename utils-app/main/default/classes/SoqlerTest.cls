@@ -207,8 +207,8 @@ public class SoqlerTest {
 
     query.fields()
       .add(new Soqler.IFieldName(Schema.Account.Name))
-      .add(new Soqler.IFieldName(Schema.Account.Type).setToLabel(true))
-      .add(new Soqler.IFieldName(Schema.Account.Phone).setDroppable(true).setToLabel(true))
+      .add(new Soqler.IFieldName(Schema.Account.Type).withFunction('toLabel({0})'))
+      .add(new Soqler.IFieldName(Schema.Account.Phone).setDroppable(true))
       .add(new Soqler.IFieldName('Owner', Schema.User.Name));
 
     System.assertEquals(

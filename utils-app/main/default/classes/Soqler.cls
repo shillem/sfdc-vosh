@@ -105,7 +105,6 @@ global inherited sharing class Soqler {
   global class IFieldName extends F implements IField {
     private Boolean droppable;
     private String fn;
-    private Boolean toLabel;
 
     global IFieldName(Schema.SObjectField field) {
       this(null, field);
@@ -115,7 +114,6 @@ global inherited sharing class Soqler {
       super(crossReference, field);
 
       this.droppable = false;
-      this.toLabel = false;
     }
 
     override String build() {
@@ -127,14 +125,6 @@ global inherited sharing class Soqler {
 
       if (fn != null) {
         return String.format(fn, new List<String>{ value });
-      }
-
-      if (toLabel) {
-        switch on (Describer.getInstance().getFieldDescribe(field).getType()) {
-          when MultiPicklist, Picklist {
-            return 'toLabel(' + value + ')';
-          }
-        }
       }
 
       return value;
@@ -153,22 +143,6 @@ global inherited sharing class Soqler {
      */
     global IFieldName setDroppable(Boolean value) {
       droppable = value != null && value;
-
-      return this;
-    }
-
-    /**
-     * It flags the <code>Schema.SObjectField</code> to return the label instead of the value.
-     * <p>
-     * It works only if the field type is Picklist or MultiPicklist.
-     * If it is not nothing this option will be ignored.
-     *
-     * @param value the function
-     * @return this FIELD instance
-     * @since 1.0.21
-     */
-    global IFieldName setToLabel(Boolean value) {
-      toLabel = value != null && value;
 
       return this;
     }
