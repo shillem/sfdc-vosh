@@ -259,6 +259,10 @@ global inherited sharing class Soqler {
     global IGroupName(Schema.SObjectField field) {
       super(field);
     }
+
+    global IGroupName(String crossReference, Schema.SObjectField field) {
+      super(crossReference, field);
+    }
   }
 
   global interface IOrder extends I {
@@ -756,7 +760,15 @@ global inherited sharing class Soqler {
    * @since 1.0.11
    */
   global class LGroup extends L {
-    private LGroup add(IGroup instruction) {
+    /**
+     * It adds a <code>IGroup</code> GROUP BY instruction to the list.
+     * The order applied will be ascending.
+     *
+     * @param instruction the instruction to be added to the list, not null
+     * @see Soqler.IGroup
+     * @since 1.0.25
+     */
+    global LGroup add(IGroup instruction) {
       requireNonNull(instruction, 'Instruction cannot be null');
 
       instructions.add(instruction);

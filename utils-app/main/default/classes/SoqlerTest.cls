@@ -335,13 +335,13 @@ public class SoqlerTest {
     query.fields()
       .add(Schema.Event.Subject)
       .add(new Soqler.IFieldName(Schema.Event.CreatedDate).withFunction('AVG(CALENDAR_YEAR({0})'));
-    query.groups().add(Schema.Event.Subject);
+    query.groups().add(new Soqler.IGroupName('Owner', Schema.User.Name));
 
     System.assertEquals(
       'SELECT Subject,' +
       ' AVG(CALENDAR_YEAR(CreatedDate)' +
       ' FROM Event' +
-      ' GROUP BY Subject',
+      ' GROUP BY Owner.Name',
       query.queryToString()
     );
   }
