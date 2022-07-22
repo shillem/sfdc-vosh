@@ -1,6 +1,19 @@
 @SuppressWarnings('PMD.ExcessiveClassLength, PMD.ExcessivePublicCount, PMD.StdCyclomaticComplexity')
 global inherited sharing class Utils {
   /**
+   * An enumerator to classify <code>DisplayType</code> in broader terms.
+   *
+   * @since 1.0.25
+   */
+  global enum DisplayFamily {
+    BOOL,
+    COMPLEX,
+    CHOICE,
+    NUM,
+    TEXT
+  }
+
+  /**
    * A wrapper for <code>Decimal</code> that makes it easy to perform common math computations.
    *
    * @since 1.0.20
@@ -1247,6 +1260,36 @@ global inherited sharing class Utils {
   }
 
   /**
+   * It returns the <code>DisplayFamily</code> family which provides a broader name set
+   * for the underlying <code>DisplayType</code>
+   *
+   * @param value the display type
+   * @return true if the display type is number-like
+   * @since 1.0.25
+   */
+  global static DisplayFamily getDisplayFamily(Schema.DisplayType value) {
+    requireNonNull(value, 'Display type cannot be null');
+
+    switch on (value) {
+      when BOOLEAN {
+        return DisplayFamily.BOOL;
+      }
+      when COMBOBOX, MULTIPICKLIST, PICKLIST {
+        return DisplayFamily.CHOICE;
+      }
+      when CURRENCY, DOUBLE, INTEGER, LONG, PERCENT {
+        return DisplayFamily.NUM;
+      }
+      when ENCRYPTEDSTRING, ID, PHONE, REFERENCE, STRING, TEXTAREA, URL {
+        return DisplayFamily.TEXT;
+      }
+      when else {
+        return DisplayFamily.COMPLEX;
+      }
+    }
+  }
+
+  /**
    * It fetches the record types of a given <code>SObject</code>.
    * The map keys are the "Developer Name" value for the record type
    * while the map values are their ids.
@@ -1270,44 +1313,6 @@ global inherited sharing class Utils {
     }
 
     return names;
-  }
-
-  /**
-   * It returns whether the <code>DisplayType</code> is of numeric type.
-   *
-   * @param value the display type
-   * @return true if the display type is number-like
-   * @since 1.0.23
-   */
-  global static Boolean isDisplayTypeNumeric(Schema.DisplayType value) {
-    requireNonNull(value, 'Display type cannot be null');
-
-    switch on (value) {
-      when CURRENCY, DOUBLE, INTEGER, LONG, PERCENT {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * It returns whether the <code>DisplayType</code> is of text type.
-   *
-   * @param value the display type
-   * @return true if the display type is text-like
-   * @since 1.0.23
-   */
-  global static Boolean isDisplayTypeTextual(Schema.DisplayType value) {
-    requireNonNull(value, 'Display type cannot be null');
-
-    switch on (value) {
-      when EMAIL, ID, MULTIPICKLIST, PHONE, PICKLIST, REFERENCE, STRING, TEXTAREA, URL {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**

@@ -58,12 +58,23 @@ public class UtilsTest {
   }
 
   @isTest
-  static void displayTypes() {
-    System.assert(Utils.isDisplayTypeNumeric(Schema.DisplayType.DOUBLE));
-    System.assert(!Utils.isDisplayTypeNumeric(Schema.DisplayType.COMPLEXVALUE));
-
-    System.assert(Utils.isDisplayTypeTextual(Schema.DisplayType.STRING));
-    System.assert(!Utils.isDisplayTypeTextual(Schema.DisplayType.INTEGER));
+  static void displayFamilies() {
+    System.assertEquals(
+      Utils.DisplayFamily.BOOL,
+      Utils.getDisplayFamily(Schema.DisplayType.BOOLEAN)
+    );
+    System.assertEquals(
+      Utils.DisplayFamily.CHOICE,
+      Utils.getDisplayFamily(Schema.DisplayType.PICKLIST)
+    );
+    System.assertEquals(
+      Utils.DisplayFamily.NUM,
+      Utils.getDisplayFamily(Schema.DisplayType.PERCENT)
+    );
+    System.assertEquals(
+      Utils.DisplayFamily.TEXT,
+      Utils.getDisplayFamily(Schema.DisplayType.STRING)
+    );
   }
 
   @isTest
