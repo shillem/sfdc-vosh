@@ -88,3 +88,31 @@ export const getUrlQueryParams = (names, url = document.location) => {
 export const untanglePageReference = ({ state: { inContextOfRef: base64 } }) => {
     return JSON.parse(window.atob(base64.startsWith("1.") ? base64.substring(2) : base64));
 };
+
+export const validate = (values, validateAll = false) => {
+    let valid = true;
+
+    values.forEach((input) => {
+        if (!valid && !validateAll) {
+            return;
+        }
+
+        if (input.reportValidity) {
+            if (!input.reportValidity()) valid = false;
+
+            return;
+        }
+
+        if (input.checkValidity) {
+            if (input.checkValidity()) {
+                return;
+            }
+
+            input.showHelpMessageIfInvalid();
+
+            valid = false;
+        }
+    });
+
+    return valid;
+};

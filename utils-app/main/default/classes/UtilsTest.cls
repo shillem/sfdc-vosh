@@ -1,444 +1,411 @@
 @isTest(isParallel=true)
 public class UtilsTest {
-    private class AccountTriggerHandlerTest1 extends TriggerHandler.Routine {
-        public override Schema.SObjectType getSObjectType() {
-            return Schema.Account.SObjectType;
+  @isTest
+  static void describer() {
+    Describer describ = Describer.getInstance();
+    Schema.SObjectType accountType = Schema.Account.SObjectType;
+
+    Schema.DescribeSObjectResult accResult1 = describ.getObjectDescribe(accountType);
+    Schema.DescribeSObjectResult accResult2 = describ.getObjectDescribe(
+      String.valueOf(accountType)
+    );
+
+    System.assertEquals(accResult1.getSObjectType(), accResult2.getSObjectType());
+
+    Schema.SObjectField accountField = Schema.Account.Name;
+
+    System.assertEquals(
+      accountField,
+      describ.getObjectFieldMap(accountType).get(String.valueOf(accountField))
+    );
+
+    Schema.DescribeFieldResult fieldResult = describ.getFieldDescribe(accountField);
+
+    System.assertEquals(accountField, fieldResult.getSObjectField());
+    System.assertEquals(accountField, describ.fieldValueOf('Account.Name'));
+
+    System.assertEquals(
+      'Contacts',
+      describ.getObjectRelationshipName(accountType, Schema.Contact.SObjectType)
+    );
+
+    Schema.Account acct = (Schema.Account) new TestUtils.AccountMaker()
+      .setName('Dummy')
+      .set(Schema.Account.Phone, '0000')
+      .setCount(1)
+      .make()
+      .get(0);
+
+    Schema.Opportunity oppt = (Schema.Opportunity) new TestUtils.OpportunityMaker()
+      .setAccountId(acct.Id)
+      .setActiveStageName()
+      .setName('Dummy')
+      .setCloseDate(Date.today().addDays(1))
+      .setCount(1)
+      .make()
+      .get(0);
+
+    oppt = [SELECT Account.Owner.Name FROM Opportunity WHERE Id = :oppt.Id];
+
+    System.assertEquals(
+      Schema.User.SObjectType,
+      describ.getRelatedObject(oppt, 'Account.Owner.Name').getSObjectType()
+    );
+
+    System.assert(
+      String.isNotEmpty((String) describ.getRelatedObjectValue(oppt, 'Account.Owner.Name'))
+    );
+  }
+
+  @isTest
+  static void displayFamilies() {
+    System.assertEquals(
+      Utils.DisplayFamily.BOOL,
+      Utils.getDisplayFamily(Schema.DisplayType.BOOLEAN)
+    );
+    System.assertEquals(
+      Utils.DisplayFamily.CHOICE,
+      Utils.getDisplayFamily(Schema.DisplayType.PICKLIST)
+    );
+    System.assertEquals(
+      Utils.DisplayFamily.NUM,
+      Utils.getDisplayFamily(Schema.DisplayType.PERCENT)
+    );
+    System.assertEquals(
+      Utils.DisplayFamily.TEXT,
+      Utils.getDisplayFamily(Schema.DisplayType.STRING)
+    );
+  }
+
+  @isTest
+  static void easyDecimal() {
+    Utils.EasyDecimal hundred = new Utils.EasyDecimal(100.0);
+
+    System.assertEquals(88.2, hundred.addPct(-10).addPct(-2).decimalValue());
+    System.assertEquals(112.2, hundred.addPct(10).addPct(2).decimalValue());
+    System.assertEquals(-10, hundred.minus(hundred).minus(10).decimalValue());
+    System.assertEquals(100, hundred.multiply(2).divide(2).decimalValue());
+    System.assertEquals(40, hundred.multiply(2).pct(20).decimalValue());
+    System.assertEquals(40, hundred.pctOf(250));
+    System.assertEquals(210, hundred.plus(10).plus(hundred).decimalValue());
+    System.assertEquals(70, hundred.rightPctOf(70));
+    System.assertEquals(hundred, new Utils.EasyDecimal(100.0));
+    System.assertEquals(hundred, hundred.copy());
+  }
+
+  @isTest
+  static void entry() {
+    List<Utils.Entry> entries = new List<Utils.Entry>{
+      new Utils.Entry('value1', 'label1'),
+      new Utils.Entry('value0', 'label0'),
+      new Utils.Entry('value9')
+    };
+
+    System.assertEquals('value1', entries[0].getValue());
+    System.assertEquals('value9', entries[2].getLabel());
+    System.assertEquals(entries.size(), 3);
+
+    // This will sort the entries according to their label
+    entries.sort();
+
+    System.assertEquals('label0', entries[0].getLabel());
+
+    Set<Utils.Entry> entrySet = new Set<Utils.Entry>(entries);
+
+    // This is not going to be added because it is a duplicate
+    entrySet.add(new Utils.Entry('value1', 'label1'));
+
+    System.assertEquals(entries.size(), 3);
+  }
+
+  @isTest
+  static void hasher() {
+    Utils.Hasher hs;
+
+    try {
+      hs = new Utils.Hasher('MD6');
+    } catch (UnsupportedOperationException e) {
+      System.assert(e.getMessage().contains('Algorithm must be'));
+    }
+
+    hs = new Utils.Hasher();
+    String value = 'Hash Me!';
+
+    System.assertEquals(
+      EncodingUtil.convertToHex(Crypto.generateDigest('MD5', Blob.valueOf(value))),
+      hs.hash(value)
+    );
+  }
+
+  @isTest
+  static void fieldLevelSecurity() {
+    Schema.Profile insufficientProfile = [
+      SELECT Id
+      FROM Profile
+      WHERE UserType = 'CsnOnly'
+      LIMIT 1
+    ];
+
+    Schema.User insufficientUser;
+
+    System.runAs(TestUtils.getUser()) {
+      // Generating user
+      insufficientUser = (Schema.User) new TestUtils.UserMaker()
+        .setProfileId(insufficientProfile.Id)
+        .setLastName('Insufficient')
+        .setCount(1)
+        .make()
+        .get(0);
+    }
+
+    Test.startTest();
+
+    Fls sec = new Fls(Schema.Contact.SObjectType, System.AccessType.UPDATABLE)
+      .queue(new Set<Schema.SObjectField>{ Schema.Contact.FirstName, Schema.Contact.LastName })
+      .queue(Schema.Contact.Title);
+
+    Fls.Report rep;
+
+    Schema.Contact anyone = new Schema.Contact(LastName = 'Anyone', HasOptedOutOfEmail = true);
+
+    System.runAs(insufficientUser) {
+      rep = Fls.audit(anyone, System.AccessType.CREATABLE);
+
+      System.assert(!rep.isAuthorized(), 'It should not have been authorized');
+
+      try {
+        rep.throwExceptionIfUnauthorized();
+
+        System.assert(false, 'It should have thrown a Fls.ReportException');
+      } catch (Fls.ReportException e) {
+        System.assert(
+          e.getMessage().contains(String.valueOf(Schema.Contact.HasOptedOutOfEmail)),
+          'It should have contained HasOptedOutOfEmail field: ' + e.getMessage()
+        );
+        System.assert(
+          e.getReport().getFieldFailures().contains(Schema.Contact.HasOptedOutOfEmail),
+          'It should have contained HasOptedOutOfEmail field: ' + e.getReport().getFieldFailures()
+        );
+      }
+
+      rep = sec.audit();
+
+      System.assert(!rep.isAuthorized(), 'It should not have been authorized');
+    }
+
+    rep = Fls.audit(anyone, System.AccessType.CREATABLE);
+
+    System.assert(rep.isAuthorized(), 'It should have been authorized');
+
+    rep = sec.audit();
+
+    System.assert(rep.isAuthorized(), 'It should have been authorized');
+  }
+
+  @isTest
+  static void mapper() {
+    Utils.Entry dummy = new Utils.Entry('value1', 'label1');
+    String serializedDummy = JSON.serialize(dummy);
+
+    Utils.Mapper umapper = Utils.deserializeToMapper(serializedDummy);
+
+    System.assert(umapper.containsKey('label'), 'It should have contained label key');
+    System.assertEquals(dummy.getLabel(), umapper.getString('label'));
+    System.assertEquals(dummy.getValue(), umapper.getString('value'));
+  }
+
+  @isTest
+  static void optionals() {
+    System.assertEquals(true, Utils.optBooleanOrElse(null, true));
+    System.assertEquals(false, Utils.optBooleanOrElse(false, true));
+
+    System.assertEquals(0, Utils.optDecimalOrElse(null, 0));
+    System.assertEquals(1.2, Utils.optDecimalOrElse(1.2, 0));
+
+    System.assertEquals(1, Utils.optIntegerOrElse((Integer) null, 1));
+    System.assertEquals(1, Utils.optIntegerOrElse(1.2, 1));
+    System.assertEquals(2, Utils.optIntegerOrElse(2, 1));
+
+    System.assertEquals('A', Utils.optStringOrElse(null, 'A'));
+    System.assertEquals('B', Utils.optStringOrElse('B', 'A'));
+  }
+
+  @isTest
+  static void queue() {
+    Queue q = new Queue();
+
+    System.assertEquals(true, q.isEmpty());
+    System.assertEquals(0, q.size());
+    System.assertEquals(null, q.peek());
+
+    q.add('FirstIn');
+    System.assertEquals(false, q.isEmpty());
+    System.assertEquals(1, q.size());
+    System.assertEquals('FirstIn', (String) q.peek());
+
+    q.add('SecondIn');
+    System.assertEquals(false, q.isEmpty());
+    System.assertEquals(2, q.size());
+    System.assertEquals('FirstIn', (String) q.peek());
+
+    System.assertEquals('FirstIn', (String) q.poll());
+    System.assertEquals('SecondIn', (String) q.poll());
+    System.assertEquals(null, (String) q.poll());
+    System.assertEquals(true, q.isEmpty());
+    System.assertEquals(0, q.size());
+
+    q.addAll(new List<Object>{ 'a', 'b', 'c' });
+    System.assertEquals(3, q.size());
+  }
+
+  @isTest
+  static void randomizerGenerator() {
+    Utils.RandomizerBuilder builder;
+    String randomizer;
+    List<String> components;
+
+    builder = new Utils.RandomizerBuilder();
+    randomizer = builder
+      .setCurrentTimeMillis(true)
+      .setLength(6)
+      .setPreferences(
+        new Set<Utils.RandomizerPreference>{
+          Utils.RandomizerPreference.INCLUDE_LETTER,
+          Utils.RandomizerPreference.INCLUDE_NUMBER
         }
+      )
+      .setPrefix('TEST')
+      .build()
+      .generate();
+    components = randomizer.split('-');
+
+    System.assertEquals(
+      3,
+      components.size(),
+      'The randomizer components should have been 3: ' + randomizer
+    );
+    System.assertEquals('TEST', components[0]);
+    System.assertEquals(6, components[1].length());
+    System.assert(
+      components[1].isAlphanumeric(),
+      'The 2nd component should have been alphanumeric ' + components[1]
+    );
+
+    builder = new Utils.RandomizerBuilder();
+    randomizer = builder
+      .setPreferences(
+        new Set<Utils.RandomizerPreference>{ Utils.RandomizerPreference.INCLUDE_NUMBER }
+      )
+      .setLength(3)
+      .build()
+      .generate();
+    components = randomizer.split('-');
+
+    System.assertEquals(3, components[0].length());
+    System.assert(
+      !components[0].isAlpha(),
+      'The component should not have contained letters: ' + components[0]
+    );
+  }
+
+  @isTest
+  static void requireNonNull() {
+    String message = 'Something is required';
+
+    try {
+      Utils.requireNonNull((Schema.Account) null, message);
+
+      System.assert(false, 'It should have thrown a NullPointerException');
+    } catch (NullPointerException e) {
+      System.assertEquals(message, e.getMessage());
     }
+  }
 
-    private class AccountTriggerHandlerTest2 extends TriggerHandler.Routine {
-        public override Schema.SObjectType getSObjectType() {
-            return Schema.Account.SObjectType;
-        }
-    }
+  @isTest
+  static void sobjectCollector() {
+    List<Schema.Account> accts = new List<Schema.Account>{
+      new Account(Name = 'A', BillingCountry = 'Italy'),
+      new Account(Name = 'B', BillingCountry = 'Germany'),
+      new Account(Name = 'C', BillingCountry = 'Germany')
+    };
 
-    @isTest
-    static void batchableDeletable() {
-        List<Schema.Account> acct = (List<Schema.Account>) new TestUtils.AccountMaker()
-            .setName('Dummy')
-            .setCount(3)
-            .make();
+    Utils.SObjectCollector soc = new Utils.SObjectCollector();
+    soc.addAll(accts);
 
-        String q = 'SELECT COUNT() FROM Account';
+    Utils.SoccField criteria1 = new Utils.SoccField(Schema.Account.BillingCountry);
 
-        System.assertEquals(3, Database.countQuery(q));
+    Map<Object, List<SObject>> lists = soc.makeMapOfLists(criteria1);
+    System.assertEquals(2, lists.size());
+    System.assert(lists.containsKey('Italy'));
 
-        Test.startTest();
+    insert accts;
 
-        Database.executeBatch(new BatchableDeletable('SELECT Id FROM Account', true));
-
-        Test.stopTest();
-
-        System.assertEquals(0, Database.countQuery(q));
-    }
-
-    @isTest
-    static void describer() {
-        Utils.Describer describ = Utils.getDescriber();
-        Schema.SObjectType accountType = Schema.Account.SObjectType;
-
-        Schema.DescribeSObjectResult accResult1 = describ.getObjectDescribe(accountType);
-        Schema.DescribeSObjectResult accResult2 = describ.getObjectDescribe(
-            String.valueOf(accountType)
-        );
-
-        System.assertEquals(accResult1.getSObjectType(), accResult2.getSObjectType());
-
-        Schema.SObjectField accountField = Schema.Account.Name;
-
-        System.assertEquals(
-            accountField,
-            describ.getObjectFieldMap(accountType).get(String.valueOf(accountField))
-        );
-
-        Schema.DescribeFieldResult fieldResult = describ.getFieldDescribe(accountField);
-
-        System.assertEquals(accountField, fieldResult.getSObjectField());
-        System.assertEquals(accountField, describ.fieldValueOf('Account.Name'));
-
-        System.assertEquals(
-            'Contacts',
-            describ.getObjectRelationshipName(accountType, Schema.Contact.SObjectType)
-        );
-    }
+    Map<Object, Map<Id, SObject>> maps = soc.makeMapOfMaps(criteria1);
+    System.assertEquals(2, maps.get('Germany').size());
 
-    @isTest
-    static void easyDecimal() {
-        Utils.EasyDecimal hundred = new Utils.EasyDecimal(100.0);
+    accts[2].Name = 'C of B';
+    accts[2].ParentId = accts[1].Id;
 
-        System.assertEquals(88.2, hundred.addPct(-10).addPct(-2).decimalValue());
-        System.assertEquals(112.2, hundred.addPct(10).addPct(2).decimalValue());
-        System.assertEquals(-10, hundred.minus(hundred).minus(10).decimalValue());
-        System.assertEquals(100, hundred.multiply(2).divide(2).decimalValue());
-        System.assertEquals(40, hundred.multiply(2).pct(20).decimalValue());
-        System.assertEquals(40, hundred.pctOf(250));
-        System.assertEquals(210, hundred.plus(10).plus(hundred).decimalValue());
-        System.assertEquals(70, hundred.rightPctOf(70));
-        System.assertEquals(hundred, new Utils.EasyDecimal(100.0));
-        System.assertEquals(hundred, hundred.copy());
-    }
-
-    @isTest
-    static void entry() {
-        List<Utils.Entry> entries = new List<Utils.Entry>{
-            new Utils.Entry('value1', 'label1'),
-            new Utils.Entry('value0', 'label0'),
-            new Utils.Entry('value9')
-        };
+    update accts[2];
 
-        System.assertEquals('value1', entries[0].getValue());
-        System.assertEquals('value9', entries[2].getLabel());
-        System.assertEquals(entries.size(), 3);
+    Utils.SoccField criteria2 = new Utils.SoccField(Schema.Account.ParentId);
 
-        // This will sort the entries according to their label
-        entries.sort();
+    Map<Id, List<SObject>> idLists = soc.makeIdMapOfLists(criteria2);
+    System.assertEquals(1, idLists.size());
 
-        System.assertEquals('label0', entries[0].getLabel());
-
-        Set<Utils.Entry> entrySet = new Set<Utils.Entry>(entries);
+    Map<Id, Map<Id, SObject>> idMaps = soc.makeIdMapOfMaps(criteria2);
+    System.assert(idMaps.get(accts[1].Id).containsKey(accts[2].Id));
+  }
 
-        // This is not going to be added because it is a duplicate
-        entrySet.add(new Utils.Entry('value1', 'label1'));
+  @isTest
+  static void sleep() {
+    Long start = System.currentTimeMillis();
 
-        System.assertEquals(entries.size(), 3);
-    }
+    Utils.sleep(3);
 
-    @isTest
-    static void hasher() {
-        Utils.Hasher hs;
-
-        try {
-            hs = new Utils.Hasher('MD6');
-        } catch (UnsupportedOperationException e) {
-            System.assert(e.getMessage().contains('Algorithm must be'));
-        }
-
-        hs = new Utils.Hasher();
-        String value = 'Hash Me!';
-
-        System.assertEquals(
-            EncodingUtil.convertToHex(Crypto.generateDigest('MD5', Blob.valueOf(value))),
-            hs.hash(value)
-        );
-    }
-
-    @isTest
-    static void fieldLevelSecurity() {
-        Schema.Profile insufficientProfile = [
-            SELECT Id
-            FROM Profile
-            WHERE UserType = 'CsnOnly'
-            LIMIT 1
-        ];
-
-        Schema.User insufficientUser;
-
-        System.runAs(TestUtils.getUser()) {
-            // Generating user
-            insufficientUser = (Schema.User) new TestUtils.UserMaker()
-                .setProfileId(insufficientProfile.Id)
-                .setLastName('Insufficient')
-                .setCount(1)
-                .make()
-                .get(0);
-        }
-
-        Test.startTest();
-
-        Fls sec = new Fls(Schema.Contact.SObjectType, System.AccessType.UPDATABLE)
-            .queue(
-                new Set<Schema.SObjectField>{ Schema.Contact.FirstName, Schema.Contact.LastName }
-            )
-            .queue(Schema.Contact.Title);
-
-        Fls.Report rep;
-
-        Schema.Contact anyone = new Schema.Contact(LastName = 'Anyone', HasOptedOutOfEmail = true);
-
-        System.runAs(insufficientUser) {
-            rep = Fls.audit(anyone, System.AccessType.CREATABLE);
-
-            System.assert(!rep.isAuthorized(), 'It should not have been authorized');
-
-            try {
-                rep.throwExceptionIfUnauthorized();
-
-                System.assert(false, 'It should have thrown a Fls.ReportException');
-            } catch (Fls.ReportException e) {
-                System.assert(
-                    e.getMessage().contains(String.valueOf(Schema.Contact.HasOptedOutOfEmail)),
-                    'It should have contained HasOptedOutOfEmail field: ' + e.getMessage()
-                );
-                System.assert(
-                    e.getReport().getFieldFailures().contains(Schema.Contact.HasOptedOutOfEmail),
-                    'It should have contained HasOptedOutOfEmail field: ' +
-                    e.getReport().getFieldFailures()
-                );
-            }
-
-            rep = sec.audit();
-
-            System.assert(!rep.isAuthorized(), 'It should not have been authorized');
-        }
-
-        rep = Fls.audit(anyone, System.AccessType.CREATABLE);
-
-        System.assert(rep.isAuthorized(), 'It should have been authorized');
-
-        rep = sec.audit();
-
-        System.assert(rep.isAuthorized(), 'It should have been authorized');
-    }
-
-    @isTest
-    static void mapper() {
-        Utils.Entry dummy = new Utils.Entry('value1', 'label1');
-        String serializedDummy = JSON.serialize(dummy);
-
-        Utils.Mapper umapper = Utils.deserializeToMapper(serializedDummy);
-
-        System.assert(umapper.containsKey('label'), 'It should have contained label key');
-        System.assertEquals(dummy.getLabel(), umapper.getString('label'));
-        System.assertEquals(dummy.getValue(), umapper.getString('value'));
-    }
-
-    @isTest
-    static void randomizerGenerator() {
-        Utils.RandomizerBuilder builder;
-        String randomizer;
-        List<String> components;
-
-        builder = new Utils.RandomizerBuilder();
-        randomizer = builder
-            .setCurrentTimeMillis(true)
-            .setLength(6)
-            .setPreferences(
-                new Set<Utils.RandomizerPreference>{
-                    Utils.RandomizerPreference.INCLUDE_LETTER,
-                    Utils.RandomizerPreference.INCLUDE_NUMBER
-                }
-            )
-            .setPrefix('TEST')
-            .build()
-            .generate();
-        components = randomizer.split('-');
-
-        System.assertEquals(
-            3,
-            components.size(),
-            'The randomizer components should have been 3: ' + randomizer
-        );
-        System.assertEquals('TEST', components[0]);
-        System.assertEquals(6, components[1].length());
-        System.assert(
-            components[1].isAlphanumeric(),
-            'The 2nd component should have been alphanumeric ' + components[1]
-        );
-
-        builder = new Utils.RandomizerBuilder();
-        randomizer = builder
-            .setPreferences(
-                new Set<Utils.RandomizerPreference>{ Utils.RandomizerPreference.INCLUDE_NUMBER }
-            )
-            .setLength(3)
-            .build()
-            .generate();
-        components = randomizer.split('-');
-
-        System.assertEquals(3, components[0].length());
-        System.assert(
-            !components[0].isAlpha(),
-            'The component should not have contained letters: ' + components[0]
-        );
-    }
-
-    @isTest
-    static void recordTypeInvocableProcessor() {
-        Schema.Account acc = new Schema.Account(Name = 'Test');
-
-        insert acc;
-
-        Test.startTest();
-
-        RecordTypeInvocableProcessor.Request req = new RecordTypeInvocableProcessor.Request();
-
-        req.recordId = acc.Id;
-        req.recordTypeName = 'Test';
-
-        RecordTypeInvocableProcessor.execute(new List<RecordTypeInvocableProcessor.Request>{ req });
-
-        Test.stopTest();
-
-        System.assertEquals(acc.Id, [SELECT Id FROM Account WHERE Name = :acc.Name LIMIT 1].Id);
-    }
-
-    @isTest
-    static void requireNonNull() {
-        String message = 'Something is required';
-
-        try {
-            Utils.requireNonNull((Schema.Account) null, message);
-
-            System.assert(false, 'It should have thrown a NullPointerException');
-        } catch (NullPointerException e) {
-            System.assertEquals(message, e.getMessage());
-        }
-    }
-
-    @isTest
-    static void sobjectCollector() {
-        List<Schema.Account> accts = new List<Schema.Account>{
-            new Account(Name = 'A', BillingCountry = 'Italy'),
-            new Account(Name = 'B', BillingCountry = 'Germany'),
-            new Account(Name = 'C', BillingCountry = 'Germany')
-        };
-
-        Utils.SObjectCollector soc = new Utils.SObjectCollector();
-        soc.addAll(accts);
-
-        Utils.SoccField criteria1 = new Utils.SoccField(Schema.Account.BillingCountry);
-
-        Map<Object, List<SObject>> lists = soc.makeMapOfLists(criteria1);
-        System.assertEquals(2, lists.size());
-        System.assert(lists.containsKey('Italy'));
-
-        insert accts;
-
-        Map<Object, Map<Id, SObject>> maps = soc.makeMapOfMaps(criteria1);
-        System.assertEquals(2, maps.get('Germany').size());
-
-        accts[2].Name = 'C of B';
-        accts[2].ParentId = accts[1].Id;
-
-        update accts[2];
-
-        Utils.SoccField criteria2 = new Utils.SoccField(Schema.Account.ParentId);
-
-        Map<Id, List<SObject>> idLists = soc.makeIdMapOfLists(criteria2);
-        System.assertEquals(1, idLists.size());
-
-        Map<Id, Map<Id, SObject>> idMaps = soc.makeIdMapOfMaps(criteria2);
-        System.assert(idMaps.get(accts[1].Id).containsKey(accts[2].Id));
-    }
-
-    @isTest
-    static void sleep() {
-        Long start = System.currentTimeMillis();
-
-        Utils.sleep(3);
-
-        Long elapsed = System.currentTimeMillis() - start;
-
-        System.assert(elapsed >= 3000, 'It should have slept for about 3 seconds');
-    }
-
-    @isTest
-    static void triggerHandler() {
-        // Enablement
-        String acctTypeName = String.valueOf(Schema.Account.SObjectType);
-        System.Type stype1 = AccountTriggerHandlerTest1.class;
-        System.Type stype2 = AccountTriggerHandlerTest2.class;
-        List<Schema.Cs_TriggerHandlerRoutine__c> records;
-
-        TriggerHandler.enable(stype1);
-        TriggerHandler.enable(new Map<System.Type, Decimal>{ stype2 => 2 });
-
-        records = [
-            SELECT Name, ClassName__c, Is_Disabled__c, SObjectType__c, Sort_Order__c
-            FROM Cs_TriggerHandlerRoutine__c
-            WHERE SObjectType__c = :acctTypeName
-            ORDER BY Sort_Order__c ASC
-        ];
-
-        System.assertEquals(2, records.size());
-        System.assert(!records[0].Is_Disabled__c, 'Routine record should have been enabled');
-        System.assertEquals(stype1.getName(), records[0].ClassName__c);
-        System.assertEquals(acctTypeName, records[0].SObjectType__c);
-        System.assertEquals(1, records[0].Sort_Order__c);
-        System.assertEquals(2, records[1].Sort_Order__c);
-
-        TriggerHandler.execute(Schema.Account.SObjectType);
-
-        TriggerHandler.disable(stype2);
-
-        records = [
-            SELECT Name, Is_Disabled__c
-            FROM Cs_TriggerHandlerRoutine__c
-            WHERE ClassName__c = :stype2.getName()
-        ];
-
-        System.assert(
-            records[0].Is_Disabled__c,
-            'Routine ' +
-            stype2.getName() +
-            ' record should have been disabled'
-        );
-
-        // Tagging
-        String key = 'any';
-        AccountTriggerHandlerTest1 handler = new AccountTriggerHandlerTest1();
-
-        handler.tag(records[0].Id, key);
-
-        System.assert(handler.isTagged(records[0].Id, key), 'Id should have been tagged');
-
-        handler.untag(records[0].Id, key);
-
-        System.assert(!handler.isTagged(records[0].Id, key), 'Id should have been untagged');
-
-        // Matching
-        List<Schema.Account> accts = new TestUtils.AccountMaker()
-            .setName('Dummy')
-            .set(Schema.Account.Phone, '0000')
-            .setCount(2)
-            .make();
-
-        System.assert(
-            !handler.match(accts[0], accts[1], Schema.Account.Id),
-            'Account Ids should have mismatched'
-        );
-
-        System.assert(
-            handler.match(accts[0], accts[1], Schema.Account.Phone),
-            'Account phone numbers should have matched'
-        );
-    }
-
-    @isTest
-    static void uniquifiers() {
-        Utils.ValueUniquifier uni = new Utils.ValueUniquifier();
-
-        uni.addValue('A');
-        uni.addValue('B');
-        uni.addValue('C');
-
-        System.assertEquals(3, uni.getValues().size());
-
-        System.assert(!uni.addValue('A'), 'It should have prevented the value from being re-added');
-
-        Schema.Contact cnt1 = new Schema.Contact(
-            LastName = 'Contact1',
-            Email = 'example@example.com'
-        );
-        Schema.Contact cnt2 = new Schema.Contact(
-            LastName = 'Contact2',
-            Email = 'example@example.com'
-        );
-        Schema.Contact cnt3 = new Schema.Contact(LastName = 'Contact2', Email = 'demo@example.com');
-        Utils.RecordValueUniquifier recuni = new Utils.RecordValueUniquifier(Contact.Email);
-
-        System.assertEquals(cnt3.Email, recuni.getRecordValue(cnt3));
-
-        recuni.addRecordValue(cnt1);
-
-        System.assertEquals(1, recuni.getValues().size());
-        System.assert(
-            recuni.getRecord('example@example.com') != null,
-            'It should have returned the record by the email specified'
-        );
-        System.assert(
-            !recuni.addRecordValue(cnt2),
-            'It should have prevented the record value from being re-added'
-        );
-    }
+    Long elapsed = System.currentTimeMillis() - start;
+
+    System.assert(elapsed >= 3000, 'It should have slept for about 3 seconds');
+  }
+
+  @isTest
+  static void uniquifiers() {
+    Utils.ValueUniquifier uni = new Utils.ValueUniquifier();
+
+    uni.addValue('A');
+    uni.addValue('B');
+    uni.addValue('C');
+
+    System.assertEquals(3, uni.getValues().size());
+
+    System.assert(!uni.addValue('A'), 'It should have prevented the value from being re-added');
+
+    Schema.Contact cnt1 = new Schema.Contact(LastName = 'Contact1', Email = 'example@example.com');
+    Schema.Contact cnt2 = new Schema.Contact(LastName = 'Contact2', Email = 'example@example.com');
+    Schema.Contact cnt3 = new Schema.Contact(LastName = 'Contact2', Email = 'demo@example.com');
+    Utils.RecordValueUniquifier recuni = new Utils.RecordValueUniquifier(Contact.Email);
+
+    System.assertEquals(cnt3.Email, recuni.getRecordValue(cnt3));
+
+    recuni.addRecordValue(cnt1);
+
+    System.assertEquals(1, recuni.getValues().size());
+    System.assert(
+      recuni.getRecord('example@example.com') != null,
+      'It should have returned the record by the email specified'
+    );
+    System.assert(
+      !recuni.addRecordValue(cnt2),
+      'It should have prevented the record value from being re-added'
+    );
+
+    recuni = new Utils.RecordValueUniquifier(Contact.Email);
+    recuni.addRecordValues(new List<Schema.Contact>{ cnt1, cnt2, cnt3 });
+
+    System.assert(
+      recuni.getRecord('example@example.com') != null,
+      'It should have returned the record by the email specified'
+    );
+    System.assertEquals(2, recuni.getRecords().size());
+  }
 }
