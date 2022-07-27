@@ -267,7 +267,7 @@ global inherited sharing class TriggerHandler {
      * @since 1.0.1
      * @return the trigger operation type to execute, null if it needs to be aborted
      */
-    public virtual System.TriggerOperation pre() {
+    global virtual System.TriggerOperation pre() {
       return getOperationType();
     }
 
