@@ -13,12 +13,12 @@
         {
             "path": "extended-ui-app",
             "package": "Vosh Extended UI",
-            "versionNumber": "1.0.3.NEXT",
+            "versionNumber": "1.0.4.NEXT",
             "default": false,
             "dependencies": [
                 {
                     "package": "Vosh Utils",
-                    "versionNumber": "1.0.23.LATEST"
+                    "versionNumber": "1.0.25.LATEST"
                 }
             ]
         },
@@ -46,7 +46,7 @@
         "Vosh Enhanced Campaigns": "0Ho3V000000XZAqSAO",
         "Vosh Enhanced Campaigns@1.0.4-1": "04t3V000000EIGWQA4",
         "Vosh Extended UI": "0Ho3V000000XZAlSAO",
-        "Vosh Extended UI@1.0.3-1": "04t3V000000EIP9QAO",
+        "Vosh Extended UI@1.0.4-1": "04t3V000000EIQMQA4",
         "Vosh Utils": "0Ho3V000000XZAHSA4",
         "Vosh Utils@1.0.25-1": "04t3V000000EIQHQA4"
     }
