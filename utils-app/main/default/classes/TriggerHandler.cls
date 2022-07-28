@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class TriggerHandler {
   /**
    * The abstract class to create a SObject trigger logic from.

@@ -2,7 +2,7 @@
     "orgName": "Shillem Volpato",
     "edition": "Developer",
     "hasSampleData": true,
-    "features": [],
+    "features": ["DebugApex"],
     "language": "en_US",
     "settings": {
         "lightningExperienceSettings": {

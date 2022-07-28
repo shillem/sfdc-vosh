@@ -4,6 +4,15 @@
     "version": "2.0.0",
     "tasks": [
         {
+          "label": "pmd",
+          "type": "shell",
+          "command": "pmd pmd -d utils-app,extended-ui-app,enhanced-campaigns-app -R config/ruleset.xml",
+          "options": {
+            "cwd": "${workspaceRoot}"
+          },
+          "problemMatcher": []
+        },
+        {
             "label": "sfdx-create-scratch",
             "type": "shell",
             "command": "scripts/shell/create_project_scratch.sh -u Vosh",

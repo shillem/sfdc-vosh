@@ -1,4 +1,4 @@
-@SuppressWarnings('PMD.ExcessiveClassLength, PMD.ExcessivePublicCount, PMD.StdCyclomaticComplexity')
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ExcessiveClassLength, PMD.StdCyclomaticComplexity')
 global inherited sharing class Utils {
   /**
    * An enumerator to classify <code>DisplayType</code> in broader terms.

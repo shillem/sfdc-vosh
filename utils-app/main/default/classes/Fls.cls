@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class Fls {
   global class AuditException extends Exception {
     private AuditException(Object value, System.AccessType aType) {

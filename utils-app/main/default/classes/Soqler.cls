@@ -10,7 +10,7 @@
  *
  * @since 1.0.4
  */
-@SuppressWarnings('PMD.CyclomaticComplexity, PMD.ExcessiveClassLength, PMD.ExcessivePublicCount')
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity, PMD.ExcessiveClassLength, PMD.ExcessivePublicCount, PMD.StdCyclomaticComplexity')
 global inherited sharing class Soqler {
   private abstract class A {
     void requireNonNull(Object obj, String message) {
@@ -953,7 +953,7 @@ global inherited sharing class Soqler {
     this.flds = new LField(this);
   }
 
-  // prettier-ignore
+  @SuppressWarnings('PMD.StdCyclomaticComplexity')
   private String build() {
         String fb = flds.build();
         String wb = whrs != null ? whrs.build() : null;

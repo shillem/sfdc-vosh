@@ -4,6 +4,7 @@
  *
  * @since 1.0.15
  */
+@SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class BatchableDeletable implements Database.Batchable<SObject> {
   private final Boolean emptyRecycleBin;
   private final String q;
@@ -43,6 +44,7 @@ global inherited sharing class BatchableDeletable implements Database.Batchable<
     }
   }
 
+  @SuppressWarnings('PMD.EmptyStatementBlock')
   global void finish(Database.BatchableContext context) {
   }
 
