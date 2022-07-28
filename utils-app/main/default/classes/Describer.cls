@@ -11,6 +11,19 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global class Describer {
   /**
+   * An enumerator to classify <code>DisplayType</code> in broader terms.
+   *
+   * @since 1.0.25
+   */
+  global enum DisplayFamily {
+    BOOL,
+    COMPLEX,
+    CHOICE,
+    NUM,
+    TEXT
+  }
+
+  /**
    * A result class for <code>Describer.traverse</code> that keeps track of cross-referencing traversing.
    *
    * @see Describer#traverse(Schema.SObjectType, String) traverse
@@ -333,6 +346,36 @@ global class Describer {
     }
 
     return results;
+  }
+
+  /**
+   * It returns the <code>DisplayFamily</code> family which provides a broader name set
+   * for the underlying <code>DisplayType</code>
+   *
+   * @param value the display type
+   * @return true if the display type is number-like
+   * @since 1.0.25
+   */
+  global static DisplayFamily getDisplayFamily(Schema.DisplayType value) {
+    Utils.requireNonNull(value, 'Display type cannot be null');
+
+    switch on (value) {
+      when BOOLEAN {
+        return DisplayFamily.BOOL;
+      }
+      when COMBOBOX, MULTIPICKLIST, PICKLIST {
+        return DisplayFamily.CHOICE;
+      }
+      when CURRENCY, DOUBLE, INTEGER, LONG, PERCENT {
+        return DisplayFamily.NUM;
+      }
+      when ENCRYPTEDSTRING, ID, PHONE, REFERENCE, STRING, TEXTAREA, URL {
+        return DisplayFamily.TEXT;
+      }
+      when else {
+        return DisplayFamily.COMPLEX;
+      }
+    }
   }
 
   /**

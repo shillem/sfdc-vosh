@@ -24,6 +24,26 @@ public class DescriberTest {
     System.assertEquals(accountField, fieldResult.getSObjectField());
     System.assertEquals(accountField, describ.fieldValueOf('Account.Name'));
   }
+  
+  @isTest
+  static void displayFamilies() {
+    System.assertEquals(
+      Describer.DisplayFamily.BOOL,
+      Describer.getDisplayFamily(Schema.DisplayType.BOOLEAN)
+    );
+    System.assertEquals(
+      Describer.DisplayFamily.CHOICE,
+      Describer.getDisplayFamily(Schema.DisplayType.PICKLIST)
+    );
+    System.assertEquals(
+      Describer.DisplayFamily.NUM,
+      Describer.getDisplayFamily(Schema.DisplayType.PERCENT)
+    );
+    System.assertEquals(
+      Describer.DisplayFamily.TEXT,
+      Describer.getDisplayFamily(Schema.DisplayType.STRING)
+    );
+  }
 
   @isTest
   static void features() {

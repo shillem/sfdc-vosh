@@ -1,26 +1,6 @@
 @isTest(isParallel=true)
 public class UtilsTest {
   @isTest
-  static void displayFamilies() {
-    System.assertEquals(
-      Utils.DisplayFamily.BOOL,
-      Utils.getDisplayFamily(Schema.DisplayType.BOOLEAN)
-    );
-    System.assertEquals(
-      Utils.DisplayFamily.CHOICE,
-      Utils.getDisplayFamily(Schema.DisplayType.PICKLIST)
-    );
-    System.assertEquals(
-      Utils.DisplayFamily.NUM,
-      Utils.getDisplayFamily(Schema.DisplayType.PERCENT)
-    );
-    System.assertEquals(
-      Utils.DisplayFamily.TEXT,
-      Utils.getDisplayFamily(Schema.DisplayType.STRING)
-    );
-  }
-
-  @isTest
   static void easyDecimal() {
     Utils.EasyDecimal hundred = new Utils.EasyDecimal(100.0);
 

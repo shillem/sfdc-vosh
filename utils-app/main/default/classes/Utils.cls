@@ -1,19 +1,6 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier, PMD.StdCyclomaticComplexity')
 global inherited sharing class Utils {
   /**
-   * An enumerator to classify <code>DisplayType</code> in broader terms.
-   *
-   * @since 1.0.25
-   */
-  global enum DisplayFamily {
-    BOOL,
-    COMPLEX,
-    CHOICE,
-    NUM,
-    TEXT
-  }
-
-  /**
    * A wrapper for <code>Decimal</code> that makes it easy to perform common math computations.
    *
    * @since 1.0.20
@@ -827,36 +814,6 @@ global inherited sharing class Utils {
     Integer index = name.indexOf(':');
 
     return index > 0 ? name.substring(0, index) : name;
-  }
-
-  /**
-   * It returns the <code>DisplayFamily</code> family which provides a broader name set
-   * for the underlying <code>DisplayType</code>
-   *
-   * @param value the display type
-   * @return true if the display type is number-like
-   * @since 1.0.25
-   */
-  global static DisplayFamily getDisplayFamily(Schema.DisplayType value) {
-    requireNonNull(value, 'Display type cannot be null');
-
-    switch on (value) {
-      when BOOLEAN {
-        return DisplayFamily.BOOL;
-      }
-      when COMBOBOX, MULTIPICKLIST, PICKLIST {
-        return DisplayFamily.CHOICE;
-      }
-      when CURRENCY, DOUBLE, INTEGER, LONG, PERCENT {
-        return DisplayFamily.NUM;
-      }
-      when ENCRYPTEDSTRING, ID, PHONE, REFERENCE, STRING, TEXTAREA, URL {
-        return DisplayFamily.TEXT;
-      }
-      when else {
-        return DisplayFamily.COMPLEX;
-      }
-    }
   }
 
   /**
