@@ -1,63 +1,6 @@
 @isTest(isParallel=true)
 public class UtilsTest {
   @isTest
-  static void describer() {
-    Describer describ = Describer.getInstance();
-    Schema.SObjectType accountType = Schema.Account.SObjectType;
-
-    Schema.DescribeSObjectResult accResult1 = describ.getObjectDescribe(accountType);
-    Schema.DescribeSObjectResult accResult2 = describ.getObjectDescribe(
-      String.valueOf(accountType)
-    );
-
-    System.assertEquals(accResult1.getSObjectType(), accResult2.getSObjectType());
-
-    Schema.SObjectField accountField = Schema.Account.Name;
-
-    System.assertEquals(
-      accountField,
-      describ.getObjectFieldMap(accountType).get(String.valueOf(accountField))
-    );
-
-    Schema.DescribeFieldResult fieldResult = describ.getFieldDescribe(accountField);
-
-    System.assertEquals(accountField, fieldResult.getSObjectField());
-    System.assertEquals(accountField, describ.fieldValueOf('Account.Name'));
-
-    System.assertEquals(
-      'Contacts',
-      describ.getObjectRelationshipName(accountType, Schema.Contact.SObjectType)
-    );
-
-    Schema.Account acct = (Schema.Account) new TestUtils.AccountMaker()
-      .setName('Dummy')
-      .set(Schema.Account.Phone, '0000')
-      .setCount(1)
-      .make()
-      .get(0);
-
-    Schema.Opportunity oppt = (Schema.Opportunity) new TestUtils.OpportunityMaker()
-      .setAccountId(acct.Id)
-      .setActiveStageName()
-      .setName('Dummy')
-      .setCloseDate(Date.today().addDays(1))
-      .setCount(1)
-      .make()
-      .get(0);
-
-    oppt = [SELECT Account.Owner.Name FROM Opportunity WHERE Id = :oppt.Id];
-
-    System.assertEquals(
-      Schema.User.SObjectType,
-      describ.getRelatedObject(oppt, 'Account.Owner.Name').getSObjectType()
-    );
-
-    System.assert(
-      String.isNotEmpty((String) describ.getRelatedObjectValue(oppt, 'Account.Owner.Name'))
-    );
-  }
-
-  @isTest
   static void displayFamilies() {
     System.assertEquals(
       Utils.DisplayFamily.BOOL,
@@ -135,71 +78,6 @@ public class UtilsTest {
       EncodingUtil.convertToHex(Crypto.generateDigest('MD5', Blob.valueOf(value))),
       hs.hash(value)
     );
-  }
-
-  @isTest
-  static void fieldLevelSecurity() {
-    Schema.Profile insufficientProfile = [
-      SELECT Id
-      FROM Profile
-      WHERE UserType = 'CsnOnly'
-      LIMIT 1
-    ];
-
-    Schema.User insufficientUser;
-
-    System.runAs(TestUtils.getUser()) {
-      // Generating user
-      insufficientUser = (Schema.User) new TestUtils.UserMaker()
-        .setProfileId(insufficientProfile.Id)
-        .setLastName('Insufficient')
-        .setCount(1)
-        .make()
-        .get(0);
-    }
-
-    Test.startTest();
-
-    Fls sec = new Fls(Schema.Contact.SObjectType, System.AccessType.UPDATABLE)
-      .queue(new Set<Schema.SObjectField>{ Schema.Contact.FirstName, Schema.Contact.LastName })
-      .queue(Schema.Contact.Title);
-
-    Fls.Report rep;
-
-    Schema.Contact anyone = new Schema.Contact(LastName = 'Anyone', HasOptedOutOfEmail = true);
-
-    System.runAs(insufficientUser) {
-      rep = Fls.audit(anyone, System.AccessType.CREATABLE);
-
-      System.assert(!rep.isAuthorized(), 'It should not have been authorized');
-
-      try {
-        rep.throwExceptionIfUnauthorized();
-
-        System.assert(false, 'It should have thrown a Fls.ReportException');
-      } catch (Fls.ReportException e) {
-        System.assert(
-          e.getMessage().contains(String.valueOf(Schema.Contact.HasOptedOutOfEmail)),
-          'It should have contained HasOptedOutOfEmail field: ' + e.getMessage()
-        );
-        System.assert(
-          e.getReport().getFieldFailures().contains(Schema.Contact.HasOptedOutOfEmail),
-          'It should have contained HasOptedOutOfEmail field: ' + e.getReport().getFieldFailures()
-        );
-      }
-
-      rep = sec.audit();
-
-      System.assert(!rep.isAuthorized(), 'It should not have been authorized');
-    }
-
-    rep = Fls.audit(anyone, System.AccessType.CREATABLE);
-
-    System.assert(rep.isAuthorized(), 'It should have been authorized');
-
-    rep = sec.audit();
-
-    System.assert(rep.isAuthorized(), 'It should have been authorized');
   }
 
   @isTest

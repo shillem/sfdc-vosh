@@ -246,6 +246,19 @@ global class Describer {
   }
 
   /**
+   * It tells whether the org the code is running in has Person Accounts feature enabled.
+   * For more info visit: https://help.salesforce.com/s/articleView?id=account_person.htm&language=en_US&type=0
+   *
+   * @return true if Person Accounts feature is enabled
+   * @since 1.0.25
+   */
+  global Boolean isPersonAccountEnabled() {
+    return getInstance()
+      .getObjectFieldMap(Schema.Account.SObjectType)
+      .containsKey('IsPersonAccount');
+  }
+
+  /**
    * It traverses the <code>SObjectField</code> reference tracking each hop with a helper
    * object that contains relative <code>SObjectType</code> and <code>SObjectField</code>.
    *
