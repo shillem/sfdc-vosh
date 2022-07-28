@@ -137,56 +137,6 @@ public class UtilsTest {
   }
 
   @isTest
-  static void randomizerGenerator() {
-    Utils.RandomizerBuilder builder;
-    String randomizer;
-    List<String> components;
-
-    builder = new Utils.RandomizerBuilder();
-    randomizer = builder
-      .setCurrentTimeMillis(true)
-      .setLength(6)
-      .setPreferences(
-        new Set<Utils.RandomizerPreference>{
-          Utils.RandomizerPreference.INCLUDE_LETTER,
-          Utils.RandomizerPreference.INCLUDE_NUMBER
-        }
-      )
-      .setPrefix('TEST')
-      .build()
-      .generate();
-    components = randomizer.split('-');
-
-    System.assertEquals(
-      3,
-      components.size(),
-      'The randomizer components should have been 3: ' + randomizer
-    );
-    System.assertEquals('TEST', components[0]);
-    System.assertEquals(6, components[1].length());
-    System.assert(
-      components[1].isAlphanumeric(),
-      'The 2nd component should have been alphanumeric ' + components[1]
-    );
-
-    builder = new Utils.RandomizerBuilder();
-    randomizer = builder
-      .setPreferences(
-        new Set<Utils.RandomizerPreference>{ Utils.RandomizerPreference.INCLUDE_NUMBER }
-      )
-      .setLength(3)
-      .build()
-      .generate();
-    components = randomizer.split('-');
-
-    System.assertEquals(3, components[0].length());
-    System.assert(
-      !components[0].isAlpha(),
-      'The component should not have contained letters: ' + components[0]
-    );
-  }
-
-  @isTest
   static void requireNonNull() {
     String message = 'Something is required';
 
@@ -197,42 +147,6 @@ public class UtilsTest {
     } catch (NullPointerException e) {
       System.assertEquals(message, e.getMessage());
     }
-  }
-
-  @isTest
-  static void sobjectCollector() {
-    List<Schema.Account> accts = new List<Schema.Account>{
-      new Account(Name = 'A', BillingCountry = 'Italy'),
-      new Account(Name = 'B', BillingCountry = 'Germany'),
-      new Account(Name = 'C', BillingCountry = 'Germany')
-    };
-
-    Utils.SObjectCollector soc = new Utils.SObjectCollector();
-    soc.addAll(accts);
-
-    Utils.SoccField criteria1 = new Utils.SoccField(Schema.Account.BillingCountry);
-
-    Map<Object, List<SObject>> lists = soc.makeMapOfLists(criteria1);
-    System.assertEquals(2, lists.size());
-    System.assert(lists.containsKey('Italy'));
-
-    insert accts;
-
-    Map<Object, Map<Id, SObject>> maps = soc.makeMapOfMaps(criteria1);
-    System.assertEquals(2, maps.get('Germany').size());
-
-    accts[2].Name = 'C of B';
-    accts[2].ParentId = accts[1].Id;
-
-    update accts[2];
-
-    Utils.SoccField criteria2 = new Utils.SoccField(Schema.Account.ParentId);
-
-    Map<Id, List<SObject>> idLists = soc.makeIdMapOfLists(criteria2);
-    System.assertEquals(1, idLists.size());
-
-    Map<Id, Map<Id, SObject>> idMaps = soc.makeIdMapOfMaps(criteria2);
-    System.assert(idMaps.get(accts[1].Id).containsKey(accts[2].Id));
   }
 
   @isTest

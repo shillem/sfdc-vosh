@@ -1,4 +1,5 @@
-global class RecordTypeInvocableProcessor {
+@SuppressWarnings('PMD.AvoidGlobalModifier')
+global inherited sharing class RecordTypeInvocableProcessor {
   global class Request {
     @InvocableVariable(required=true label='Record Id')
     global Id recordId;

@@ -519,12 +519,12 @@ global class TestUtils {
     global UserMaker() {
       super(Schema.User.SObjectType);
 
-      randomain = new Utils.RandomizerBuilder()
+      randomain = new Randomizer.Builder()
         .setLength(8)
-        .setPreferences(
-          new Set<Utils.RandomizerPreference>{
-            Utils.RandomizerPreference.INCLUDE_LETTER,
-            Utils.RandomizerPreference.INCLUDE_NUMBER
+        .setOptions(
+          new Set<Randomizer.Option>{
+            Randomizer.Option.INCLUDE_LETTER,
+            Randomizer.Option.INCLUDE_NUMBER
           }
         )
         .build()
