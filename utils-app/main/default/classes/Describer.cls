@@ -107,14 +107,16 @@ global class Describer {
    * of a given <code>SObject</code>.
    *
    * @param name the <code>SObject</code> name, not null
-   * @return the <code>SObject</code> describe result
+   * @return the <code>SObject</code> describe result or null if the name could not be found
    * @see #getObjectDescribe(Schema.SObjectType) getObjectDescribe
    * @since 1.0.1
    */
   global Schema.DescribeSObjectResult getObjectDescribe(String name) {
     Utils.requireNonNull(name, 'Name cannot be null');
 
-    return getObjectDescribe(getGlobal().get(name));
+    Schema.SObjectType t = getGlobal().get(name);
+
+    return t != null ? getObjectDescribe(t) : null;
   }
 
   /**
