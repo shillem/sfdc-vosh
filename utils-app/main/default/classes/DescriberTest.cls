@@ -24,7 +24,7 @@ public class DescriberTest {
     System.assertEquals(accountField, fieldResult.getSObjectField());
     System.assertEquals(accountField, describ.fieldValueOf('Account.Name'));
   }
-  
+
   @isTest
   static void displayFamilies() {
     System.assertEquals(
@@ -142,6 +142,15 @@ public class DescriberTest {
     } catch (System.IllegalArgumentException e) {
       System.assert(e.getMessage().contains('not a valid reference field name'), e.getMessage());
     }
+
+    hops = describ.traverse(Schema.Account.SObjectType, 'OwnerId');
+
+    System.assertEquals(2, hops.size(), hops);
+    System.assert(
+      hops[0].getType() == Schema.Account.SObjectType &&
+      hops[0].getField() == Schema.Account.OwnerId
+    );
+    System.assert(hops[1].getType() == Schema.User.SObjectType && hops[1].getField() == null, hops);
   }
 
   @isTest
