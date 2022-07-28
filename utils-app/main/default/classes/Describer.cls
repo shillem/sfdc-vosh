@@ -8,6 +8,7 @@
  * @see Describer#getInstance() getInstance
  * @since 1.0.1
  */
+@SuppressWarnings('PMD.AvoidGlobalModifier')
 global class Describer {
   /**
    * A result class for <code>Describer.traverse</code> that keeps track of cross-referencing traversing.
@@ -16,12 +17,12 @@ global class Describer {
    * @since 1.0.23
    */
   global class Hop {
-    private Schema.SObjectType type;
+    private final Schema.SObjectType type;
+
     private Schema.SObjectField field;
 
-    private Hop(Schema.SObjectType t, Schema.SObjectField f) {
+    private Hop(Schema.SObjectType t) {
       type = t;
-      field = f;
     }
 
     global Schema.SObjectField getField() {
@@ -33,7 +34,7 @@ global class Describer {
     }
   }
 
-  private static Map<Id, Describer> INSTANCES;
+  private static Map<Id, Describer> instances;
 
   private Map<String, Schema.SObjectType> globalDescriber;
   private Map<Schema.SObjectType, Schema.DescribeSObjectResult> objectDescribers;
@@ -162,6 +163,7 @@ global class Describer {
    * @param parent the parent <code>SObject</code> type, not null
    * @param child the child <code>SObject</code> type, not null
    * @return the relationship name between parent and child
+   * @throws System.IllegalArgumentException if the a relationship between the two <code>SObjectType</code> does not exist
    * @since 1.0.4
    */
   global String getObjectRelationshipName(Schema.SObjectType parent, Schema.SObjectType child) {
@@ -187,7 +189,7 @@ global class Describer {
     String value = children.get(child);
 
     if (value == null) {
-      throw new UnsupportedOperationException(parent + ' does not have relationship with ' + child);
+      throw new IllegalArgumentException(parent + ' does not have a relationship with ' + child);
     }
 
     return value;
@@ -199,12 +201,12 @@ global class Describer {
    *
    * @param syntax the string representing the <code>SObjectField</code>, not null
    * @return the field value
-   * @throws System.Exception if the field was not fetched for the object
+   * @throws System.IllegalArgumentException if the cross-reference syntax was invalid
    * @since 1.0.23
    */
   global SObject getRelatedObject(SObject so, String syntax) {
     Utils.requireNonNull(so, 'SObject cannot be null');
-    Utils.requireNonNull(syntax, 'syntax cannot be null');
+    Utils.requireNonNull(syntax, 'Syntax cannot be null');
 
     Queue q = new Queue();
     q.addAll(syntax.split('\\.'));
@@ -213,19 +215,12 @@ global class Describer {
     while (!q.isEmpty()) {
       String ref = (String) q.poll();
 
-      if (q.isEmpty()) {
-        return drill;
+      if (!q.isEmpty()) {
+        drill = drill.getSObject(ref);
       }
-
-      drill = drill.getSObject(ref);
     }
 
-    throw new IllegalArgumentException(
-      'Unable to resolve syntax "' +
-      syntax +
-      ' for ' +
-      so.getSObjectType()
-    );
+    return drill;
   }
 
   /**
@@ -234,7 +229,7 @@ global class Describer {
    *
    * @param syntax the string representing the <code>SObjectField</code>, not null
    * @return the field value
-   * @throws System.Exception if the field was not fetched for the object
+   * @throws System.IllegalArgumentException if the cross-reference syntax was invalid
    * @since 1.0.23
    */
   global Object getRelatedObjectValue(SObject so, String syntax) {
@@ -265,14 +260,16 @@ global class Describer {
    * @param type the <code>SObjectType</code>, not null
    * @param reference the cross reference, not null
    * @return the list of hops
+   * @throws System.IllegalArgumentException if the cross-reference syntax was invalid
    * @since 1.0.23
    */
-  global List<Hop> traverse(Schema.SObjectType type, String reference) {
+  @SuppressWarnings('PMD.CyclomaticComplexity')
+  global List<Hop> traverse(Schema.SObjectType type, String syntax) {
     Utils.requireNonNull(type, 'SObjectType type cannot be null');
-    Utils.requireNonNull(reference, 'Reference cannot be null');
+    Utils.requireNonNull(syntax, 'Syntax cannot be null');
 
-    List<Hop> results = new List<Hop>{ new Hop(type, null) };
-    List<String> breakdown = reference.split('\\.');
+    List<Hop> results = new List<Hop>{ new Hop(type) };
+    List<String> breakdown = syntax.split('\\.');
 
     while (!breakdown.isEmpty()) {
       String fieldName = breakdown.remove(0);
@@ -294,29 +291,22 @@ global class Describer {
         throw new IllegalArgumentException(
           String.format(
             '"{0}" in "{1}" is not a valid reference field name for {2}',
-            new List<Object>{ fieldName, reference, currentResult.getType() }
+            new List<Object>{ fieldName, syntax, currentResult.getType() }
           )
         );
       }
+
+      currentResult.field = currentField;
 
       List<Schema.SObjectType> references = getFieldDescribe(currentField).getReferenceTo();
 
-      if (references.isEmpty()) {
-        if (breakdown.isEmpty()) {
-          currentResult.field = currentField;
+      if (references.isEmpty() && breakdown.isEmpty()) {
+        currentResult.field = currentField;
 
-          break;
-        }
-
-        throw new IllegalArgumentException(
-          String.format(
-            'Invalid cross reference "{0}" for "{1}"',
-            new List<Object>{ reference, currentResult.getType() }
-          )
-        );
+        break;
       }
 
-      results.add(new Hop(references[0], currentField));
+      results.add(new Hop(references[0]));
     }
 
     return results;
@@ -330,17 +320,17 @@ global class Describer {
    * @since 1.0.1
    */
   global static Describer getInstance() {
-    if (INSTANCES == null) {
-      INSTANCES = new Map<Id, Describer>();
+    if (instances == null) {
+      instances = new Map<Id, Describer>();
     }
 
     Id userId = UserInfo.getUserId();
-    Describer describ = INSTANCES.get(userId);
+    Describer describ = instances.get(userId);
 
     if (describ == null) {
       describ = new Describer();
 
-      INSTANCES.put(userId, describ);
+      instances.put(userId, describ);
     }
 
     return describ;

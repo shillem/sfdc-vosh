@@ -66,6 +66,14 @@ public class DescriberTest {
     System.assert(
       String.isNotEmpty((String) describ.getRelatedObjectValue(oppt, 'Account.Owner.Name'))
     );
+
+    try {
+      describ.getRelatedObjectValue(oppt, 'Contact.Owner.Name');
+
+      System.assert(false, 'It should have thrown an SObjectException');
+    } catch (System.SObjectException e) {
+      System.assert(e.getMessage().contains('Invalid relationship'), e.getMessage());
+    }
   }
 
   @isTest
@@ -76,5 +84,43 @@ public class DescriberTest {
       'Contacts',
       describ.getObjectRelationshipName(Schema.Account.SObjectType, Schema.Contact.SObjectType)
     );
+
+    try {
+      describ.getObjectRelationshipName(Schema.Contact.SObjectType, Schema.Account.SObjectType);
+
+      System.assert(false, 'It should have thrown an IllegalArgumentException');
+    } catch (IllegalArgumentException e) {
+      System.assert(e.getMessage().contains('does not have a relationship with'), e.getMessage());
+    }
+  }
+
+  @isTest
+  static void traverse() {
+    Describer describ = Describer.getInstance();
+
+    List<Describer.Hop> hops = describ.traverse(Schema.Contact.SObjectType, 'Account.Owner.Name');
+
+    System.assertEquals(3, hops.size());
+    System.assert(
+      hops[0].getType() == Schema.Contact.SObjectType &&
+      hops[0].getField() == Schema.Contact.AccountId,
+      hops
+    );
+    System.assert(
+      hops[1].getType() == Schema.Account.SObjectType &&
+      hops[1].getField() == Schema.Account.OwnerId
+    );
+    System.assert(
+      hops[2].getType() == Schema.User.SObjectType &&
+      hops[2].getField() == Schema.User.Name
+    );
+
+    try {
+      describ.traverse(Schema.Account.SObjectType, 'Contact.Owner.Name');
+
+      System.assert(false, 'It should have thrown an IllegalArgumentException');
+    } catch (System.IllegalArgumentException e) {
+      System.assert(e.getMessage().contains('not a valid reference field name'), e.getMessage());
+    }
   }
 }
