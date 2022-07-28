@@ -95,7 +95,7 @@ public class DescriberTest {
   }
 
   @isTest
-  static void traverse() {
+  static void traverseWithSObjectType() {
     Describer describ = Describer.getInstance();
 
     List<Describer.Hop> hops = describ.traverse(Schema.Contact.SObjectType, 'Account.Owner.Name');
@@ -121,6 +121,31 @@ public class DescriberTest {
       System.assert(false, 'It should have thrown an IllegalArgumentException');
     } catch (System.IllegalArgumentException e) {
       System.assert(e.getMessage().contains('not a valid reference field name'), e.getMessage());
+    }
+  }
+
+  @isTest
+  static void traverseWithSyntaxOnly() {
+    Describer describ = Describer.getInstance();
+
+    List<Describer.Hop> hops = describ.traverse('Account.Owner.Name');
+
+    System.assertEquals(2, hops.size());
+    System.assert(
+      hops[0].getType() == Schema.Account.SObjectType &&
+      hops[0].getField() == Schema.Account.OwnerId
+    );
+    System.assert(
+      hops[1].getType() == Schema.User.SObjectType &&
+      hops[1].getField() == Schema.User.Name
+    );
+
+    try {
+      describ.traverse('Accountz.Owner.Name');
+
+      System.assert(false, 'It should have thrown an IllegalArgumentException');
+    } catch (System.IllegalArgumentException e) {
+      System.assert(e.getMessage().contains('not a valid SObject'), e.getMessage());
     }
   }
 }

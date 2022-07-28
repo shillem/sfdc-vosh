@@ -257,10 +257,33 @@ global class Describer {
    * It traverses the <code>SObjectField</code> reference tracking each hop with a helper
    * object that contains relative <code>SObjectType</code> and <code>SObjectField</code>.
    *
-   * @param type the <code>SObjectType</code>, not null
-   * @param reference the cross reference, not null
+   * @param syntax the cross-reference syntax, not null
    * @return the list of hops
-   * @throws System.IllegalArgumentException if the cross-reference syntax was invalid
+   * @throws System.IllegalArgumentException if the cross-reference syntax is invalid
+   * @see Describer#traverse(Schema.SObjectType, String) traverse
+   * @since 1.0.27
+   */
+  global List<Hop> traverse(String syntax) {
+    List<String> breakdown = syntax.split('\\.');
+    String objectName = breakdown.remove(0);
+
+    Schema.SObjectType t = getGlobal().get(objectName);
+
+    if (t == null) {
+      throw new IllegalArgumentException(objectName + ' is not a valid SObject');
+    }
+
+    return traverse(t, String.join(breakdown, '.'));
+  }
+
+  /**
+   * It traverses the <code>SObjectField</code> reference tracking each hop with a helper
+   * object that contains relative <code>SObjectType</code> and <code>SObjectField</code>.
+   *
+   * @param type the <code>SObjectType</code>, not null
+   * @param syntax the cross-reference syntax, not null
+   * @return the list of hops
+   * @throws System.IllegalArgumentException if the cross-reference syntax is invalid
    * @since 1.0.23
    */
   @SuppressWarnings('PMD.CyclomaticComplexity')
