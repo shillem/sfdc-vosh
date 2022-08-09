@@ -782,26 +782,23 @@ global inherited sharing class Utils {
     if (obj instanceof Datetime) {
       return 'Datetime';
     }
-    if (obj instanceof Decimal) {
-      return 'Decimal';
+    if (obj instanceof Integer) { // order of evaluation for number is important
+      return 'Integer';
     }
-    if (obj instanceof Double) {
-      return 'Double';
+    if (obj instanceof Long) { // order of evaluation for number is important
+      return 'Long';
+    }
+    if (obj instanceof Decimal) { // order of evaluation for number is important
+      return 'Decimal';
     }
     if (obj instanceof Id) {
       return 'Id';
     }
-    if (obj instanceof Integer) {
-      return 'Integer';
-    }
     if (obj instanceof List<Object>) {
       return 'List';
     }
-    if (obj instanceof Long) {
-      return 'Long';
-    }
     if (obj instanceof SObject) {
-      return String.valueOf(obj);
+      return String.valueOf(((SObject) obj).getSObjectType());
     }
     if (obj instanceof String) {
       return 'String';

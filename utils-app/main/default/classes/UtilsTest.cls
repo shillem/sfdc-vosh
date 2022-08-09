@@ -1,6 +1,28 @@
 @isTest(isParallel=true)
 public class UtilsTest {
   @isTest
+  static void classNames() {
+    Schema.Account acct = (Schema.Account) new TestUtils.AccountMaker()
+      .setName('Dummy')
+      .setCount(1)
+      .make()
+      .get(0);
+
+    System.assertEquals('Blob', Utils.getClassName(Blob.valueOf('test')));
+    System.assertEquals('Boolean', Utils.getClassName(true));
+    System.assertEquals('Date', Utils.getClassName(Date.today()));
+    System.assertEquals('Datetime', Utils.getClassName(Datetime.now()));
+    System.assertEquals('Decimal', Utils.getClassName(Decimal.valueOf('1')));
+    System.assertEquals('Id', Utils.getClassName(acct.Id));
+    System.assertEquals('Integer', Utils.getClassName(Integer.valueOf('1')));
+    System.assertEquals('List', Utils.getClassName(new List<String>()));
+    System.assertEquals('Long', Utils.getClassName(Long.valueOf('1')));
+    System.assertEquals('Account', Utils.getClassName(acct));
+    System.assertEquals('String', Utils.getClassName('test'));
+    System.assertEquals('Entry', Utils.getClassName(new Utils.Entry('test')));
+  }
+
+  @isTest
   static void easyDecimal() {
     Utils.EasyDecimal hundred = new Utils.EasyDecimal(100.0);
 
@@ -14,6 +36,14 @@ public class UtilsTest {
     System.assertEquals(70, hundred.rightPctOf(70));
     System.assertEquals(hundred, new Utils.EasyDecimal(100.0));
     System.assertEquals(hundred, hundred.copy());
+    System.assert(hundred.toString().contains('100'));
+
+    Set<Utils.EasyDecimal> decimals = new Set<Utils.EasyDecimal>{
+      hundred,
+      new Utils.EasyDecimal(100.0)
+    };
+
+    System.assertEquals(1, decimals.size());
   }
 
   @isTest
@@ -70,6 +100,27 @@ public class UtilsTest {
     System.assert(umapper.containsKey('label'), 'It should have contained label key');
     System.assertEquals(dummy.getLabel(), umapper.getString('label'));
     System.assertEquals(dummy.getValue(), umapper.getString('value'));
+
+    umapper = new Utils.Mapper(
+      new Map<String, Object>{
+        'bool' => true,
+        'int' => 1,
+        'list' => new List<String>{ '1', '2' },
+        'map' => new Map<String, String>{ 'a' => '1', 'b' => '2' },
+        'mapList' => new List<Map<String, Object>>{
+          new Map<String, String>{ 'a' => '1', 'b' => '2' }
+        },
+        'string' => 'value'
+      }
+    );
+
+    System.assertEquals(true, umapper.getBoolean('bool'));
+    System.assertEquals(1, umapper.getInteger('int'));
+    System.assertEquals(2, umapper.getStringList('list').size());
+    System.assertEquals('2', umapper.getMap('map').values()[1]);
+    System.assertEquals('Mapper', Utils.getClassName(umapper.getObjectAsMapper('map')));
+    System.assertEquals(1, umapper.getMapList('mapList').size());
+    System.assertEquals('value', umapper.getString('string'));
   }
 
   @isTest
@@ -179,5 +230,19 @@ public class UtilsTest {
       'It should have returned the record by the email specified'
     );
     System.assertEquals(2, recuni.getRecords().size());
+  }
+
+  @isTest
+  static void urlQuery() {
+    Utils.UrlQuery q = new Utils.UrlQuery();
+
+    q.put('hello', '1');
+    q.put('bye', '2');
+
+    System.assertEquals('?hello=1&bye=2', q.toString());
+
+    q = new Utils.UrlQuery(new Map<String, String>{ 'param1' => 'true', 'param2' => 'false' });
+
+    System.assertEquals('?param1=true&param2=false', q.toString());
   }
 }
