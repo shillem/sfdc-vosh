@@ -326,8 +326,11 @@ global class Describer {
       if (currentField == null) {
         throw new IllegalArgumentException(
           String.format(
-            '"{0}" in "{1}" is not a valid reference field name for {2}',
-            new List<Object>{ fieldName, syntax, currentResult.getType() }
+            '{0} is not a valid reference field name for {1}',
+            new List<Object>{
+              syntax.equals(fieldName) ? syntax : fieldName + ' in ' + syntax,
+              currentResult.getType()
+            }
           )
         );
       }
