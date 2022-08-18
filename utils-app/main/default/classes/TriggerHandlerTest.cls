@@ -74,13 +74,26 @@ public class TriggerHandlerTest {
       .make();
 
     System.assert(
-      !handler.match(accts[0], accts[1], Schema.Account.Id),
-      'Account Ids should have mismatched'
+      handler.match(accts[0], accts[1], Schema.Account.Phone),
+      'Account phone numbers should have matched'
     );
 
     System.assert(
-      handler.match(accts[0], accts[1], Schema.Account.Phone),
-      'Account phone numbers should have matched'
+      handler.anyDiffer(
+        accts[0],
+        accts[1],
+        new List<Schema.SObjectField>{ Schema.Account.Id }
+      ),
+      'Account Ids should have mismatched'
+    );
+    
+    System.assert(
+      !handler.allDiffer(
+        accts[0],
+        accts[1],
+        new List<Schema.SObjectField>{ Schema.Account.Id, Schema.Account.Phone }
+      ),
+      'Account Ids should have mismatched'
     );
   }
 }

@@ -1,7 +1,7 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class TriggerHandler {
   /**
-   * The abstract class to create a SObject trigger logic from.
+   * @description The abstract class to create a SObject trigger logic from.
    * The class provides methods that will be be invoked depending on the trigger's operation type.
    * Any of those methods can be overridden by the extending class to implement the needed logic.
    * <p>
@@ -16,7 +16,7 @@ global inherited sharing class TriggerHandler {
     private Map<String, Id> recordTypeDeveloperNames;
 
     /**
-     * It can be overridden to performs operations on the record passed
+     * @description It can be overridden to performs operations on the record passed
      * when the trigger operation is <code>AFTER_DELETE</code>.
      *
      * @param record the record passed by the trigger
@@ -27,7 +27,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It can be overridden to performs operations on the record passed
+     * @description It can be overridden to performs operations on the record passed
      * when the trigger operation is <code>AFTER_DELETE</code>.
      *
      * @param record the record passed by the trigger
@@ -38,7 +38,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It can be overridden to performs operations on the record passed
+     * @description It can be overridden to performs operations on the record passed
      * when the trigger operation is <code>AFTER_UNDELETE</code>.
      *
      * @param record the record passed by the trigger
@@ -49,7 +49,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It can be overridden to performs operations on the record passed
+     * @description It can be overridden to performs operations on the record passed
      * when the trigger operation is <code>AFTER_UPDATE</code>.
      *
      * @param record the record passed by the trigger
@@ -60,7 +60,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It can be overridden to performs operations on the record passed
+     * @description It can be overridden to performs operations on the record passed
      * when the trigger operation is <code>BEFORE_DELETE</code>.
      *
      * @param record the record passed by the trigger
@@ -71,7 +71,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It can be overridden to performs operations on the record passed
+     * @description It can be overridden to performs operations on the record passed
      * when the trigger operation is <code>BEFORE_INSERT</code>.
      *
      * @param record the record passed by the trigger
@@ -82,7 +82,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It can be overridden to performs operations on the record passed
+     * @description It can be overridden to performs operations on the record passed
      * when the trigger operation is <code>BEFORE_UPDATE</code>.
      *
      * @param record the record passed by the trigger
@@ -93,7 +93,45 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It executes the implemented logic on the records passed
+     * @description It checks whether all value for the given fields differ between 2 records.
+     *
+     * @param record1 the first record to check
+     * @param record2 the second record to check
+     * @param fields the fields to check upon
+     * @return true if all the field values differ between the records, otherwise false
+     * @since 1.0.27
+     */
+    global Boolean allDiffer(SObject record1, SObject record2, List<Schema.SObjectField> fields) {
+      for (Schema.SObjectField f : fields) {
+        if (record1.get(f) == record2.get(f)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    /**
+     * @description It checks whether any value for the given fields differ between 2 records.
+     *
+     * @param record1 the first record to check
+     * @param record2 the second record to check
+     * @param fields the fields to check upon
+     * @return true if any of the field values differ between the records, otherwise false
+     * @since 1.0.27
+     */
+    global Boolean anyDiffer(SObject record1, SObject record2, List<Schema.SObjectField> fields) {
+      for (Schema.SObjectField f : fields) {
+        if (record1.get(f) != record2.get(f)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    /**
+     * @description It executes the implemented logic on the records passed
      * in the <code>Trigger</code> context.
      *
      * @since 1.0.1
@@ -147,7 +185,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It returns the trigger operation type.
+     * @description It returns the trigger operation type.
      *
      * @return the operation type
      * @since 1.0.24
@@ -157,7 +195,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It returns the record type <code>Id</code> of a record type developer name.
+     * @description It returns the record type <code>Id</code> of a record type developer name.
      *
      * @param value the record type developer name
      * @return the <code>Id</code> associated with the record type developer name
@@ -182,7 +220,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It returns the record type developer name of a record type <code>Id</code>.
+     * @description It returns the record type developer name of a record type <code>Id</code>.
      *
      * @param value the record type <code>Id</code>
      * @return the record type developer name associated with the <code>Id</code>
@@ -201,7 +239,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It must be overridden to state the <code>SObject</code> type the trigger logic handles.
+     * @description It must be overridden to state the <code>SObject</code> type the trigger logic handles.
      *
      * @return the <code>SObject</code> type
      * @since 1.0.1
@@ -209,7 +247,7 @@ global inherited sharing class TriggerHandler {
     global abstract Schema.SObjectType getSObjectType();
 
     /**
-     * It returns a set of record ids that have been tagged under the given key.
+     * @description It returns a set of record ids that have been tagged under the given key.
      *
      * @param key an arbitrary key string
      * @return the set containing the tagged ids
@@ -230,7 +268,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It checks whether a given record id has been tagged.
+     * @description It checks whether a given record id has been tagged.
      * <p>
      * Trigger logic can be tricky to write. A trigger might be invoked multiple times
      * on the same record depending on what the implementing class or other triggers do.
@@ -249,7 +287,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It checks whether the value of a given field matches between 2 records.
+     * @description It checks whether the value of a given field matches between 2 records.
      *
      * @param record1 the first record check
      * @param record2 the second record check
@@ -262,7 +300,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It can be overridden to execute arbitrary logic
+     * @description It can be overridden to execute arbitrary logic
      * before the <code>Trigger</code> record looping takes place.
      *
      * @since 1.0.1
@@ -273,7 +311,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It can be overridden to execute arbitrary logic
+     * @description It can be overridden to execute arbitrary logic
      * after the <code>Trigger</code> record has taken place.
      *
      * @since 1.0.1
@@ -283,7 +321,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It tags a given record id.
+     * @description It tags a given record id.
      *
      * @param recordId the record id to check
      * @param key an arbitrary key string to file the id under
@@ -296,7 +334,7 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * It untags a given record id.
+     * @description It untags a given record id.
      *
      * @param recordId the record id to check
      * @param key an arbitrary key string to file the id under
@@ -342,7 +380,7 @@ global inherited sharing class TriggerHandler {
   private static final Map<String, Set<Id>> TAGS = new Map<String, Set<Id>>();
 
   /**
-   * Invokes any <code>TriggerHandler.Routine</code> extending classes that have been enabled,
+   * @description Invokes any <code>TriggerHandler.Routine</code> extending classes that have been enabled,
    * for the SObject. The enabled classes will be retrieved by querying
    * all the <code>Cs_TriggerHandlerRoutine__c</code> custom setting records
    * that match the SObject type parameter.
@@ -374,7 +412,7 @@ global inherited sharing class TriggerHandler {
   }
 
   /**
-   * Disables a <code>TriggerHandler.Routine</code> extending class that,
+   * @description Disables a <code>TriggerHandler.Routine</code> extending class that,
    * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
    * The method ticks as disabled a corresponding <code>Cs_TriggerHandlerRoutine__c</code>
    * custom setting record that bears the class' name if it exists.
@@ -388,7 +426,7 @@ global inherited sharing class TriggerHandler {
   }
 
   /**
-   * Disables <code>TriggerHandler.Routine</code> extending classes that,
+   * @description Disables <code>TriggerHandler.Routine</code> extending classes that,
    * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
    * The method ticks as disabled the corresponding <code>Cs_TriggerHandlerRoutine__c</code>
    * custom setting records that bear the class' name if it exists.
@@ -426,7 +464,7 @@ global inherited sharing class TriggerHandler {
   }
 
   /**
-   * Enables a <code>TriggerHandler.Routine</code> extending class that,
+   * @description Enables a <code>TriggerHandler.Routine</code> extending class that,
    * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
    * The coupling trigger will have to call <code>TriggerHandler.execute</code>
    * for the class to be invoked.
@@ -444,7 +482,7 @@ global inherited sharing class TriggerHandler {
   }
 
   /**
-   * Enables <code>TriggerHandler.Routine</code> extending classes that,
+   * @description Enables <code>TriggerHandler.Routine</code> extending classes that,
    * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
    * The coupling trigger will have to call <code>TriggerHandler.execute</code>
    * for the classes to be invoked.
