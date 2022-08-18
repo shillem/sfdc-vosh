@@ -2,11 +2,11 @@
 public class SoqlerTest {
   @testSetup
   static void init() {
-    Id insufficientProfileId = TestUtils.getProfileId('Minimum Access - Salesforce');
+    Id minimumProfileId = TestUtils.getMinimumAccessProfileId();
 
     // Generating user
-    Schema.User insufficientUser = (Schema.User) new TestUtils.UserMaker()
-      .setProfileId(insufficientProfileId != null ? insufficientProfileId : UserInfo.getProfileId())
+    Schema.User minimumUser = (Schema.User) new TestUtils.UserMaker()
+      .setProfileId(minimumProfileId != null ? minimumProfileId : UserInfo.getProfileId())
       .setLastName('Insufficient')
       .setCount(1)
       .setAutoInsert(false)
@@ -15,7 +15,7 @@ public class SoqlerTest {
       .get(0);
 
     System.runAs(TestUtils.getUser()) {
-      insert insufficientUser;
+      insert minimumUser;
     }
 
     // Generating accounts
@@ -35,12 +35,12 @@ public class SoqlerTest {
       .setEntryTime(1, Datetime.now().addMinutes(30), Datetime.now().addMinutes(40))
       .setEntryTime(2, Datetime.now().addMinutes(50), Datetime.now().addMinutes(60))
       .setWhatId(accts[0].Id)
-      .setOwnerId(insufficientUser.Id)
+      .setOwnerId(minimumUser.Id)
       .setCount(3)
       .make();
   }
 
-  private static Schema.User getInsufficientUser() {
+  private static Schema.User getMinimumUser() {
     return [SELECT Id, ProfileId FROM User WHERE LastName = 'Insufficient0' LIMIT 1];
   }
 
@@ -156,17 +156,17 @@ public class SoqlerTest {
 
   @isTest
   static void queryFls() {
-    Schema.User insufficientUser = getInsufficientUser();
+    Schema.User minimumUser = getMinimumUser();
 
-    if (insufficientUser.ProfileId == UserInfo.getProfileId()) {
-      // What a shame, couldn't find an insufficient profile id to test FLS
+    if (minimumUser.ProfileId == UserInfo.getProfileId()) {
+      // What a shame, couldn't find an minimum profile id to test FLS
 
       return;
     }
 
     Test.startTest();
 
-    System.runAs(insufficientUser) {
+    System.runAs(minimumUser) {
       Soqler query = new Soqler(Schema.Contact.SObjectType);
       Schema.SObjectField forbiddenField = Schema.Contact.Name;
 

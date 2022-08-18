@@ -1,54 +1,58 @@
 {
-    "packageDirectories": [
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true
+    },
+    {
+      "path": "utils-app",
+      "package": "Vosh Utils",
+      "versionNumber": "1.0.26.NEXT",
+      "default": false
+    },
+    {
+      "path": "extended-ui-app",
+      "package": "Vosh Extended UI",
+      "versionNumber": "1.0.4.NEXT",
+      "default": false,
+      "dependencies": [
         {
-            "path": "force-app",
-            "default": true
-        },
-        {
-            "path": "utils-app",
-            "package": "Vosh Utils",
-            "versionNumber": "1.0.26.NEXT",
-            "default": false
-        },
-        {
-            "path": "extended-ui-app",
-            "package": "Vosh Extended UI",
-            "versionNumber": "1.0.4.NEXT",
-            "default": false,
-            "dependencies": [
-                {
-                    "package": "Vosh Utils",
-                    "versionNumber": "1.0.25.LATEST"
-                }
-            ]
-        },
-        {
-            "path": "enhanced-campaigns-app",
-            "package": "Vosh Enhanced Campaigns",
-            "versionNumber": "1.0.5.NEXT",
-            "default": false,
-            "dependencies": [
-                {
-                    "package": "Vosh Utils",
-                    "versionNumber": "1.0.26.LATEST"
-                },
-                {
-                    "package": "Vosh Extended UI",
-                    "versionNumber": "1.0.4.LATEST"
-                }
-            ]
+          "package": "Vosh Utils",
+          "versionNumber": "1.0.25.LATEST"
         }
-    ],
-    "namespace": "vosh",
-    "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "49.0",
-    "packageAliases": {
-        "Vosh Enhanced Campaigns": "0Ho3V000000XZAqSAO",
-        "Vosh Enhanced Campaigns@1.0.5-1": "04t3V000000EIQWQA4",
-        "Vosh Extended UI": "0Ho3V000000XZAlSAO",
-        "Vosh Extended UI@1.0.4-1": "04t3V000000EIQMQA4",
-        "Vosh Utils": "0Ho3V000000XZAHSA4",
-        "Vosh Utils@1.0.25-1": "04t3V000000EIQHQA4",
-        "Vosh Utils@1.0.26-1": "04t3V000000EIQRQA4"
+      ]
+    },
+    {
+      "path": "enhanced-campaigns-app",
+      "package": "Vosh Enhanced Campaigns",
+      "versionNumber": "1.0.5.NEXT",
+      "default": false,
+      "dependencies": [
+        {
+          "package": "Vosh Utils",
+          "versionNumber": "1.0.26.LATEST"
+        },
+        {
+          "package": "Vosh Extended UI",
+          "versionNumber": "1.0.4.LATEST"
+        }
+      ]
+    },
+    {
+      "path": "test-app",
+      "default": false
     }
+  ],
+  "namespace": "vosh",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "49.0",
+  "packageAliases": {
+    "Vosh Enhanced Campaigns": "0Ho3V000000XZAqSAO",
+    "Vosh Enhanced Campaigns@1.0.5-1": "04t3V000000EIQWQA4",
+    "Vosh Extended UI": "0Ho3V000000XZAlSAO",
+    "Vosh Extended UI@1.0.4-1": "04t3V000000EIQMQA4",
+    "Vosh Utils": "0Ho3V000000XZAHSA4",
+    "Vosh Utils@1.0.25-1": "04t3V000000EIQHQA4",
+    "Vosh Utils@1.0.26-1": "04t3V000000EIQRQA4"
+  }
 }

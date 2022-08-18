@@ -2,19 +2,12 @@
 public class FlsTest {
   @isTest
   static void main() {
-    Schema.Profile insufficientProfile = [
-      SELECT Id
-      FROM Profile
-      WHERE UserType = 'CsnOnly'
-      LIMIT 1
-    ];
-
     Schema.User insufficientUser;
 
     System.runAs(TestUtils.getUser()) {
       // Generating user
       insufficientUser = (Schema.User) new TestUtils.UserMaker()
-        .setProfileId(insufficientProfile.Id)
+        .setProfileId(TestUtils.getChatterProfileId())
         .setLastName('Insufficient')
         .setCount(1)
         .make()

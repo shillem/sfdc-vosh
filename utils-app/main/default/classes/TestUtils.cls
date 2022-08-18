@@ -590,6 +590,33 @@ global class TestUtils {
   }
 
   /**
+   * @description It returns the chatter profile id.
+   *
+   * @return the profile id
+   * @since 1.0.27
+   */
+  global static Id getChatterProfileId() {
+    List<Schema.Profile> records = [
+      SELECT Id
+      FROM Profile
+      WHERE UserType = 'CsnOnly'
+      LIMIT 1
+    ];
+
+    return records[0]?.Id;
+  }
+
+  /**
+   * @description It returns the most limited access profile id.
+   *
+   * @return the profile id
+   * @since 1.0.27
+   */
+  global static Id getMinimumAccessProfileId() {
+    return getProfileId('Minimum Access - Salesforce');
+  }
+
+  /**
    * @description It returns the profile id of the profile name provided.
    *
    * @param name the profile name
