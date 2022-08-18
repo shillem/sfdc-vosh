@@ -1,5 +1,5 @@
 /**
- * An object that builds <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_soql.htm">dynamic SOQLs</a>.
+ * @description An object that builds <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_soql.htm">dynamic SOQLs</a>.
  * <p>
  * The objects provides helper methods that execute the query or its COUNT() counterpart.
  * It can also simply return the both queries as strings to be further inspected or used.
@@ -131,7 +131,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It flags the <code>Schema.SObjectField</code> as droppable or not.
+     * @description It flags the <code>Schema.SObjectField</code> as droppable or not.
      * <p>
      * When the query will be built, or run,
      * if the field-level-security check fails for the field and droppable is true the query
@@ -148,7 +148,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It wraps the <code>Schema.SObjectField</code> with a function.
+     * @description It wraps the <code>Schema.SObjectField</code> with a function.
      * <p>
      * Used to return aggregate results the function must be specified
      * with proper syntax by making use of the parameter {0} (eg. 'SUM({0})').
@@ -515,7 +515,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It wraps the <code>Schema.SObjectField</code> with a function.
+     * @description It wraps the <code>Schema.SObjectField</code> with a function.
      * <p>
      * Used to return aggregate results the function must be specified
      * with proper syntax by making use of the parameter {0} (eg. 'CALENDAR_YEAR({0})').
@@ -645,7 +645,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It represents the object holding the list of instructions
+   * @description It represents the object holding the list of instructions
    * that will compose the SELECT part of the query.
    *
    * @since 1.0.4
@@ -660,7 +660,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a SELECT instruction to the list.
+     * @description It adds a SELECT instruction to the list.
      *
      * @param instruction the instruction to be added to the list, not null
      * @return this SELECT field list instance
@@ -676,7 +676,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a dynamic SOQL as <code>IFieldQuery</code> subquery
+     * @description It adds a dynamic SOQL as <code>IFieldQuery</code> subquery
      * to the SELECT instruction list.
      *
      * @param subquery the query, not null
@@ -693,7 +693,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a <code>IFieldName</code> SELECT instruction
+     * @description It adds a <code>IFieldName</code> SELECT instruction
      * based on <code>Schema.SObjectField</code> to the list.
      * <p>
      * When the query will be built, or run, the field will be checked
@@ -712,7 +712,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a <code>IFieldName</code> SELECT instruction for all the fields
+     * @description It adds a <code>IFieldName</code> SELECT instruction for all the fields
      * associated with the <code>SObject</code> the Soqler is based on.
      * <p>
      * When the query will be built, or run, the field will be checked
@@ -731,7 +731,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a <code>IFieldName</code> SELECT instruction for all the fields
+     * @description It adds a <code>IFieldName</code> SELECT instruction for all the fields
      * specified in the set.
      * <p>
      * When the query will be built, or run, the field will be checked
@@ -754,14 +754,14 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It represents the object holding the list of instructions
+   * @description It represents the object holding the list of instructions
    * that will compose the GROUP BY part of the query.
    *
    * @since 1.0.11
    */
   global class LGroup extends L {
     /**
-     * It adds a <code>IGroup</code> GROUP BY instruction to the list.
+     * @description It adds a <code>IGroup</code> GROUP BY instruction to the list.
      * The order applied will be ascending.
      *
      * @param instruction the instruction to be added to the list, not null
@@ -777,7 +777,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a <code>IGroupName</code> GROUP BY instruction
+     * @description It adds a <code>IGroupName</code> GROUP BY instruction
      * based on <code>Schema.SObjectField</code> to the list.
      * The order applied will be ascending.
      *
@@ -791,14 +791,14 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It represents the object holding the list of instructions
+   * @description It represents the object holding the list of instructions
    * that will compose the ORDER part of the query.
    *
    * @since 1.0.4
    */
   global class LOrder extends L {
     /**
-     * It adds a ORDER instruction to the list.
+     * @description It adds a ORDER instruction to the list.
      *
      * @param instruction the instruction to be added to the list, not null
      * @see Soqler.IOrder
@@ -813,7 +813,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a <code>IOrderName</code> ORDER instruction
+     * @description It adds a <code>IOrderName</code> ORDER instruction
      * based on <code>Schema.SObjectField</code> to the list.
      * The order applied will be ascending.
      *
@@ -826,7 +826,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a <code>IOrderName</code> ORDER instruction
+     * @description It adds a <code>IOrderName</code> ORDER instruction
      * based on <code>Schema.SObjectField</code> to the list.
      * The order applied will be ascending.
      *
@@ -841,7 +841,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It represents the object holding the list of instructions
+   * @description It represents the object holding the list of instructions
    * that will compose the WHERE part of the query.
    *
    * @since 1.0.4
@@ -860,7 +860,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a WHERE instruction to the list
+     * @description It adds a WHERE instruction to the list
      * using the AND operator to concatenate the previous instruction if present.
      *
      * @param instruction the instruction to be added to the list, not null
@@ -872,7 +872,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a dynamic SOQL as <code>IWhereQuery</code> subquery to the WHERE instruction list
+     * @description It adds a dynamic SOQL as <code>IWhereQuery</code> subquery to the WHERE instruction list
      * using the AND operator to concatenate the previous instruction if present.
      *
      * @param field the field the subquery to be run against, not null
@@ -885,7 +885,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a WHERE instruction to the list
+     * @description It adds a WHERE instruction to the list
      * using the OR operator to concatenate the previous instruction if present.
      *
      * @param instruction the instruction to be added to the list, not null
@@ -897,7 +897,7 @@ global inherited sharing class Soqler {
     }
 
     /**
-     * It adds a dynamic SOQL as <code>IWhereQuery</code> subquery to the WHERE instruction list
+     * @description It adds a dynamic SOQL as <code>IWhereQuery</code> subquery to the WHERE instruction list
      * using the OR operator to concatenate the previous instruction if present.
      *
      * @param field the field the subquery to be run against, not null
@@ -921,6 +921,8 @@ global inherited sharing class Soqler {
     DESCENDING_NULLS_LAST
   }
 
+  // private static final Logger.Instance LOG = Logger.getInstance(Soqler.class.getName());
+
   private static final Converter C_DATE_TIME = new ConverterDateTime();
   private static final Converter C_DATE_TIME_DATE = new ConverterDateTimeDate();
   private static final Converter C_OBJECT = new Converter();
@@ -940,7 +942,7 @@ global inherited sharing class Soqler {
   private Integer offset;
 
   /**
-   * It creates an instance that will produce a dynamic SOQL
+   * @description It creates an instance that will produce a dynamic SOQL
    * based on the <code>SObjectType</code> provide.
    *
    * @param type the SOQL <code>SObjectType</code>
@@ -955,12 +957,12 @@ global inherited sharing class Soqler {
 
   @SuppressWarnings('PMD.StdCyclomaticComplexity')
   private String build() {
-        String fb = flds.build();
-        String wb = whrs != null ? whrs.build() : null;
-        String gb = grps != null ? grps.build() : null;
-        String ob = ords != null ? ords.build() : null;
+        final String fb = flds.build();
+        final String wb = whrs != null ? whrs.build() : null;
+        final String gb = grps != null ? grps.build() : null;
+        final String ob = ords != null ? ords.build() : null;
 
-        return String.format(
+        final String q = String.format(
             'SELECT {0} FROM {1}{2}{3}{4}{5}{6}',
             new List<String>{
                 fb,
@@ -972,9 +974,13 @@ global inherited sharing class Soqler {
                 offset == null ? '' : ' OFFSET ' + offset
             }
         );
+
+        // LOG.debug('build() ' + q);
+
+        return q;
     }
   /**
-   * It returns the instruction list that will compose the SELECT part of the query.
+   * @description It returns the instruction list that will compose the SELECT part of the query.
    *
    * @return the field instruction list
    * @see Soqler.LField
@@ -985,7 +991,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the dynamic SOQL <code>SObjectType</code>.
+   * @description It returns the dynamic SOQL <code>SObjectType</code>.
    *
    * @return the dynamic SOQL <code>SObjectType</code>
    * @since 1.0.4
@@ -995,7 +1001,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the instruction list that will compose the GROUP BY part of the query.
+   * @description It returns the instruction list that will compose the GROUP BY part of the query.
    *
    * @return the group by instruction list
    * @see Soqler.LGroup
@@ -1010,7 +1016,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the dynamic SOQL LIMIT part of the query if present.
+   * @description It returns the dynamic SOQL LIMIT part of the query if present.
    *
    * @return the dynamic SOQL limit if present, otherwise null
    * @see #setMaxCount(Integer) setMaxCount
@@ -1021,7 +1027,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the dynamic SOQL OFFSET part of the query if present.
+   * @description It returns the dynamic SOQL OFFSET part of the query if present.
    *
    * @return the dynamic SOQL offset if present, otherwise null
    * @see #setOffset(Integer) setOffset
@@ -1032,7 +1038,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the instruction list that will compose the ORDER part of the query.
+   * @description It returns the instruction list that will compose the ORDER part of the query.
    *
    * @return the order instruction list
    * @see Soqler.LOrder
@@ -1047,7 +1053,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It runs the dynamic SOQL currently composed.
+   * @description It runs the dynamic SOQL currently composed.
    *
    * @return a list of the records matching the dynamic SOQL
    * @throws Fls.AuditException if not-droppable SELECT fields were specified and are inaccessible
@@ -1059,7 +1065,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It runs the AggregateResult[] version of the dynamic SOQL currently composed.
+   * @description It runs the AggregateResult[] version of the dynamic SOQL currently composed.
    *
    * @return the aggregate results matching the dynamic SOQL
    * @throws Fls.AuditException if not-droppable SELECT fields were specified and are inaccessible
@@ -1071,7 +1077,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It runs the COUNT() version of the dynamic SOQL currently composed.
+   * @description It runs the COUNT() version of the dynamic SOQL currently composed.
    *
    * @return the count of the records matching the dynamic SOQL
    * @see #queryCountToString() queryCountToString
@@ -1082,7 +1088,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the query locator object for Salesforce processing.
+   * @description It returns the query locator object for Salesforce processing.
    *
    * @return the query locator
    * @see #queryToString() queryToString
@@ -1093,7 +1099,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the dynamic SOQL string currently composed.
+   * @description It returns the dynamic SOQL string currently composed.
    *
    * @return the dynamic SOQL string
    * @throws UnsupportedOperationException if the query was passed as subquery of another query
@@ -1110,7 +1116,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the COUNT() version dynamic SOQL string currently composed.
+   * @description It returns the COUNT() version dynamic SOQL string currently composed.
    *
    * @return the COUNT() dynamic SOQL string
    * @throws UnsupportedOperationException if the query was passed as subquery of another query
@@ -1141,7 +1147,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It sets the dynamic SOQL LIMIT part of the query if present.
+   * @description It sets the dynamic SOQL LIMIT part of the query if present.
    * If the passed value is null LIMIT will be unset.
    *
    * @return the dynamic SOQL instance
@@ -1160,7 +1166,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It sets the dynamic SOQL OFFSET part of the query if present.
+   * @description It sets the dynamic SOQL OFFSET part of the query if present.
    * If the passed value is null OFFSET will be unset.
    *
    * @return the dynamic SOQL instance
@@ -1179,7 +1185,7 @@ global inherited sharing class Soqler {
   }
 
   /**
-   * It returns the instruction list that will compose the WHERE part of the query.
+   * @description It returns the instruction list that will compose the WHERE part of the query.
    *
    * @return the where instruction list
    * @see Soqler.LWhere

@@ -1,5 +1,5 @@
 /**
- * An object that creates rule-based random string values.
+ * @description An object that creates rule-based random string values.
  * The object must be created through <code>Randomizer.Builder</code>.
  *
  * @see Randomizer.Builder
@@ -8,7 +8,7 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global class Randomizer {
   /**
-   * A builder for <code>Randomizer</code>.
+   * @description A builder for <code>Randomizer</code>.
    * It defines the rules that object will use to create a random string.
    *
    * @see Randomizer
@@ -21,7 +21,7 @@ global class Randomizer {
     private Set<Option> prefs;
 
     /**
-     * It toggles the inclusion of current time in millisecs
+     * @description It toggles the inclusion of current time in millisecs
      * in the string that will be generated.
      *
      * @param flag the toggle
@@ -36,7 +36,7 @@ global class Randomizer {
     }
 
     /**
-     * It sets the Options used in the string that will be generated.
+     * @description It sets the Options used in the string that will be generated.
      *
      * @param values the Options
      * @see Randomizer.Option
@@ -50,7 +50,7 @@ global class Randomizer {
     }
 
     /**
-     * It sets the use a prefix in the string that will be generated.
+     * @description It sets the use a prefix in the string that will be generated.
      * If the value is null no prefix will be added.
      *
      * @param value the prefix value
@@ -64,7 +64,7 @@ global class Randomizer {
     }
 
     /**
-     * It sets the length of the string that will be generated.
+     * @description It sets the length of the string that will be generated.
      *
      * @param value the length of the string
      * @return the builder instance
@@ -77,7 +77,7 @@ global class Randomizer {
     }
 
     /**
-     * It builds a <code>Randomizer</code> instance using the rules currently set.
+     * @description It builds a <code>Randomizer</code> instance using the rules currently set.
      *
      * @throws UnsupportedOperationException if not <code>Option</code> was not set or the length was not set or it is lower than 3 or greater than 16
      * @return the <code>Randomizer</code> instance
@@ -99,7 +99,7 @@ global class Randomizer {
   }
 
   /**
-   * It defines the Options used by <code>Builder</code>.
+   * @description It defines the Options used by <code>Builder</code>.
    * in the string that will be generated.
    *
    * @see Randomizer.Builder
@@ -123,7 +123,7 @@ global class Randomizer {
   }
 
   /**
-   * It generates the random string value based on the rules defined in the object.
+   * @description It generates the random string value based on the rules defined in the object.
    *
    * @return the randomly generated string value
    * @since 1.0.1

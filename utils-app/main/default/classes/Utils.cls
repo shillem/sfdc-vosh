@@ -1,7 +1,12 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier, PMD.StdCyclomaticComplexity')
+/**
+ * @description A collection of utility methods.
+ *
+ * @since 1.0
+ */
 global inherited sharing class Utils {
   /**
-   * A wrapper for <code>Decimal</code> that makes it easy to perform common math computations.
+   * @description A wrapper for <code>Decimal</code> that makes it easy to perform common math computations.
    *
    * @since 1.0.20
    */
@@ -9,7 +14,7 @@ global inherited sharing class Utils {
     private Decimal value;
 
     /**
-     * It creates an instance with the provided <code>Decimal</code> value.
+     * @description It creates an instance with the provided <code>Decimal</code> value.
      *
      * @param value the value, not null
      * @since 1.0.20
@@ -21,7 +26,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates a new instance whose value equals to the original value
+     * @description It creates a new instance whose value equals to the original value
      * plus the calculated percentage value.
      *
      * @param percentage the percentage, not null
@@ -35,7 +40,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns a clone instance.
+     * @description It returns a clone instance.
      *
      * @return the <code>Decimal</code> value
      * @since 1.0.20
@@ -45,7 +50,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the <code>Decimal</code> value associated with the instance.
+     * @description It returns the <code>Decimal</code> value associated with the instance.
      *
      * @return the <code>Decimal</code> value
      * @since 1.0.20
@@ -55,7 +60,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates a new instance whose value equals to the original value
+     * @description It creates a new instance whose value equals to the original value
      * divided by the provided factor.
      *
      * @param factor the factor, not null
@@ -69,6 +74,10 @@ global inherited sharing class Utils {
     }
 
     /**
+     * @description It compares the current object with the passed one for equality.
+     * 
+     * @param instance the object to compare for equality
+     * @return true if the current object equals the one passed in as parameter
      * @see Object#equals(Object) equals
      * @since 1.0.20
      */
@@ -81,6 +90,9 @@ global inherited sharing class Utils {
     }
 
     /**
+     * @description It returns the hascode representing the object.
+     * 
+     * @return the hash code representing the object
      * @see Object#hashCode() hashCode
      * @since 1.0.20
      */
@@ -89,7 +101,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates a new instance whose value equals to the original value
+     * @description It creates a new instance whose value equals to the original value
      * minus the provided value.
      *
      * @param value the value, not null
@@ -104,7 +116,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates a new instance whose value equals to the original value
+     * @description It creates a new instance whose value equals to the original value
      * minus the provided value.
      *
      * @param value the value, not null
@@ -119,7 +131,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates a new instance whose value equals to the original value
+     * @description It creates a new instance whose value equals to the original value
      * multiplied by the provided factor.
      *
      * @param factor the factor, not null
@@ -133,7 +145,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the value in percentage of the provided value in the instance value.
+     * @description It returns the value in percentage of the provided value in the instance value.
      *
      * @param value the value, not null
      * @return the value
@@ -146,7 +158,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates a new instance whose value equals to the calculated percentage value
+     * @description It creates a new instance whose value equals to the calculated percentage value
      * of the instance value.
      *
      * @param percentage the percentage, not null
@@ -160,7 +172,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the value in percentage of the instance value in the provided value.
+     * @description It returns the value in percentage of the instance value in the provided value.
      *
      * @param value the value, not null
      * @return the value
@@ -173,7 +185,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates a new instance whose value equals to the original value
+     * @description It creates a new instance whose value equals to the original value
      * plus the provided factor.
      *
      * @param value the value, not null
@@ -188,7 +200,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates a new instance whose value equals to the original value
+     * @description It creates a new instance whose value equals to the original value
      * minus the provided value.
      *
      * @param value the value, not null
@@ -208,7 +220,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * An object that holds a key-value pair.
+   * @description An object that holds a key-value pair.
    * The objects implements <code>Comparable</code> on the key value for sorting purposes.
    *
    * @since 1.0.1
@@ -219,7 +231,7 @@ global inherited sharing class Utils {
     private final Object value;
 
     /**
-     * It creates an instance with a key value corresponding
+     * @description It creates an instance with a key value corresponding
      * to the <code>String.valueOf</code> of the value.
      *
      * @param value the value
@@ -230,7 +242,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates an instance with a key value and a value.
+     * @description It creates an instance with a key value and a value.
      *
      * @param value the value
      * @param label the label
@@ -242,6 +254,10 @@ global inherited sharing class Utils {
     }
 
     /**
+     * @description It compares the current istance with the current object for sorting purposes.
+     * 
+     * @param instance the object to compare for equality
+     * @return -1, 0 or 1
      * @see Comparable#compareTo(Object) compareTo
      * @since 1.0.1
      */
@@ -263,6 +279,10 @@ global inherited sharing class Utils {
     }
 
     /**
+     * @description It compares the current object with the passed one for equality.
+     * 
+     * @param instance the object to compare for equality
+     * @return true if the current object equals the one passed in as parameter
      * @see Object#equals(Object) equals
      * @since 1.0.1
      */
@@ -278,9 +298,10 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the label.
-     *
-     * @return the label
+     * @description It returns the hascode representing the object.
+     * 
+     * @see Object#hashCode() hashCode
+     * @return the hash code representing the object
      * @since 1.0.1
      */
     global String getLabel() {
@@ -288,7 +309,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the value.
+     * @description It returns the value.
      *
      * @return the value
      * @since 1.0.1
@@ -298,6 +319,9 @@ global inherited sharing class Utils {
     }
 
     /**
+     * @description It returns the hascode representing the object.
+     * 
+     * @return the hash code representing the object
      * @see Object#hashCode() hashCode
      * @since 1.0.1
      */
@@ -311,7 +335,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * A class that hashes values using an algorithm
+   * @description A class that hashes values using an algorithm
    *
    * @since 1.0.1
    */
@@ -319,7 +343,7 @@ global inherited sharing class Utils {
     private final String algorithm;
 
     /**
-     * It creates an instance that will use MD5 as hashink algorithm.
+     * @description It creates an instance that will use MD5 as hashink algorithm.
      *
      * @see Hasher(String)
      * @since 1.0.1
@@ -329,7 +353,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates an instance that will use a given hashing algorithm.
+     * @description It creates an instance that will use a given hashing algorithm.
      *
      * @param algorithm the hashing algorithm to be used
      * @throws UnsupportedOperationException if the algorithm is not 'MD5', 'SHA1', 'SHA-256' or 'SHA-512'
@@ -344,7 +368,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It hashes a given value.
+     * @description It hashes a given value.
      *
      * @param value the value to be hashed, not null
      * @return the hashed value
@@ -359,6 +383,10 @@ global inherited sharing class Utils {
     }
 
     /**
+     * @description It hashes the passed value according to the algorithm set for the object.
+     * 
+     * @param value the value to be hashed, not null
+     * @return the hashed value
      * @see #hash(Blob) hash
      * @since 1.0.1
      */
@@ -370,7 +398,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * An helper object to navigate a given map with less typing and casting.
+   * @description An helper object to navigate a given map with less typing and casting.
    *
    * @since 1.0.1
    */
@@ -378,7 +406,7 @@ global inherited sharing class Utils {
     private final Map<String, Object> values;
 
     /**
-     * It creates an instance wrapping a given map.
+     * @description It creates an instance wrapping a given map.
      *
      * @param values the map to wrap, not null
      * @since 1.0.1
@@ -390,7 +418,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It checks whether the map contains the given key.
+     * @description It checks whether the map contains the given key.
      *
      * @param key the key
      * @return true if the key is present, otherwise false
@@ -401,7 +429,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the map value cast as <code>Boolean</code>.
+     * @description It returns the map value cast as <code>Boolean</code>.
      *
      * @param key the key
      * @throws TypeException if the value associated with the key is not <code>Boolean</code>
@@ -413,7 +441,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the map value cast as <code>Integer</code>.
+     * @description It returns the map value cast as <code>Integer</code>.
      *
      * @param key the key
      * @throws TypeException if the value associated with the key is not <code>Integer</code>
@@ -425,7 +453,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the map value cast as <code>Map&lt;String, Object&gt;</code>.
+     * @description It returns the map value cast as <code>Map&lt;String, Object&gt;</code>.
      *
      * @param key the key
      * @throws TypeException if the value associated with the key is not <code>Map&lt;String, Object&gt;</code>
@@ -437,7 +465,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the map value cast as <code>List&lt;Map&lt;String, Object&gt;&gt;</code>.
+     * @description It returns the map value cast as <code>List&lt;Map&lt;String, Object&gt;&gt;</code>.
      *
      * @param key the key
      * @throws TypeException if the value associated with the key is not <code>List&lt;Map&lt;String, Object&gt;&gt;</code>
@@ -455,7 +483,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the map value.
+     * @description It returns the map value.
      *
      * @param key the key
      * @return the value associated with the key if present, otherwise null
@@ -466,7 +494,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns a new mapper instance
+     * @description It returns a new mapper instance
      * wrapping the map value cast as <code>Map&lt;String, Object&gt;</code>.
      *
      * @param key the key
@@ -479,7 +507,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the map value cast as <code>List&lt;Object&gt;</code>.
+     * @description It returns the map value cast as <code>List&lt;Object&gt;</code>.
      *
      * @param key the key
      * @throws TypeException if the value associated with the key is not <code>List&lt;Object&gt;</code>
@@ -491,7 +519,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the map value cast as <code>String</code>.
+     * @description It returns the map value cast as <code>String</code>.
      *
      * @param key the key
      * @throws TypeException if the value associated with the key is not <code>String</code>
@@ -503,7 +531,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the map value cast as <code>List&lt;String&gt;</code>.
+     * @description It returns the map value cast as <code>List&lt;String&gt;</code>.
      *
      * @param key the key
      * @throws TypeException if the value associated with the key is not <code>List&lt;String&gt;</code>
@@ -522,7 +550,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * A wrapper for <code>Set</code>.
+   * @description A wrapper for <code>Set</code>.
    * The idea is to implement this interface to provide helper methods
    * to work with the <code>Set</code>.
    *
@@ -530,7 +558,7 @@ global inherited sharing class Utils {
    */
   global interface Uniquifier {
     /**
-     * It returns the set of values the class is managing
+     * @description It returns the set of values the class is managing
      *
      * @return the set of values
      * @since 1.0.1
@@ -539,7 +567,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * An implementation of <code>Uniquifier</code> for <code>SObject</code> field values.
+   * @description An implementation of <code>Uniquifier</code> for <code>SObject</code> field values.
    *
    * @since 1.0.1
    * @see Utils.Uniquifier
@@ -549,7 +577,7 @@ global inherited sharing class Utils {
     private final Map<Object, SObject> values;
 
     /**
-     * It creates a <code>Uniquifier</code> that is bound
+     * @description It creates a <code>Uniquifier</code> that is bound
      * to a specific <code>SObject</code> field.
      *
      * @param field the <code>SObject</code> field to use as basis
@@ -562,7 +590,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It adds the record field value of a given record to the set if it's not already present.
+     * @description It adds the record field value of a given record to the set if it's not already present.
      *
      * @param record the record the field value will be read from
      * @return true if the record field value is present in the set, otherwise false
@@ -581,7 +609,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It adds the record field values of a given record list to the set if it's not already present.
+     * @description It adds the record field values of a given record list to the set if it's not already present.
      *
      * @param records the record list the field value will be read from
      * @since 1.0.23
@@ -595,9 +623,9 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the record associated with the given value if present in the set.
+     * @description It returns the record associated with the given value if present in the set.
      *
-     * @param record the record the field value will be read from
+     * @param value the record the field value will be read from
      * @return the record if the value is present in the set, otherwise null
      * @since 1.0.1
      */
@@ -606,7 +634,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the record field value for a given record.
+     * @description It returns the record field value for a given record.
      *
      * @param record the record the field value will be read from
      * @return the record field value
@@ -617,7 +645,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the set of records the class is managing.
+     * @description It returns the set of records the class is managing.
      *
      * @return the set of records
      * @see Utils.Uniquifier#getValues() getValues
@@ -628,7 +656,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the set of values the class is managing.
+     * @description It returns the set of values the class is managing.
      *
      * @return the set of values
      * @see Utils.Uniquifier#getValues() getValues
@@ -640,7 +668,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * An implementation of <code>Uniquifier</code>.
+   * @description An implementation of <code>Uniquifier</code>.
    *
    * @since 1.0.1
    * @see Utils.Uniquifier
@@ -648,12 +676,16 @@ global inherited sharing class Utils {
   global class ValueUniquifier implements Uniquifier {
     private final Set<Object> values;
 
+    /**
+     * @description The parameterless constructor
+     * @since 1.0.1
+     */
     global ValueUniquifier() {
       this.values = new Set<Object>();
     }
 
     /**
-     * It adds a value to the set if it's not already present.
+     * @description It adds a value to the set if it's not already present.
      *
      * @param value the value to add to the set
      * @return true if the value was not present in the set, otherwise false
@@ -670,7 +702,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It returns the set of values the class is managing.
+     * @description It returns the set of values the class is managing.
      *
      * @return the set of values
      * @see Utils.Uniquifier#getValues() getValues
@@ -682,7 +714,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * An object that creates a URL query.
+   * @description An object that creates a URL query.
    *
    * @since 1.0.4
    */
@@ -690,7 +722,7 @@ global inherited sharing class Utils {
     private final Map<String, Object> values;
 
     /**
-     * It creates an empty instance of what will make the query.
+     * @description It creates an empty instance of what will make the query.
      *
      * @since 1.0.4
      */
@@ -699,7 +731,7 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It creates an instance of the passed values that will make the query.
+     * @description It creates an instance of the passed values that will make the query.
      *
      * @param values the query values, not null
      * @since 1.0.4
@@ -715,10 +747,11 @@ global inherited sharing class Utils {
     }
 
     /**
-     * It adds a query parameter.
+     * @description It adds a query parameter.
      *
      * @param name the parameter name, not null
      * @param value the parameter value
+     * @return the <code>UrlQuery</code> object instance 
      * @throws UnsupportedOperationException if the parameter name is empty
      * @since 1.0.4
      */
@@ -748,7 +781,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It deserializes a map-representing JSON string wrapped in a <code>Utils.Mapper</code> object.
+   * @description It deserializes a map-representing JSON string wrapped in a <code>Utils.Mapper</code> object.
    *
    * @param value the JSON string representing a map, not null
    * @return the <code>Utils.Mapper</code> object wrapping the map
@@ -760,7 +793,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It returns the class name of a given object.
+   * @description It returns the class name of a given object.
    *
    * @param obj the object, not null
    * @return the class name of the object
@@ -782,13 +815,16 @@ global inherited sharing class Utils {
     if (obj instanceof Datetime) {
       return 'Datetime';
     }
-    if (obj instanceof Integer) { // order of evaluation for number is important
+    if (obj instanceof Integer) {
+      // order of evaluation for number is important
       return 'Integer';
     }
-    if (obj instanceof Long) { // order of evaluation for number is important
+    if (obj instanceof Long) {
+      // order of evaluation for number is important
       return 'Long';
     }
-    if (obj instanceof Decimal) { // order of evaluation for number is important
+    if (obj instanceof Decimal) {
+      // order of evaluation for number is important
       return 'Decimal';
     }
     if (obj instanceof Id) {
@@ -814,7 +850,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It fetches the record types of a given <code>SObject</code>.
+   * @description It fetches the record types of a given <code>SObject</code>.
    * The map keys are the "Developer Name" value for the record type
    * while the map values are their ids.
    *
@@ -840,7 +876,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It returns the first value if not null, otherwise the alternative.
+   * @description It returns the first value if not null, otherwise the alternative.
    *
    * @param value the value
    * @param alternative the alternative
@@ -852,7 +888,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It returns the first value if not null, otherwise the alternative.
+   * @description It returns the first value if not null, otherwise the alternative.
    *
    * @param value the value
    * @param alternative the alternative
@@ -864,7 +900,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It returns the first value if not null, otherwise the alternative.
+   * @description It returns the first value if not null, otherwise the alternative.
    *
    * @param value the value
    * @param alternative the alternative
@@ -876,7 +912,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It returns the first value if not null, otherwise the alternative.
+   * @description It returns the first value if not null, otherwise the alternative.
    *
    * @param value the value
    * @param alternative the alternative
@@ -888,7 +924,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It returns the first value if not null, otherwise the alternative.
+   * @description It returns the first value if not null, otherwise the alternative.
    *
    * @param value the value
    * @param alternative the alternative
@@ -900,7 +936,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It checks whether the passed object is null or not.
+   * @description It checks whether the passed object is null or not.
    * If the object is null it throws a <code>NullPointerException</code> with the provided message.
    *
    * @param obj the object to check for nullness
@@ -921,7 +957,7 @@ global inherited sharing class Utils {
   }
 
   /**
-   * It pauses the code execution for a given number of seconds
+   * @description It pauses the code execution for a given number of seconds
    *
    * @param seconds the seconds the code execution will sleep for
    * @throws UnsupportedOperationException if seconds are lower than 1 or greater than 10

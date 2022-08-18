@@ -1,5 +1,5 @@
 /**
- * An implementation of <code>Database.Batchable&lt:SObject&gt;</code> for deleting
+ * @description An implementation of <code>Database.Batchable&lt:SObject&gt;</code> for deleting
  * records en masse.
  *
  * @since 1.0.15
@@ -10,7 +10,7 @@ global inherited sharing class BatchableDeletable implements Database.Batchable<
   private final String q;
 
   /**
-   * It creates an instance taht will delete records returned by the specified query.
+   * @description It creates an instance taht will delete records returned by the specified query.
    *
    * @param q the query
    * @see #BatchableDeletable(String, Boolean)
@@ -21,7 +21,7 @@ global inherited sharing class BatchableDeletable implements Database.Batchable<
   }
 
   /**
-   * It creates an instance taht will delete records returned by the specified query.
+   * @description It creates an instance taht will delete records returned by the specified query.
    *
    * @param q the query
    * @param emptyRecycleBin the option for emptying the recycle bin after deletion

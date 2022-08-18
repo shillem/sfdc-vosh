@@ -1,5 +1,5 @@
 /**
- * A custom implementation of <code>java.util.Queue</code>.
+ * @description A custom implementation of <code>java.util.Queue</code>.
  *
  * @since 1.0.23
  */
@@ -11,7 +11,7 @@ public inherited sharing class Queue {
   }
 
   /**
-   * It appends the element to the end of the queue.
+   * @description It appends the element to the end of the queue.
    *
    * @param element the object to be appended
    * @throws System.NullPointerException if the object is null
@@ -24,7 +24,7 @@ public inherited sharing class Queue {
   }
 
   /**
-   * It appends the elements to the end of the queue.
+   * @description It appends the elements to the end of the queue.
    *
    * @param elements the objects to be appended
    * @throws System.NullPointerException if the object is null
@@ -37,7 +37,7 @@ public inherited sharing class Queue {
   }
 
   /**
-   * It peeks for the first element of the queue and returns it if the queue is not empty.
+   * @description It peeks for the first element of the queue and returns it if the queue is not empty.
    *
    * @return the element at the beginning of the queue or null if the queue is empty
    * @since 1.0.23
@@ -47,7 +47,7 @@ public inherited sharing class Queue {
   }
 
   /**
-   * It removes and returns the element at the beginning of the queue.
+   * @description It removes and returns the element at the beginning of the queue.
    *
    * @return the element at the beginning of the queue or null if the queue is empty
    * @since 1.0.23
@@ -57,7 +57,7 @@ public inherited sharing class Queue {
   }
 
   /**
-   * It returns the queue size.
+   * @description It returns the queue size.
    *
    * @return the queue size
    * @since 1.0.23
@@ -67,7 +67,7 @@ public inherited sharing class Queue {
   }
 
   /**
-   * It returns whether the queue is empty or not.
+   * @description It returns whether the queue is empty or not.
    *
    * @return true if the queue is empty
    * @since 1.0.23

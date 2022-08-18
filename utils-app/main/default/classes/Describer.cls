@@ -1,5 +1,5 @@
 /**
- * A helper class that for <code>SObjectType</code> objects and what revolves around them:
+ * @description A helper class that for <code>SObjectType</code> objects and what revolves around them:
  * <code>DescribeSObjectResult, DescribeFieldResult</code>.
  * <p>
  * This class is meant to be used through a static instance since it wants to leverage cache
@@ -11,7 +11,7 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global class Describer {
   /**
-   * An enumerator to classify <code>DisplayType</code> in broader terms.
+   * @description An enumerator to classify <code>DisplayType</code> in broader terms.
    *
    * @since 1.0.25
    */
@@ -24,7 +24,7 @@ global class Describer {
   }
 
   /**
-   * A result class for <code>Describer.traverse</code> that keeps track of cross-referencing traversing.
+   * @description A result class for <code>Describer.traverse</code> that keeps track of cross-referencing traversing.
    *
    * @see Describer#traverse(Schema.SObjectType, String) traverse
    * @since 1.0.23
@@ -59,7 +59,7 @@ global class Describer {
   }
 
   /**
-   * It returns the <code>SObjectField</code> object representation of a given field name.
+   * @description It returns the <code>SObjectField</code> object representation of a given field name.
    * The value must be represented as <code>SObject.SObjectField</code> (e.g.: <code>Account.Name</code>).
    *
    * @param value the string representing the <code>SObjectField</code>, not null
@@ -77,7 +77,7 @@ global class Describer {
   }
 
   /**
-   * It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_global_describe.htm">global describe</a>.
+   * @description It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_dynamic_global_describe.htm">global describe</a>.
    *
    * @return the global describe
    * @since 1.0.1
@@ -91,7 +91,7 @@ global class Describer {
   }
 
   /**
-   * It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_methods_system_fields_describe.htm">DescribeFieldResult</a>
+   * @description It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_methods_system_fields_describe.htm">DescribeFieldResult</a>
    * of a given <code>SObjectField</code> field.
    *
    * @param field the field, not null
@@ -117,7 +117,7 @@ global class Describer {
   }
 
   /**
-   * It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_methods_system_sobject_describe.htm#apex_methods_system_sobject_describe">DescribeSObjectResult</a>
+   * @description It returns the <a href="https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_methods_system_sobject_describe.htm#apex_methods_system_sobject_describe">DescribeSObjectResult</a>
    * of a given <code>SObject</code>.
    *
    * @param name the <code>SObject</code> name, not null
@@ -134,7 +134,7 @@ global class Describer {
   }
 
   /**
-   * @param type the <code>SObject</code> type, not null
+   * @description @param type the <code>SObject</code> type, not null
    * @return the <code>SObject</code> describe result
    * @see #getObjectDescribe(String) getObjectDescribe
    * @since 1.0.1
@@ -158,7 +158,7 @@ global class Describer {
   }
 
   /**
-   * It returns a map of all the fields defined for a given <code>SObject</code>.
+   * @description It returns a map of all the fields defined for a given <code>SObject</code>.
    * The map keys represent the field names
    * while the values are the <code>SObjectField</code> objects.
    *
@@ -171,7 +171,7 @@ global class Describer {
   }
 
   /**
-   * It returns the relationship name between two <code>SObjectType</code> objects.
+   * @description It returns the relationship name between two <code>SObjectType</code> objects.
    *
    * @param parent the parent <code>SObject</code> type, not null
    * @param child the child <code>SObject</code> type, not null
@@ -209,7 +209,7 @@ global class Describer {
   }
 
   /**
-   * It returns the <code>SObject</code> nested in a given <code>SObject</code>
+   * @description It returns the <code>SObject</code> nested in a given <code>SObject</code>
    * by resolving cross-reference syntax.
    *
    * @param syntax the string representing the <code>SObjectField</code>, not null
@@ -237,7 +237,7 @@ global class Describer {
   }
 
   /**
-   * It returns the field value for a given nested <code>SObject</code>
+   * @description It returns the field value for a given nested <code>SObject</code>
    * by resolving cross-reference syntax.
    *
    * @param syntax the string representing the <code>SObjectField</code>, not null
@@ -254,7 +254,7 @@ global class Describer {
   }
 
   /**
-   * It tells whether the org the code is running in has Person Accounts feature enabled.
+   * @description It tells whether the org the code is running in has Person Accounts feature enabled.
    * For more info visit: https://help.salesforce.com/s/articleView?id=account_person.htm&language=en_US&type=0
    *
    * @return true if Person Accounts feature is enabled
@@ -267,7 +267,7 @@ global class Describer {
   }
 
   /**
-   * It traverses the <code>SObjectField</code> reference tracking each hop with a helper
+   * @description It traverses the <code>SObjectField</code> reference tracking each hop with a helper
    * object that contains relative <code>SObjectType</code> and <code>SObjectField</code>.
    *
    * @param syntax the cross-reference syntax, not null
@@ -290,7 +290,7 @@ global class Describer {
   }
 
   /**
-   * It traverses the <code>SObjectField</code> reference tracking each hop with a helper
+   * @description It traverses the <code>SObjectField</code> reference tracking each hop with a helper
    * object that contains relative <code>SObjectType</code> and <code>SObjectField</code>.
    *
    * @param type the <code>SObjectType</code>, not null
@@ -349,7 +349,7 @@ global class Describer {
   }
 
   /**
-   * It returns the <code>DisplayFamily</code> family which provides a broader name set
+   * @description It returns the <code>DisplayFamily</code> family which provides a broader name set
    * for the underlying <code>DisplayType</code>
    *
    * @param value the display type
@@ -379,7 +379,7 @@ global class Describer {
   }
 
   /**
-   * It returns the static instance of <code>Describer</code>.
+   * @description It returns the static instance of <code>Describer</code>.
    *
    * @return the static instance of <code>Describer</code>
    * @see Describer

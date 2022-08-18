@@ -1,5 +1,5 @@
 /**
- * A helper methods to write tests with less code.
+ * @description A helper methods to write tests with less code.
  *
  * @since 1.0.4
  */
@@ -7,20 +7,20 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ExcessivePublicCount')
 global class TestUtils {
   /**
-   * @since 1.0.4
+   * @description @since 1.0.4
    */
   global class HttpCalloutMock implements System.HttpCalloutMock {
     private final List<HttpResponseMock> responses;
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpCalloutMock() {
       responses = new List<HttpResponseMock>();
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpCalloutMock addResponse(HttpResponseMock value) {
       responses.add(value);
@@ -29,7 +29,7 @@ global class TestUtils {
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global System.HTTPResponse respond(System.HTTPRequest req) {
       for (HttpResponseMock res : responses) {
@@ -45,7 +45,7 @@ global class TestUtils {
   }
 
   /**
-   * @since 1.0.4
+   * @description @since 1.0.4
    */
   global class HttpResponseMock {
     private final System.Pattern rule;
@@ -54,14 +54,14 @@ global class TestUtils {
     private Object body;
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpResponseMock(System.Pattern rule) {
       this(rule, 200);
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpResponseMock(System.Pattern rule, Integer statusCode) {
       this.rule = rule;
@@ -69,7 +69,7 @@ global class TestUtils {
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global System.HTTPResponse respond() {
       System.HttpResponse res = new System.HttpResponse();
@@ -86,7 +86,7 @@ global class TestUtils {
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpResponseMock setBody(Blob value) {
       body = value;
@@ -95,7 +95,7 @@ global class TestUtils {
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpResponseMock setBody(String value) {
       body = value;
@@ -104,21 +104,21 @@ global class TestUtils {
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpResponseMock setStaticResourceBody(String name) {
       return setStaticResourceBody(name, null);
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpResponseMock setStaticResourceBody(String name, String key) {
       return setStaticResourceBody(name, key, new List<String>());
     }
 
     /**
-     * @since 1.0.4
+     * @description @since 1.0.4
      */
     global HttpResponseMock setStaticResourceBody(String name, String key, List<String> variables) {
       Schema.StaticResource resource = [SELECT Body FROM StaticResource WHERE Name = :name LIMIT 1];
@@ -138,7 +138,7 @@ global class TestUtils {
   }
 
   /**
-   * A builder that lays the foundation to generate any number of SObject records
+   * @description A builder that lays the foundation to generate any number of SObject records
    *
    * @since 1.0.4
    */
@@ -153,7 +153,7 @@ global class TestUtils {
     private Id ownerId;
 
     /**
-     * It creates an instance that will generate <code>SObject</code> records
+     * @description It creates an instance that will generate <code>SObject</code> records
      * of the provided <code>SObjectType</code>.
      *
      * @param type the <code>SObjectType</code>
@@ -169,7 +169,7 @@ global class TestUtils {
     }
 
     /**
-     * It flags the given field to append an index enumeration to the value provided.
+     * @description It flags the given field to append an index enumeration to the value provided.
      * The enumeration will be applied once the <code>make()</code> is invoked.
      *
      * @param field the field
@@ -182,7 +182,7 @@ global class TestUtils {
     }
 
     /**
-     * It generates all the <code>SObject</code> records according to the currently set options.
+     * @description It generates all the <code>SObject</code> records according to the currently set options.
      * By default the records will be automatically inserted. To prevent this behaviour disable
      * auto-insert.
      *
@@ -228,7 +228,7 @@ global class TestUtils {
     }
 
     /**
-     * It registers a default field value that will be set
+     * @description It registers a default field value that will be set
      * for each generated record once the <code>make()</code> is invoked.
      *
      * @param field the field
@@ -243,7 +243,7 @@ global class TestUtils {
     }
 
     /**
-     * It registers a default field value that will be set
+     * @description It registers a default field value that will be set
      * for an index-specific generated record once the <code>make()</code> is invoked.
      *
      * @param index the index
@@ -267,7 +267,7 @@ global class TestUtils {
     }
 
     /**
-     * It sets the auto-insert options that controls whether the <code>make()</code> method
+     * @description It sets the auto-insert options that controls whether the <code>make()</code> method
      * will insert the records or not.
      *
      * @param value the toggle
@@ -280,7 +280,7 @@ global class TestUtils {
     }
 
     /**
-     * It sets the number of records the <code>make()</code> method will create.
+     * @description It sets the number of records the <code>make()</code> method will create.
      *
      * @param value the count
      * @return the maker instance
@@ -292,7 +292,7 @@ global class TestUtils {
     }
 
     /**
-     * It sets the <code>OwnerId</code> field for any record that will be generated
+     * @description It sets the <code>OwnerId</code> field for any record that will be generated
      * by the <code>make()</code> method.
      *
      * @param value the owner id
@@ -560,7 +560,7 @@ global class TestUtils {
   }
 
   /**
-   * It activates the standard Pricebook.
+   * @description It activates the standard Pricebook.
    *
    * @param userId the standard pricebook id
    * @since 1.0.18
@@ -577,7 +577,7 @@ global class TestUtils {
   }
 
   /**
-   * It assigns the user the permission set provided.
+   * @description It assigns the user the permission set provided.
    *
    * @param name the permission name
    * @param userId the user id
@@ -590,7 +590,7 @@ global class TestUtils {
   }
 
   /**
-   * It returns the profile id of the profile name provided.
+   * @description It returns the profile id of the profile name provided.
    *
    * @param name the profile name
    * @return the profile id
@@ -601,7 +601,7 @@ global class TestUtils {
   }
 
   /**
-   * It returns a map of profile names and respective ids for the names provided.
+   * @description It returns a map of profile names and respective ids for the names provided.
    *
    * @param names the profile names
    * @return the map with names and ids
@@ -618,7 +618,7 @@ global class TestUtils {
   }
 
   /**
-   * It returns the current user <code>User</code> SObject exclusively containing the record id.
+   * @description It returns the current user <code>User</code> SObject exclusively containing the record id.
    * <p>
    * This method can be useful when running <code>System.runAs()</code>.
    *
@@ -631,7 +631,7 @@ global class TestUtils {
   }
 
   /**
-   * @param value the user id
+   * @description @param value the user id
    * @return the <code>User</code> SObject
    * @see #getUser() getUser
    * @since 1.0.4

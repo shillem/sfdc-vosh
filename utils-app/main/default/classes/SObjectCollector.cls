@@ -1,5 +1,5 @@
 /**
- * A record organizer for <code>SObject</code>.
+ * @description A record organizer for <code>SObject</code>.
  * It outputs a map having a key based on the specified criteria
  * and subsequent <code>SObject</code> record falling under that key.
  *
@@ -9,7 +9,7 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global class SObjectCollector {
 /**
-   * The criteria object used by a <code>SObjectCollector</code>
+   * @description The criteria object used by a <code>SObjectCollector</code>
    * to organize <code>SObject</code> records.
    *
    * @see SObjectCollector
@@ -17,7 +17,7 @@ global class SObjectCollector {
    */
   global interface Criteria {
     /**
-     * It returns the value that will be used as key
+     * @description It returns the value that will be used as key
      * by the <code>SObjectCollector</code>.
      *
      * @param record the record
@@ -27,7 +27,7 @@ global class SObjectCollector {
     Object getKey(SObject record);
 
     /**
-     * It returns the value that will be used as key
+     * @description It returns the value that will be used as key
      * by the <code>SObjectCollector</code>.
      *
      * @param record the record
@@ -38,7 +38,7 @@ global class SObjectCollector {
   }
 
   /**
-   * An implementation of <code>SObjectCollector.Criteria</code>
+   * @description An implementation of <code>SObjectCollector.Criteria</code>
    * based on <code>Schema.SObjectField</code>.
    *
    * @see SObjectCollector
@@ -49,7 +49,7 @@ global class SObjectCollector {
     private final Schema.SObjectField field;
 
     /**
-     * It creates a criteria that will use the specified field
+     * @description It creates a criteria that will use the specified field
      * to read the key value for any given record.
      *
      * @param field the field
@@ -62,7 +62,7 @@ global class SObjectCollector {
     }
 
     /**
-     * It reads the record value.
+     * @description It reads the record value.
      *
      * @param record the record
      * @return the value
@@ -73,7 +73,7 @@ global class SObjectCollector {
     }
 
     /**
-     * It checks whether the record can be included.
+     * @description It checks whether the record can be included.
      *
      * @param record the record
      * @return true if the record matches
@@ -87,7 +87,7 @@ global class SObjectCollector {
   private final Set<SObject> records = new Set<SObject>();
 
   /**
-   * It add the record to the list of records that will be evaluated
+   * @description It add the record to the list of records that will be evaluated
    * by the criteria organizing them.
    *
    * @param record the record
@@ -98,7 +98,7 @@ global class SObjectCollector {
   }
 
   /**
-   * It add the record to the list of records that will be evaluated
+   * @description It add the record to the list of records that will be evaluated
    * by the criteria organizing them.
    *
    * @param records the records
@@ -109,7 +109,7 @@ global class SObjectCollector {
   }
 
   /**
-   * It returns whether the collection is empty or not.
+   * @description It returns whether the collection is empty or not.
    *
    * @param records the records
    * @return true if the collection is empty
@@ -120,7 +120,7 @@ global class SObjectCollector {
   }
 
   /**
-   * It creates an id map of <code>SObject</code> lists based on the criteria.
+   * @description It creates an id map of <code>SObject</code> lists based on the criteria.
    * The criteria key value must support casting to the <code>Id</code> type.
    *
    * @param value the criteria, not null
@@ -150,7 +150,7 @@ global class SObjectCollector {
   }
 
   /**
-   * It creates an id map of <code>SObject</code> maps based on the criteria.
+   * @description It creates an id map of <code>SObject</code> maps based on the criteria.
    * The criteria key value must support casting to the <code>Id</code> type.
    *
    * @param value the criteria, not null
@@ -180,7 +180,7 @@ global class SObjectCollector {
   }
 
   /**
-   * It returns a map of the records based on their id.
+   * @description It returns a map of the records based on their id.
    *
    * @return a map of the records
    * @since 1.0.19
@@ -190,7 +190,7 @@ global class SObjectCollector {
   }
 
   /**
-   * It creates a map of <code>SObject</code> lists based on the criteria.
+   * @description It creates a map of <code>SObject</code> lists based on the criteria.
    *
    * @param value the criteria, not null
    * @return the map of <code>SObject</code> record lists as organized by the criteria
@@ -219,7 +219,7 @@ global class SObjectCollector {
   }
 
   /**
-   * It creates a map of <code>SObject</code> maps based on the criteria.
+   * @description It creates a map of <code>SObject</code> maps based on the criteria.
    *
    * @param value the criteria, not null
    * @return the map of <code>SObject</code> record maps as organized by the criteria
@@ -248,7 +248,7 @@ global class SObjectCollector {
   }
 
   /**
-   * It returns the current set of records.
+   * @description It returns the current set of records.
    *
    * @return the set records
    * @since 1.0.19
