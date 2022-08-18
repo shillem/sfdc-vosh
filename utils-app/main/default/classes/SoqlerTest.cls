@@ -2,9 +2,11 @@
 public class SoqlerTest {
   @testSetup
   static void init() {
+    Id insufficientProfileId = TestUtils.getProfileId('Minimum Access - Salesforce');
+
     // Generating user
     Schema.User insufficientUser = (Schema.User) new TestUtils.UserMaker()
-      .setProfileId(TestUtils.getProfileId('Minimum Access - Salesforce'))
+      .setProfileId(insufficientProfileId != null ? insufficientProfileId : UserInfo.getProfileId())
       .setLastName('Insufficient')
       .setCount(1)
       .setAutoInsert(false)
@@ -39,7 +41,7 @@ public class SoqlerTest {
   }
 
   private static Schema.User getInsufficientUser() {
-    return [SELECT Id FROM User WHERE LastName = 'Insufficient0' LIMIT 1];
+    return [SELECT Id, ProfileId FROM User WHERE LastName = 'Insufficient0' LIMIT 1];
   }
 
   @isTest
@@ -155,6 +157,12 @@ public class SoqlerTest {
   @isTest
   static void queryFls() {
     Schema.User insufficientUser = getInsufficientUser();
+
+    if (insufficientUser.ProfileId == UserInfo.getProfileId()) {
+      // What a shame, couldn't find an insufficient profile id to test FLS
+
+      return;
+    }
 
     Test.startTest();
 
