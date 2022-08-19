@@ -203,8 +203,12 @@ public class SoqlerTest {
 
     query.fields().addAll();
 
+    // Protecting against the possibility of having 0 fields returned due to restricted API access
     System.assertEquals(
-      ('SELECT ' + String.join(fieldNames, ', ') + ' FROM Organization').toLowerCase(),
+      ('SELECT ' +
+        (fieldNames.isEmpty() ? null : String.join(fieldNames, ', ')) +
+        ' FROM Organization')
+        .toLowerCase(),
       query.queryToString().toLowerCase()
     );
 
