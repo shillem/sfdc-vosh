@@ -1,12 +1,12 @@
 /**
  * @description A custom implementation of <code>java.util.Queue</code>.
  *
- * @since 1.0.23
+ * @since 1.1
  */
-public inherited sharing class Queue {
+global inherited sharing class Queue {
   private final List<Object> queue;
 
-  public Queue() {
+  global Queue() {
     queue = new List<Object>();
   }
 
@@ -15,9 +15,9 @@ public inherited sharing class Queue {
    *
    * @param element the object to be appended
    * @throws System.NullPointerException if the object is null
-   * @since 1.0.23
+   * @since 1.1
    */
-  public void add(Object element) {
+  global void add(Object element) {
     Utils.requireNonNull(element, 'The queue element cannot be null');
 
     queue.add(element);
@@ -28,9 +28,9 @@ public inherited sharing class Queue {
    *
    * @param elements the objects to be appended
    * @throws System.NullPointerException if the object is null
-   * @since 1.0.23
+   * @since 1.1
    */
-  public void addAll(List<Object> elements) {
+  global void addAll(List<Object> elements) {
     Utils.requireNonNull(elements, 'The queue element cannot be null');
 
     queue.addAll(elements);
@@ -40,9 +40,9 @@ public inherited sharing class Queue {
    * @description It peeks for the first element of the queue and returns it if the queue is not empty.
    *
    * @return the element at the beginning of the queue or null if the queue is empty
-   * @since 1.0.23
+   * @since 1.1
    */
-  public Object peek() {
+  global Object peek() {
     return isEmpty() ? null : queue[0];
   }
 
@@ -50,9 +50,9 @@ public inherited sharing class Queue {
    * @description It removes and returns the element at the beginning of the queue.
    *
    * @return the element at the beginning of the queue or null if the queue is empty
-   * @since 1.0.23
+   * @since 1.1
    */
-  public Object poll() {
+  global Object poll() {
     return isEmpty() ? null : queue.remove(0);
   }
 
@@ -60,9 +60,9 @@ public inherited sharing class Queue {
    * @description It returns the queue size.
    *
    * @return the queue size
-   * @since 1.0.23
+   * @since 1.1
    */
-  public Integer size() {
+  global Integer size() {
     return queue.size();
   }
 
@@ -70,9 +70,9 @@ public inherited sharing class Queue {
    * @description It returns whether the queue is empty or not.
    *
    * @return true if the queue is empty
-   * @since 1.0.23
+   * @since 1.1
    */
-  public Boolean isEmpty() {
+  global Boolean isEmpty() {
     return queue.isEmpty();
   }
 }
