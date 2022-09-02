@@ -1,7 +1,7 @@
 /**
  * @description An utility object that provides eventual package information for the class passed in.
  *
- * @since 1.0.27
+ * @since 1.1
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class Pkg {
@@ -16,7 +16,7 @@ global inherited sharing class Pkg {
    * @description The parameterless constructor
    *
    * @param value the class the package information will be derived from
-   * @since 1.0.27
+   * @since 1.1
    */
   private Pkg(System.Type t) {
     this.t = t;
@@ -25,7 +25,7 @@ global inherited sharing class Pkg {
   /**
    * @description It returns the package namespace, if any
    *
-   * @since 1.0.27
+   * @since 1.1
    */
   global String getNamespace() {
     if (n == null) {
@@ -44,7 +44,7 @@ global inherited sharing class Pkg {
   /**
    * @description It returns the package version, if applicable
    *
-   * @since 1.0.27
+   * @since 1.1
    */
   @SuppressWarnings('PMD.ApexCRUDViolation')
   global String getVersion() {
@@ -72,7 +72,7 @@ global inherited sharing class Pkg {
   /**
    * @description It returns the singleton instance. Information will be based on the current class
    *
-   * @since 1.0.27
+   * @since 1.1
    */
   global static Pkg getInstance() {
     if (instance == null) {
@@ -85,7 +85,7 @@ global inherited sharing class Pkg {
   /**
    * @description It returns a new instance. Information will be based on the passed class
    *
-   * @since 1.0.27
+   * @since 1.1
    */
   global static Pkg newInstance(System.Type t) {
     Utils.requireNonNull(t, 'Type cannot be null');

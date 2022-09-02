@@ -274,7 +274,7 @@ global class Describer {
    * @return the list of hops
    * @throws System.IllegalArgumentException if the cross-reference syntax is invalid
    * @see Describer#traverse(Schema.SObjectType, String) traverse
-   * @since 1.0.27
+   * @since 1.1
    */
   global List<Hop> traverse(String syntax) {
     List<String> breakdown = syntax.split('\\.');

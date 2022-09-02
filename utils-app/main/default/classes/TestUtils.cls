@@ -593,7 +593,7 @@ global class TestUtils {
    * @description It returns the chatter profile id.
    *
    * @return the profile id
-   * @since 1.0.27
+   * @since 1.1
    */
   global static Id getChatterProfileId() {
     List<Schema.Profile> records = [
@@ -610,7 +610,7 @@ global class TestUtils {
    * @description It returns the most limited access profile id.
    *
    * @return the profile id
-   * @since 1.0.27
+   * @since 1.1
    */
   global static Id getMinimumAccessProfileId() {
     return getProfileId('Minimum Access - Salesforce');

@@ -99,7 +99,7 @@ global inherited sharing class TriggerHandler {
      * @param record2 the second record to check
      * @param fields the fields to check upon
      * @return true if all the field values differ between the records, otherwise false
-     * @since 1.0.27
+     * @since 1.1
      */
     global Boolean allDiffer(SObject record1, SObject record2, List<Schema.SObjectField> fields) {
       for (Schema.SObjectField f : fields) {
@@ -118,7 +118,7 @@ global inherited sharing class TriggerHandler {
      * @param record2 the second record to check
      * @param fields the fields to check upon
      * @return true if any of the field values differ between the records, otherwise false
-     * @since 1.0.27
+     * @since 1.1
      */
     global Boolean anyDiffer(SObject record1, SObject record2, List<Schema.SObjectField> fields) {
       for (Schema.SObjectField f : fields) {

@@ -17,7 +17,7 @@
  *   - one or more appenders will be invoked if classes/users are allowed to log
  *   - only a specific logging level or higher should be logged
  *
- * @since 1.0.27
+ * @since 1.1
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity, PMD.StdCyclomaticComplexity')
 global inherited sharing class Logger {
@@ -28,7 +28,7 @@ global inherited sharing class Logger {
    * This mechanism is necessary to avoid any classes from arbitrary triggering a flushable appender
    * and breaking up the logger entry list into many separate transactions.
    *
-   * @since 1.0.27
+   * @since 1.1
    */
   global interface AllowFlushes {
   }
@@ -36,7 +36,7 @@ global inherited sharing class Logger {
   /**
    * @description The basic interface to implement to build an appender that can be used by the <code>Logger</code>.
    *
-   * @since 1.0.27
+   * @since 1.1
    */
   global interface Appender {
     /**
@@ -45,7 +45,7 @@ global inherited sharing class Logger {
      * @param name the class name logging the information
      * @param threshold the logging level associated with the information
      * @param value the information to be logged
-     * @since 1.0.27
+     * @since 1.1
      */
     void append(String name, System.LoggingLevel threshold, Object value);
   }
@@ -56,13 +56,13 @@ global inherited sharing class Logger {
    * All the logging entries will be released at once when <code>flush()</code> is invoked.
    *
    * @see Logger.Appender
-   * @since 1.0.27
+   * @since 1.1
    */
   global interface AppenderFlushable extends Appender {
     /**
      * @description It processes all the queued entries and it afterward drops them.
      *
-     * @since 1.0.27
+     * @since 1.1
      */
     void flush();
 
@@ -74,7 +74,7 @@ global inherited sharing class Logger {
      *
      * @see Logger.AppenderFlushable#push() push
      * @see Logger.Instance#pullEntries() pullEntries
-     * @since 1.0.27
+     * @since 1.1
      */
     List<Entry> pull();
 
@@ -85,7 +85,7 @@ global inherited sharing class Logger {
      *
      * @see Logger.AppenderFlushable#pull() pull
      * @see Logger.Instance#pushEntries() pushEntries
-     * @since 1.0.27
+     * @since 1.1
      */
     void push(List<Entry> pulled);
   }
@@ -94,14 +94,14 @@ global inherited sharing class Logger {
    * @description Concrete implementation of the <code>Appender</code> interface.
    * This implementation is a wrapper for the <code>System.debug</code> method.
    *
-   * @since 1.0.27
+   * @since 1.1
    */
   global class ConsoleAppender implements Appender {
     /**
      * @description It receives the information to be logged and consumes it.
      *
      * @see Appender#append(String, System.LoggingLevel, Object) append
-     * @since 1.0.27
+     * @since 1.1
      */
     global void append(String name, System.LoggingLevel level, Object value) {
       if (value instanceof System.Exception) {
@@ -118,7 +118,7 @@ global inherited sharing class Logger {
    * @description Concrete implementation of the <code>Appender</code> interface.
    * This implementation is a wrapper for the <code>System.debug</code> method.
    *
-   * @since 1.0.27
+   * @since 1.1
    */
   global abstract class MessageAppender implements AppenderFlushable {
     protected final List<Entry> entries;
@@ -127,7 +127,7 @@ global inherited sharing class Logger {
 
     /**
      * @description The parameterless constructor
-     * @since 1.0.27
+     * @since 1.1
      */
     global MessageAppender() {
       entries = new List<Entry>();
@@ -138,7 +138,7 @@ global inherited sharing class Logger {
      * @description It receives the information to be logged and consumes it.
      *
      * @see Appender#append(String, System.LoggingLevel, Object) append
-     * @since 1.0.27
+     * @since 1.1
      */
     global void append(String name, System.LoggingLevel level, Object value) {
       // Preventing hitting limits
@@ -161,7 +161,7 @@ global inherited sharing class Logger {
      * @description It processes all the queued entries and it afterward drops them.
      *
      * @see AppenderFlushable#flush() flush
-     * @since 1.0.27
+     * @since 1.1
      */
     global virtual void flush() {
       entries.clear();
@@ -172,7 +172,7 @@ global inherited sharing class Logger {
      * by returning a copy of the list and clearing the internal one.
      *
      * @see AppenderFlushable#pull() pull
-     * @since 1.0.27
+     * @since 1.1
      */
     global List<Entry> pull() {
       List<Entry> pulled = new List<Entry>(entries);
@@ -186,7 +186,7 @@ global inherited sharing class Logger {
      * @description It pushes the passed entries.
      *
      * @see AppenderFlushable#push(List<Entry>) push
-     * @since 1.0.27
+     * @since 1.1
      */
     global void push(List<Entry> pulled) {
       entries.addAll(pulled);
@@ -199,14 +199,14 @@ global inherited sharing class Logger {
    * when the <code>flush</code> method is invoked.
    *
    * @see Logger.MessageAppender
-   * @since 1.0.27
+   * @since 1.1
    */
   global class PlatformEventAppender extends MessageAppender {
     /**
      * @description It processes all the queued entries and it afterward drops them.
      *
      * @see Appender#flush() flush
-     * @since 1.0.27
+     * @since 1.1
      */
     global override void flush() {
       if (!entries.isEmpty()) {
@@ -230,7 +230,7 @@ global inherited sharing class Logger {
    * @description The object detailing the information to be logged.
    *
    * @see Logger.Instance#log(System.LoggingLevel, Object) log
-   * @since 1.0.27
+   * @since 1.1
    */
   @JsonAccess(serializable='always' deserializable='always')
   global class Entry {
@@ -253,7 +253,7 @@ global inherited sharing class Logger {
    * Only one instance for each calling class will be created.
    *
    * @see Logger#getInstance(System.Type) getInstance
-   * @since 1.0.27
+   * @since 1.1
    */
   global class Instance {
     private final System.Type t;
@@ -285,7 +285,7 @@ global inherited sharing class Logger {
      *
      * @param value the information to be logged
      * @see Logger.Instance#log(System.LoggingLevel, Object) log
-     * @since 1.0.27
+     * @since 1.1
      */
     global void debug(Object value) {
       log(System.LoggingLevel.DEBUG, value);
@@ -297,7 +297,7 @@ global inherited sharing class Logger {
      *
      * @param value the information to be logged
      * @see Logger.Instance#log(System.LoggingLevel, Object) log
-     * @since 1.0.27
+     * @since 1.1
      */
     global void error(Object value) {
       log(System.LoggingLevel.ERROR, value);
@@ -309,7 +309,7 @@ global inherited sharing class Logger {
      *
      * @param value the information to be logged
      * @see Logger.Instance#log(System.LoggingLevel, Object) log
-     * @since 1.0.27
+     * @since 1.1
      */
     global void fine(Object value) {
       log(System.LoggingLevel.FINE, value);
@@ -321,7 +321,7 @@ global inherited sharing class Logger {
      *
      * @param value the information to be logged
      * @see Logger.Instance#log(System.LoggingLevel, Object) log
-     * @since 1.0.27
+     * @since 1.1
      */
     global void finer(Object value) {
       log(System.LoggingLevel.FINER, value);
@@ -333,7 +333,7 @@ global inherited sharing class Logger {
      *
      * @param value the information to be logged
      * @see Logger.Instance#log(System.LoggingLevel, Object) log
-     * @since 1.0.27
+     * @since 1.1
      */
     global void finest(Object value) {
       log(System.LoggingLevel.FINEST, value);
@@ -343,7 +343,7 @@ global inherited sharing class Logger {
      * @description It processes all the queued entries and it afterward drops them.
      *
      * @see Appender#flush() flush
-     * @since 1.0.27
+     * @since 1.1
      */
     global void flush() {
       checkAllowFlushes('flush');
@@ -373,7 +373,7 @@ global inherited sharing class Logger {
      *
      * @param value the information to be logged
      * @see Logger.Instance#log(System.LoggingLevel, Object) log
-     * @since 1.0.27
+     * @since 1.1
      */
     global void info(Object value) {
       log(System.LoggingLevel.INFO, value);
@@ -385,7 +385,7 @@ global inherited sharing class Logger {
      *
      * @param value the logging level
      * @return true if the logging level passed is processed by the current threshold
-     * @since 1.0.27
+     * @since 1.1
      */
     global Boolean isLogging(System.LoggingLevel value) {
       Utils.requireNonNull(value, 'Level cannot be null');
@@ -411,7 +411,7 @@ global inherited sharing class Logger {
      *
      * @param level the logging level
      * @param value the information to be logged
-     * @since 1.0.27
+     * @since 1.1
      */
     global void log(System.LoggingLevel level, Object value) {
       Utils.requireNonNull(level, 'Level cannot be null');
@@ -436,7 +436,7 @@ global inherited sharing class Logger {
      * @return the map of entries by <code>Appender</code> class name
      * @see Logger.AppenderFlushable#flush() flush
      * @see Logger.Instance#pushEntries() pushEntries
-     * @since 1.0.27
+     * @since 1.1
      */
     global Map<String, List<Entry>> pullEntries() {
       checkAllowFlushes('pull');
@@ -464,7 +464,7 @@ global inherited sharing class Logger {
      * @param entries the logging entries to restore
      * @see Logger.AppenderFlushable#flush() flush
      * @see Logger.Instance#pullEntries() pullEntries
-     * @since 1.0.27
+     * @since 1.1
      */
     global void pushEntries(Map<String, List<Entry>> entries) {
       checkAllowFlushes('push');
@@ -488,7 +488,7 @@ global inherited sharing class Logger {
      *
      * @param value the logging level
      * @return true if the logging level passed is processed by the current threshold
-     * @since 1.0.27
+     * @since 1.1
      */
     global void warn(Object value) {
       log(System.LoggingLevel.WARN, value);
@@ -568,7 +568,7 @@ global inherited sharing class Logger {
    *
    * @param t the class calling the instance
    * @return the <code>Logger.Instance</code> for the class passed
-   * @since 1.0.27
+   * @since 1.1
    */
   global static Instance getInstance(System.Type t) {
     Utils.requireNonNull(t, 'Type cannot be null');
