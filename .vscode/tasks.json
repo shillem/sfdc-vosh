@@ -6,7 +6,7 @@
         {
           "label": "pmd",
           "type": "shell",
-          "command": "pmd pmd -d utils-app,extended-ui-app,enhanced-campaigns-app -R config/ruleset.xml",
+          "command": "pmd pmd -d utils-app,extended-ui-app,enhanced-campaigns-app,incubator-app -R config/ruleset.xml",
           "options": {
             "cwd": "${workspaceRoot}"
           },

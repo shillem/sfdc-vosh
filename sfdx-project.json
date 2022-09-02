@@ -39,6 +39,10 @@
       ]
     },
     {
+      "path": "incubator-app",
+      "default": false
+    },
+    {
       "path": "test-app",
       "default": false
     }

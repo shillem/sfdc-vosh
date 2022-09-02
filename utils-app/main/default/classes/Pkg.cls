@@ -3,6 +3,7 @@
  *
  * @since 1.0.27
  */
+@SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class Pkg {
   private static Pkg instance;
 

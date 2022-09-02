@@ -10,8 +10,12 @@
  *
  * @since 1.0.4
  */
-@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity, PMD.ExcessiveClassLength, PMD.ExcessivePublicCount, PMD.StdCyclomaticComplexity')
+@SuppressWarnings(
+  'PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity, PMD.ExcessiveClassLength, PMD.ExcessivePublicCount, PMD.StdCyclomaticComplexity'
+)
 global inherited sharing class Soqler {
+  private static final Logger.Instance LOG = Logger.getInstance(Soqler.class);
+
   private abstract class A {
     void requireNonNull(Object obj, String message) {
       Utils.requireNonNull(
@@ -921,8 +925,6 @@ global inherited sharing class Soqler {
     DESCENDING_NULLS_LAST
   }
 
-  // private static final Logger.Instance LOG = Logger.getInstance(Soqler.class.getName());
-
   private static final Converter C_DATE_TIME = new ConverterDateTime();
   private static final Converter C_DATE_TIME_DATE = new ConverterDateTimeDate();
   private static final Converter C_OBJECT = new Converter();
@@ -957,28 +959,24 @@ global inherited sharing class Soqler {
 
   @SuppressWarnings('PMD.StdCyclomaticComplexity')
   private String build() {
-        final String fb = flds.build();
-        final String wb = whrs != null ? whrs.build() : null;
-        final String gb = grps != null ? grps.build() : null;
-        final String ob = ords != null ? ords.build() : null;
+    final String fb = flds.build();
+    final String wb = whrs != null ? whrs.build() : null;
+    final String gb = grps != null ? grps.build() : null;
+    final String ob = ords != null ? ords.build() : null;
 
-        final String q = String.format(
-            'SELECT {0} FROM {1}{2}{3}{4}{5}{6}',
-            new List<String>{
-                fb,
-                (subquery != null ? subquery : String.valueOf(type)),
-                wb == null ? '' : ' WHERE ' + wb,
-                gb == null ? '' : ' GROUP BY ' + gb,
-                ob == null ? '' : ' ORDER BY ' + ob,
-                maxCount == null ? '' : ' LIMIT ' + maxCount,
-                offset == null ? '' : ' OFFSET ' + offset
-            }
-        );
-
-        // LOG.debug('build() ' + q);
-
-        return q;
-    }
+    return String.format(
+      'SELECT {0} FROM {1}{2}{3}{4}{5}{6}',
+      new List<String>{
+        fb,
+        (subquery != null ? subquery : String.valueOf(type)),
+        wb == null ? '' : ' WHERE ' + wb,
+        gb == null ? '' : ' GROUP BY ' + gb,
+        ob == null ? '' : ' ORDER BY ' + ob,
+        maxCount == null ? '' : ' LIMIT ' + maxCount,
+        offset == null ? '' : ' OFFSET ' + offset
+      }
+    );
+  }
   /**
    * @description It returns the instruction list that will compose the SELECT part of the query.
    *
@@ -1112,7 +1110,11 @@ global inherited sharing class Soqler {
       throw new UnsupportedOperationException('Cannot run a query tagged as subquery');
     }
 
-    return build();
+    final String q = build();
+
+    LOG.debug('queryToString() ' + q);
+
+    return q;
   }
 
   /**
@@ -1130,7 +1132,7 @@ global inherited sharing class Soqler {
 
     String wb = whrs != null ? whrs.build() : null;
 
-    return String.format(
+    final String q = String.format(
       'SELECT COUNT() FROM {0}{1}{2}',
       new List<String>{
         String.valueOf(type),
@@ -1138,6 +1140,10 @@ global inherited sharing class Soqler {
         maxCount == null ? '' : ' LIMIT ' + maxCount
       }
     );
+
+    LOG.debug('queryCountToString() ' + q);
+
+    return q;
   }
 
   private Soqler setAsSubquery(String value) {

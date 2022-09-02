@@ -8,7 +8,7 @@
  * @see Describer#getInstance() getInstance
  * @since 1.0.1
  */
-@SuppressWarnings('PMD.AvoidGlobalModifier')
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity')
 global class Describer {
   /**
    * @description An enumerator to classify <code>DisplayType</code> in broader terms.
