@@ -123,15 +123,12 @@ global inherited sharing class Logger {
   global abstract class MessageAppender implements AppenderFlushable {
     protected final List<Entry> entries;
 
-    protected Integer discarded;
-
     /**
      * @description The parameterless constructor
      * @since 1.1
      */
     global MessageAppender() {
       entries = new List<Entry>();
-      discarded = 0;
     }
 
     /**
@@ -144,8 +141,6 @@ global inherited sharing class Logger {
       // Preventing hitting limits
       if (entries.size() > 199) {
         entries.remove(0);
-
-        discarded++;
       }
 
       if (value instanceof System.Exception) {
@@ -215,10 +210,6 @@ global inherited sharing class Logger {
           'entries' => entries
         };
 
-        if (discarded > 0) {
-          payload.put('discarded', discarded);
-        }
-
         EventBus.publish(new Pe_Logger__e(Payload__c = JSON.serialize(payload)));
       }
 
@@ -260,7 +251,6 @@ global inherited sharing class Logger {
     private final String name;
 
     private Profile p;
-    private System.LoggingLevel threshold;
 
     private Instance(System.Type t) {
       this.t = t;
@@ -400,9 +390,7 @@ global inherited sharing class Logger {
         return false;
       }
 
-      final System.LoggingLevel threshold = this.threshold != null ? this.threshold : p.th;
-
-      return threshold != System.LoggingLevel.NONE && value.ordinal() >= threshold.ordinal();
+      return p.th != System.LoggingLevel.NONE && value.ordinal() >= p.th.ordinal();
     }
 
     /**
@@ -498,6 +486,7 @@ global inherited sharing class Logger {
   private class Profile {
     private final List<String> ap;
     private final List<String> cl;
+    private final Boolean fc;
     private final List<String> ns;
     private final List<String> us;
     private final System.LoggingLevel th;
@@ -505,6 +494,7 @@ global inherited sharing class Logger {
     private Profile(Schema.Cs_Logger__c record) {
       ap = treat(record.Appenders__c);
       cl = treat(record.Class_Names__c);
+      fc = record.First_Caller_Override__c;
       ns = treat(record.Namespaces__c);
       us = treat(record.Users__c);
       th = System.LoggingLevel.valueOf(record.Threshold__c);
@@ -527,11 +517,14 @@ global inherited sharing class Logger {
     new Schema.Cs_Logger__c(Threshold__c = 'NONE')
   );
 
+  private static String firstCaller;
   private static Map<System.Type, Instance> instances;
   private static Logger singleton;
 
   private final Map<String, Appender> appenders;
   private final Map<String, Profile> profiles;
+
+  private Profile firstCallerProfile;
 
   private Logger() {
     appenders = new Map<String, Appender>();
@@ -539,6 +532,10 @@ global inherited sharing class Logger {
   }
 
   private Profile getProfile(String name) {
+    if (firstCallerProfile != null) {
+      return firstCallerProfile;
+    }
+
     Profile p = profiles.get(name);
 
     if (p != null) {
@@ -583,6 +580,10 @@ global inherited sharing class Logger {
       inst = new Instance(t);
 
       instances.put(t, inst);
+
+      if (firstCaller == null) {
+        firstCaller = t.getName();
+      }
     }
 
     return inst;
@@ -610,6 +611,10 @@ global inherited sharing class Logger {
         for (String c : p.cl) {
           if (!singleton.profiles.containsKey(c)) {
             singleton.profiles.put(c, p);
+
+            if (p.fc && c.equals(firstCaller)) {
+              singleton.firstCallerProfile = p;
+            }
           }
         }
 

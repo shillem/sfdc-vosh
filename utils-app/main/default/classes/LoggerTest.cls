@@ -105,6 +105,40 @@ public class LoggerTest implements Logger.AllowFlushes {
   }
 
   @isTest
+  static void firstCaller() {
+    insert new List<Schema.Cs_Logger__c>{
+      new Schema.Cs_Logger__c(
+        Appenders__c = String.join(ALL_APPENDERS, ','),
+        Name = '*',
+        Threshold__c = 'INFO'
+      ),
+      new Schema.Cs_Logger__c(
+        Appenders__c = String.join(ALL_APPENDERS, ','),
+        Class_Names__c = LoggerTest.class.getName(),
+        First_Caller_Override__c = true,
+        Name = 'LoggerTest',
+        Threshold__c = 'DEBUG'
+      )
+    };
+
+    Test.startTest();
+
+    Logger.Instance log = Logger.getInstance(LoggerTest.class);
+
+    Soqler soql = new Soqler(Schema.Account.SObjectType);
+    soql.fields().add(Schema.Account.Id);
+    soql.queryToString();
+
+    Test.stopTest();
+
+    List<Logger.Entry> entries = log.pullEntries()
+      .get(Logger.PlatformEventAppender.class.getName());
+
+    System.assertEquals(1, entries.size());
+    System.assert(((String) entries[0].v).contains('SELECT'));
+  }
+
+  @isTest
   static void none() {
     Logger.Instance log = Logger.getInstance(LoggerTest.class);
 

@@ -14,9 +14,9 @@ public inherited sharing class HttpAppender implements Queueable, Database.Allow
   private HttpRequest createRequest() {
     final HttpRequest req = new HttpRequest();
 
-    req.setEndpoint('http://api.webhookinbox.com/i/zNLxAcXK/in/');
+    req.setEndpoint('http://api.webhookinbox.com/i/ypsNUrjA/in/');
     // req.setEndpoint('https://sfdc-vosh.free.beeceptor.com/my/salesforce');
-    // req.setEndpoint('https://hookb.in/b9d0XWO07OSKroEKgy09');
+    // req.setEndpoint('https://hookb.in/Lg3OpWXQpZC1lrp1aYN2');
     req.setMethod('POST');
     req.setTimeout(60000);
 
