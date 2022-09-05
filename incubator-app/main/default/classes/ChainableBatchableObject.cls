@@ -11,7 +11,7 @@ public abstract class ChainableBatchableObject extends Chainable implements Data
    * @return the batch size
    * @since 1.1
    */
-  public abstract Integer batchSize();
+  protected abstract Integer batchSize();
 
   /**
    * @description The method containing the logic.
@@ -20,9 +20,9 @@ public abstract class ChainableBatchableObject extends Chainable implements Data
    * @param scope the batch to be processed
    * @since 1.1
    */
-  public abstract void execute(Chainable.Context context, Iterable<Object> scope);
+  protected abstract void execute(Chainable.Context context, Iterable<Object> scope);
 
-  protected void execute(Database.BatchableContext context, Iterable<Object> scope) {
+  public void execute(Database.BatchableContext context, Iterable<Object> scope) {
     execute(new Chainable.Context(context), scope);
   }
 
@@ -46,9 +46,9 @@ public abstract class ChainableBatchableObject extends Chainable implements Data
    * @param context the context wrapper for the <code>Database.Batchable</code>
    * @since 1.1
    */
-  public abstract void finish(Chainable.Context context);
+  protected abstract void finish(Chainable.Context context);
 
-  protected void finish(Database.BatchableContext context) {
+  public void finish(Database.BatchableContext context) {
     finish(new Chainable.Context(context));
 
     executeNext();
@@ -61,9 +61,9 @@ public abstract class ChainableBatchableObject extends Chainable implements Data
    * @return the iterable used by the framework to prepare the batches
    * @since 1.1
    */
-  public abstract Iterable<Object> start(Chainable.Context context);
+  protected abstract Iterable<Object> start(Chainable.Context context);
 
-  protected Iterable<Object> start(Database.BatchableContext context) {
+  public Iterable<Object> start(Database.BatchableContext context) {
     return start(new Chainable.Context(context));
   }
 }

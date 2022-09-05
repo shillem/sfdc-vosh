@@ -11,7 +11,7 @@ public abstract class ChainableQueueable extends Chainable implements Database.A
    * @param context the context wrapper for the <code>System.Queueable</code>
    * @since 1.1
    */
-  public abstract void execute(Chainable.Context context);
+  protected abstract void execute(Chainable.Context context);
 
   public void execute(QueueableContext context) {
     execute(new Chainable.Context(context));
