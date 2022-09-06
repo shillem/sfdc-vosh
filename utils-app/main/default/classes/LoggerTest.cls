@@ -50,6 +50,7 @@ public class LoggerTest implements Logger.AllowFlushes {
 
     log.debug('Debug');
     log.error(new IllegalArgumentException('Invalid argument'));
+    log.error('Description', new IllegalArgumentException('Invalid argument'));
 
     Soqler soql = new Soqler(Schema.Account.SObjectType);
     soql.fields().add(Schema.Account.Id);
@@ -60,9 +61,10 @@ public class LoggerTest implements Logger.AllowFlushes {
     List<Logger.Entry> entries = log.pullEntries()
       .get(Logger.PlatformEventAppender.class.getName());
 
-    System.assertEquals(2, entries.size());
+    System.assertEquals(3, entries.size());
     System.assert(((String) entries[0].v).contains('Invalid argument'));
-    System.assert(((String) entries[1].v).contains('SELECT'));
+    System.assert(((String) entries[1].v).startsWith('Description'));
+    System.assert(((String) entries[2].v).contains('SELECT'));
   }
 
   @isTest

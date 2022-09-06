@@ -104,13 +104,7 @@ global inherited sharing class Logger {
      * @since 1.1
      */
     global void append(String name, System.LoggingLevel level, Object value) {
-      if (value instanceof System.Exception) {
-        System.Exception e = (System.Exception) value;
-
-        System.debug(System.LoggingLevel.ERROR, e.getMessage() + '\n' + e.getStackTraceString());
-      } else {
-        System.debug(level, value);
-      }
+      System.debug(level, value);
     }
   }
 
@@ -143,13 +137,7 @@ global inherited sharing class Logger {
         entries.remove(0);
       }
 
-      if (value instanceof System.Exception) {
-        System.Exception e = (System.Exception) value;
-
-        entries.add(new Entry(name, level, e.getMessage() + '\n' + e.getStackTraceString()));
-      } else {
-        entries.add(new Entry(name, level, value));
-      }
+      entries.add(new Entry(name, level, value));
     }
 
     /**
@@ -294,6 +282,26 @@ global inherited sharing class Logger {
     }
 
     /**
+     * @description The method to log information at the <code>ERROR</code> level.
+     * If the detected threshold is above this level the information won't be processed.
+     *
+     * @param description the information to be logged
+     * @param e the exception to be logged
+     * @see Logger.Instance#log(System.LoggingLevel, Object) log
+     * @since 1.1
+     */
+    global void error(String description, System.Exception e) {
+      log(
+        System.LoggingLevel.ERROR,
+        description +
+        '\n' +
+        e.getMessage() +
+        '\n' +
+        e.getStackTraceString()
+      );
+    }
+
+    /**
      * @description The method to log information at the <code>FINE</code> level.
      * If the detected threshold is above this level the information won't be processed.
      *
@@ -408,11 +416,21 @@ global inherited sharing class Logger {
         return;
       }
 
+      final Object processedValue;
+
+      if (value instanceof System.Exception) {
+        System.Exception e = (System.Exception) value;
+
+        processedValue = e.getMessage() + '\n' + e.getStackTraceString();
+      } else {
+        processedValue = value;
+      }
+
       for (String a : getProfile().ap) {
         final Appender app = singleton.appenders.get(a);
 
         if (app != null) {
-          app.append(name, level, value);
+          app.append(name, level, processedValue);
         }
       }
     }
