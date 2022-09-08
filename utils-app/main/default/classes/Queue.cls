@@ -3,7 +3,8 @@
  *
  * @since 1.1
  */
-global inherited sharing class Queue {
+@SuppressWarnings('PMD.AvoidGlobalModifier')
+ global inherited sharing class Queue {
   private final List<Object> queue;
 
   global Queue() {

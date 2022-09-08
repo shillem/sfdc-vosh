@@ -1,7 +1,7 @@
 @isTest(isParallel=true)
 public class FlsTest {
   @isTest
-  static void main() {
+  static void authorization() {
     Schema.User insufficientUser;
 
     System.runAs(TestUtils.getUser()) {
@@ -16,7 +16,7 @@ public class FlsTest {
 
     Test.startTest();
 
-    Fls sec = new Fls(Schema.Contact.SObjectType, System.AccessType.UPDATABLE)
+    Fls sec = new Fls(Schema.Contact.SObjectType, Fls.AccessType.UPDATABLE)
       .queue(new Set<Schema.SObjectField>{ Schema.Contact.FirstName, Schema.Contact.LastName })
       .queue(Schema.Contact.Title);
 
@@ -25,7 +25,7 @@ public class FlsTest {
     Schema.Contact anyone = new Schema.Contact(LastName = 'Anyone', HasOptedOutOfEmail = true);
 
     System.runAs(insufficientUser) {
-      rep = Fls.audit(anyone, System.AccessType.CREATABLE);
+      rep = Fls.audit(anyone, Fls.AccessType.CREATABLE);
 
       System.assert(!rep.isAuthorized(), 'It should not have been authorized');
 
@@ -49,12 +49,59 @@ public class FlsTest {
       System.assert(!rep.isAuthorized(), 'It should not have been authorized');
     }
 
-    rep = Fls.audit(anyone, System.AccessType.CREATABLE);
+    rep = Fls.audit(anyone, Fls.AccessType.CREATABLE);
 
     System.assert(rep.isAuthorized(), 'It should have been authorized');
 
     rep = sec.audit();
 
     System.assert(rep.isAuthorized(), 'It should have been authorized');
+  }
+
+  @isTest
+  static void crud() {
+    List<Schema.Account> accts = new TestUtils.AccountMaker()
+      .setName('Demo')
+      .setCount(3)
+      .setAutoInsert(false)
+      .make();
+
+    Fls.insertMany(accts, new Fls.OpReq().any());
+
+    System.assertEquals(3, [SELECT Id FROM Account LIMIT 10].size());
+
+    accts[0].Name = 'Demoist';
+
+    {
+      Fls.OpRes res = Fls.updateMany(accts, new Fls.OpReq().any());
+
+      System.assertEquals(3, res.getSucceeded().size());
+      System.assertEquals(1, [SELECT Id FROM Account WHERE Name = 'Demoist' LIMIT 10].size());
+    }
+
+    {
+      Fls.OpRes res = Fls.deleteOne(accts.remove(0), new Fls.OpReq().any());
+      
+      System.assertEquals(1, res.getSucceeded().size());
+      System.assertEquals(2, [SELECT Id FROM Account LIMIT 10].size());
+    }
+
+    {
+      accts.add(
+        (Schema.Account) new TestUtils.AccountMaker()
+          .setName('Upsert')
+          .setCount(1)
+          .setAutoInsert(false)
+          .make()
+          .get(0)
+      );
+
+      System.assertEquals(3, accts.size());
+
+      Fls.OpRes res = Fls.upsertMany(accts, new Fls.OpReq().all());
+
+      System.assertEquals(3, res.getSucceeded().size());
+      System.assertEquals(3, [SELECT Id FROM Account LIMIT 10].size());
+    }
   }
 }

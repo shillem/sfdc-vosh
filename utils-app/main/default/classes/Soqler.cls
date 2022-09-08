@@ -121,7 +121,7 @@ global inherited sharing class Soqler {
     }
 
     override String build() {
-      if (!Fls.audit(field, System.AccessType.READABLE, !droppable)) {
+      if (!Fls.audit(field, Fls.AccessType.READABLE, !droppable)) {
         return null;
       }
 
@@ -247,7 +247,7 @@ global inherited sharing class Soqler {
       String separator = ', ';
 
       for (Schema.SObjectField field : fields.keySet()) {
-        if (Fls.audit(field, System.AccessType.READABLE, !fields.get(field))) {
+        if (Fls.audit(field, Fls.AccessType.READABLE, !fields.get(field))) {
           value += field + separator;
         }
       }
