@@ -389,7 +389,7 @@ global inherited sharing class TriggerHandler {
    * @see #enable(System.Type) enable
    * @since 1.0.3
    */
-  @SuppressWarnings('PMD.ApexCRUDViolation')
+  @SuppressWarnings('PMD.ApexDmlViolation')
   global static void execute(Schema.SObjectType stype) {
     Utils.requireNonNull(stype, 'Type cannot be null');
 
@@ -436,7 +436,7 @@ global inherited sharing class TriggerHandler {
    * @see #enable(Map<System.Type, Decimal>) enable
    * @since 1.0.12
    */
-  @SuppressWarnings('PMD.ApexCRUDViolation')
+  @SuppressWarnings('PMD.ApexDmlViolation')
   global static void disable(Set<System.Type> types) {
     Utils.requireNonNull(types, 'Types cannot be null');
 
@@ -495,7 +495,7 @@ global inherited sharing class TriggerHandler {
    * @see #execute(Schema.SObjectType) execute
    * @since 1.0.12
    */
-  @SuppressWarnings('PMD.ApexCRUDViolation')
+  @SuppressWarnings('PMD.ApexDmlViolation')
   global static void enable(Map<System.Type, Decimal> types) {
     Utils.requireNonNull(types, 'Types cannot be null');
 

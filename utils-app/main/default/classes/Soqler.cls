@@ -121,8 +121,14 @@ global inherited sharing class Soqler {
     }
 
     override String build() {
-      if (!Fls.audit(field, Fls.AccessType.READABLE, !droppable)) {
-        return null;
+      Sec.AuditResult res = Sec.audit(field, Sec.AccessType.READABLE);
+
+      if (!res.isAuthorized()) {
+        if (droppable) {
+          return null;
+        }
+
+        res.throwExceptionIfUnauthorized();
       }
 
       String value = super.build();
@@ -246,10 +252,17 @@ global inherited sharing class Soqler {
       String value = '';
       String separator = ', ';
 
+      final Sec.AuditResult res = Sec.audit(fields.keySet(), Sec.AccessType.READABLE);
+
       for (Schema.SObjectField field : fields.keySet()) {
-        if (Fls.audit(field, Fls.AccessType.READABLE, !fields.get(field))) {
-          value += field + separator;
+        if (res.getFailedFields().contains(field)) {
+          if (fields.get(field)) {
+            continue;
+          }
+          res.throwExceptionIfUnauthorized();
         }
+
+        value += field + separator;
       }
 
       return value.length() > 0 ? value.removeEnd(separator) : null;

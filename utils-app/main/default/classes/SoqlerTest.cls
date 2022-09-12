@@ -155,7 +155,7 @@ public class SoqlerTest {
   }
 
   @isTest
-  static void queryFls() {
+  static void querySec() {
     Schema.User minimumUser = getMinimumUser();
 
     if (minimumUser.ProfileId == UserInfo.getProfileId()) {
@@ -176,7 +176,7 @@ public class SoqlerTest {
         query.query();
 
         System.assert(false, 'Query should have thrown a AuditException');
-      } catch (Fls.AuditException e) {
+      } catch (Sec.AuditException e) {
         System.assert(e.getMessage().contains(String.valueOf(forbiddenField)), e.getMessage());
       }
     }
