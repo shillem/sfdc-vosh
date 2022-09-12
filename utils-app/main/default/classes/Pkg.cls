@@ -46,7 +46,7 @@ global inherited sharing class Pkg {
    *
    * @since 1.1
    */
-  @SuppressWarnings('PMD.ApexDmlViolation')
+  @SuppressWarnings('PMD.ApexCRUDViolation')
   global String getVersion() {
     if (v == null) {
       v = 'N/A';
