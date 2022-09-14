@@ -42,12 +42,12 @@ global inherited sharing class Logger {
     /**
      * @description It receives the information to be logged and consumes it.
      *
+     * @param level the logging level associated with the information
      * @param name the class name logging the information
-     * @param threshold the logging level associated with the information
      * @param value the information to be logged
      * @since 1.1
      */
-    void append(String name, System.LoggingLevel threshold, Object value);
+    void append(System.LoggingLevel level, String name, Object value);
   }
 
   /**
@@ -100,11 +100,11 @@ global inherited sharing class Logger {
     /**
      * @description It receives the information to be logged and consumes it.
      *
-     * @see Appender#append(String, System.LoggingLevel, Object) append
+     * @see Appender#append(System.LoggingLevel, String, Object) append
      * @since 1.1
      */
-    global void append(String name, System.LoggingLevel level, Object value) {
-      System.debug(level, value);
+    global void append(System.LoggingLevel level, String name, Object value) {
+      System.debug(level, '[' + name + '] ' + value);
     }
   }
 
@@ -128,16 +128,16 @@ global inherited sharing class Logger {
     /**
      * @description It receives the information to be logged and consumes it.
      *
-     * @see Appender#append(String, System.LoggingLevel, Object) append
+     * @see Appender#append(System.LoggingLevel, String, Object) append
      * @since 1.1
      */
-    global void append(String name, System.LoggingLevel level, Object value) {
+    global void append(System.LoggingLevel level, String name, Object value) {
       // Preventing hitting limits
       if (entries.size() > 199) {
         entries.remove(0);
       }
 
-      entries.add(new Entry(name, level, value));
+      entries.add(new Entry(level, name, value));
     }
 
     /**
@@ -218,7 +218,7 @@ global inherited sharing class Logger {
     global final Datetime t;
     global final Object v;
 
-    private Entry(String n, System.LoggingLevel l, Object v) {
+    private Entry(System.LoggingLevel l, String n, Object v) {
       this.l = l;
       this.n = n;
       this.t = System.now();
@@ -430,7 +430,7 @@ global inherited sharing class Logger {
         final Appender app = singleton.appenders.get(a);
 
         if (app != null) {
-          app.append(name, level, processedValue);
+          app.append(level, name, processedValue);
         }
       }
     }
