@@ -177,16 +177,23 @@ global inherited sharing class Sec {
   }
 
   global class DmlResponse {
+    private final List<Object> results;
+    private final List<SObject> submitted;
+
     private List<SObject> failed;
-    private List<Object> results;
-    private List<SObject> submitted;
     private List<SObject> succeeded;
 
-    private DmlResponse(List<SObject> submitted) {
-      this(submitted, new List<Object>());
+    private DmlResponse(List<SObject> submitted, List<Database.DeleteResult> results) {
+      this.submitted = submitted;
+      this.results = results;
     }
 
-    private DmlResponse(List<SObject> submitted, List<Object> results) {
+    private DmlResponse(List<SObject> submitted, List<Database.SaveResult> results) {
+      this.submitted = submitted;
+      this.results = results;
+    }
+
+    private DmlResponse(List<SObject> submitted, List<Database.UpsertResult> results) {
       this.submitted = submitted;
       this.results = results;
     }
@@ -279,13 +286,16 @@ global inherited sharing class Sec {
     Utils.requireNonNull(record, 'Record cannot be null');
     Utils.requireNonNull(aType, 'Access type cannot be null');
 
-    Schema.SObjectType sType = record.getSObjectType();
+    final Schema.SObjectType sType = record.getSObjectType();
+    final Map<String, Schema.SObjectField> sTypeFields = Describer.getInstance()
+      .getObjectFieldMap(sType);
+    final Set<Schema.SObjectField> sFields = new Set<Schema.SObjectField>();
 
-    return new AuditResult(
-      aType,
-      sType,
-      new Set<Schema.SObjectField>(Describer.getInstance().getObjectFieldMap(sType).values())
-    );
+    for (String n : record.getPopulatedFieldsAsMap().keySet()) {
+      sFields.add(sTypeFields.get(n));
+    }
+
+    return new AuditResult(aType, sType, sFields);
   }
 
   global static AuditResult audit(Schema.SObjectField sField, AccessType aType) {
@@ -320,7 +330,7 @@ global inherited sharing class Sec {
     Utils.requireNonNull(o, 'Operation request cannot be null');
 
     if (records.isEmpty()) {
-      return new DmlResponse(records);
+      return new DmlResponse(records, new List<Database.DeleteResult>());
     }
 
     if (o.eif != null) {
@@ -353,7 +363,7 @@ global inherited sharing class Sec {
     Utils.requireNonNull(o, 'Operation request cannot be null');
 
     if (records.isEmpty()) {
-      return new DmlResponse(records);
+      return new DmlResponse(records, new List<Database.SaveResult>());
     }
 
     if (o.eif != null) {
@@ -386,7 +396,7 @@ global inherited sharing class Sec {
     Utils.requireNonNull(o, 'Operation request cannot be null');
 
     if (records.isEmpty()) {
-      return new DmlResponse(records);
+      return new DmlResponse(records, new List<Database.SaveResult>());
     }
 
     if (o.eif != null) {
@@ -419,7 +429,7 @@ global inherited sharing class Sec {
     Utils.requireNonNull(o, 'Operation request cannot be null');
 
     if (records.isEmpty()) {
-      return new DmlResponse(records);
+      return new DmlResponse(records, new List<Database.UpsertResult>());
     }
 
     final AuditResult aud = audit(records[0], AccessType.UPSERTABLE);

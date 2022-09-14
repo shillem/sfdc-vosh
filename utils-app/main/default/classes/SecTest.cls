@@ -65,6 +65,7 @@ public class SecTest {
     {
       Sec.DmlResponse res = Sec.updateMany(accts, new Sec.DmlRequest().any());
 
+      System.assert(res.getResults() instanceof List<Database.SaveResult>);
       System.assertEquals(3, res.getSucceeded().size());
       System.assertEquals(1, [SELECT Id FROM Account WHERE Name = 'Demoist' LIMIT 10].size());
     }
@@ -72,6 +73,7 @@ public class SecTest {
     {
       Sec.DmlResponse res = Sec.deleteOne(accts.remove(0), new Sec.DmlRequest().any());
 
+      System.assert(res.getResults() instanceof List<Database.DeleteResult>);
       System.assertEquals(1, res.getSucceeded().size());
       System.assertEquals(2, [SELECT Id FROM Account LIMIT 10].size());
     }
@@ -90,6 +92,7 @@ public class SecTest {
 
       Sec.DmlResponse res = Sec.upsertMany(accts, new Sec.DmlRequest().all());
 
+      System.assert(res.getResults() instanceof List<Database.UpsertResult>);
       System.assertEquals(3, res.getSucceeded().size());
       System.assertEquals(3, [SELECT Id FROM Account LIMIT 10].size());
     }
