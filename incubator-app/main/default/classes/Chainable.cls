@@ -59,9 +59,13 @@ public abstract class Chainable {
     }
   }
 
-  private Map<String, Object> variable;
   private Chainable previous;
   private Chainable next;
+  private Map<String, Object> variables;
+
+  public Chainable() {
+    variables = new Map<String, Object>();
+  }
 
   /**
    * @description It sets off the whole constructed chain.
@@ -107,7 +111,7 @@ public abstract class Chainable {
    * @since 1.1
    */
   public Object getVariable(String key) {
-    return variable?.get(key);
+    return variables.get(key);
   }
 
   /**
@@ -121,11 +125,11 @@ public abstract class Chainable {
    * @since 1.1
    */
   public Chainable setVariable(String key, Object value) {
-    if (variable == null) {
-      variable = new Map<String, Object>();
+    if (variables == null) {
+      variables = new Map<String, Object>();
     }
 
-    variable.put(key, value);
+    variables.put(key, value);
 
     return this;
   }
@@ -144,7 +148,7 @@ public abstract class Chainable {
     } else {
       next = successor;
       next.previous = this;
-      next.variable = variable;
+      next.variables = variables;
     }
 
     return this;
