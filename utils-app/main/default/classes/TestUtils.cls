@@ -7,20 +7,26 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ExcessivePublicCount')
 global class TestUtils {
   /**
-   * @description @since 1.0.4
+   * @description
+   * 
+   * @since 1.0.4
    */
   global class HttpCalloutMock implements System.HttpCalloutMock {
     private final List<HttpResponseMock> responses;
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpCalloutMock() {
       responses = new List<HttpResponseMock>();
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpCalloutMock addResponse(HttpResponseMock value) {
       responses.add(value);
@@ -29,7 +35,18 @@ global class TestUtils {
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.1
+     */
+    global Boolean isEmpty() {
+      return responses.isEmpty();
+    }
+
+    /**
+     * @description
+     * 
+     * @since 1.0.4
      */
     global System.HTTPResponse respond(System.HTTPRequest req) {
       for (HttpResponseMock res : responses) {
@@ -45,7 +62,9 @@ global class TestUtils {
   }
 
   /**
-   * @description @since 1.0.4
+   * @description
+   * 
+   * @since 1.0.4
    */
   global class HttpResponseMock {
     private final System.Pattern rule;
@@ -54,14 +73,18 @@ global class TestUtils {
     private Object body;
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpResponseMock(System.Pattern rule) {
       this(rule, 200);
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpResponseMock(System.Pattern rule, Integer statusCode) {
       this.rule = rule;
@@ -69,7 +92,9 @@ global class TestUtils {
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global System.HTTPResponse respond() {
       System.HttpResponse res = new System.HttpResponse();
@@ -86,7 +111,9 @@ global class TestUtils {
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpResponseMock setBody(Blob value) {
       body = value;
@@ -95,7 +122,9 @@ global class TestUtils {
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpResponseMock setBody(String value) {
       body = value;
@@ -104,21 +133,27 @@ global class TestUtils {
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpResponseMock setStaticResourceBody(String name) {
       return setStaticResourceBody(name, null);
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpResponseMock setStaticResourceBody(String name, String key) {
       return setStaticResourceBody(name, key, new List<String>());
     }
 
     /**
-     * @description @since 1.0.4
+     * @description
+     * 
+     * @since 1.0.4
      */
     global HttpResponseMock setStaticResourceBody(String name, String key, List<String> variables) {
       Schema.StaticResource resource = [SELECT Body FROM StaticResource WHERE Name = :name LIMIT 1];
