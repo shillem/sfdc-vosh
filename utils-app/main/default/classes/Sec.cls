@@ -74,10 +74,12 @@ global inherited sharing class Sec {
             perm = dfr.isAccessible();
           }
           when UPDATABLE {
-            perm = dfr.isUpdateable();
+            perm = NON_UPDATABLE_FIELD_NAMES.contains(dfr.getName()) || dfr.isUpdateable();
           }
           when UPSERTABLE {
-            perm = dfr.isCreateable() && dfr.isUpdateable();
+            perm =
+              NON_UPDATABLE_FIELD_NAMES.contains(dfr.getName()) ||
+              (dfr.isCreateable() && dfr.isUpdateable());
           }
           when else {
             throw new UnsupportedOperationException(aType.name());
@@ -262,6 +264,16 @@ global inherited sharing class Sec {
       }
     }
   }
+
+  private static final List<String> NON_UPDATABLE_FIELD_NAMES = new List<String>{
+    'CreatedById',
+    'CreatedDate',
+    'Id',
+    'IsDeleted',
+    'LastModifiedById',
+    'LastModifiedDate',
+    'SystemModstamp'
+  };
 
   global static AuditResult audit(SObject record, AccessType aType) {
     Utils.requireNonNull(record, 'Record cannot be null');
