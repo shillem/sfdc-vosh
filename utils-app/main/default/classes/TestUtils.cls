@@ -237,7 +237,7 @@ global class TestUtils {
       return records;
     }
 
-    virtual SObject makeOne(Integer index) {
+    protected virtual SObject makeOne(Integer index) {
       SObject instance = type.newSObject();
 
       if (ownerId != null) {
@@ -566,7 +566,7 @@ global class TestUtils {
         .generate();
     }
 
-    override SObject makeOne(Integer index) {
+    protected override SObject makeOne(Integer index) {
       Schema.User obj = (Schema.User) super.makeOne(index);
       obj.EmailEncodingKey = 'UTF-8';
       obj.LanguageLocaleKey = 'en_US';

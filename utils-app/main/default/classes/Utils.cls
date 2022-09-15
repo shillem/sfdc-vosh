@@ -1,4 +1,4 @@
-@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.StdCyclomaticComplexity')
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ExcessiveClassLength, PMD.StdCyclomaticComplexity')
 /**
  * @description A collection of utility methods.
  *
@@ -75,7 +75,7 @@ global inherited sharing class Utils {
 
     /**
      * @description It compares the current object with the passed one for equality.
-     * 
+     *
      * @param instance the object to compare for equality
      * @return true if the current object equals the one passed in as parameter
      * @see Object#equals(Object) equals
@@ -91,7 +91,7 @@ global inherited sharing class Utils {
 
     /**
      * @description It returns the hascode representing the object.
-     * 
+     *
      * @return the hash code representing the object
      * @see Object#hashCode() hashCode
      * @since 1.0.20
@@ -255,7 +255,7 @@ global inherited sharing class Utils {
 
     /**
      * @description It compares the current istance with the current object for sorting purposes.
-     * 
+     *
      * @param instance the object to compare for equality
      * @return -1, 0 or 1
      * @see Comparable#compareTo(Object) compareTo
@@ -280,7 +280,7 @@ global inherited sharing class Utils {
 
     /**
      * @description It compares the current object with the passed one for equality.
-     * 
+     *
      * @param instance the object to compare for equality
      * @return true if the current object equals the one passed in as parameter
      * @see Object#equals(Object) equals
@@ -299,7 +299,7 @@ global inherited sharing class Utils {
 
     /**
      * @description It returns the hascode representing the object.
-     * 
+     *
      * @see Object#hashCode() hashCode
      * @return the hash code representing the object
      * @since 1.0.1
@@ -320,7 +320,7 @@ global inherited sharing class Utils {
 
     /**
      * @description It returns the hascode representing the object.
-     * 
+     *
      * @return the hash code representing the object
      * @see Object#hashCode() hashCode
      * @since 1.0.1
@@ -384,7 +384,7 @@ global inherited sharing class Utils {
 
     /**
      * @description It hashes the passed value according to the algorithm set for the object.
-     * 
+     *
      * @param value the value to be hashed, not null
      * @return the hashed value
      * @see #hash(Blob) hash
@@ -751,7 +751,7 @@ global inherited sharing class Utils {
      *
      * @param name the parameter name, not null
      * @param value the parameter value
-     * @return the <code>UrlQuery</code> object instance 
+     * @return the <code>UrlQuery</code> object instance
      * @throws UnsupportedOperationException if the parameter name is empty
      * @since 1.0.4
      */
@@ -976,5 +976,42 @@ global inherited sharing class Utils {
     while (start <= stop) {
       start = System.currentTimeMillis();
     }
+  }
+
+  /**
+   * @description It returns a sublist of the passed list according to the start and end index passed
+   *
+   * @param l the list, not null
+   * @param startIndex the start index, not null
+   * @param endIndex the start index, not null
+   * @throws IllegalArgumentException if start and end index values are out of bounds
+   * @since 1.0.1
+   */
+  global static List<Object> subList(List<Object> l, Integer startIndex, Integer endIndex) {
+    requireNonNull(l, 'List cannot be null');
+    requireNonNull(startIndex, 'Start index cannot be null');
+    requireNonNull(endIndex, 'End index cannot be null');
+
+    if (startIndex < 0) {
+      throw new IllegalArgumentException('Start index cannot be lower than 0');
+    }
+
+    if (startIndex > endIndex) {
+      throw new IllegalArgumentException('Start index cannot be greater than end index');
+    }
+
+    if (endIndex > l.size() - 1) {
+      throw new IllegalArgumentException('End index cannot be greater than the list size - 1');
+    }
+
+    final List<Object> c = l.clone();
+
+    c.clear();
+
+    for (Integer i = startIndex; i <= endIndex; i++) {
+      c.add(l[i]);
+    }
+
+    return c;
   }
 }

@@ -192,6 +192,40 @@ public class UtilsTest {
   }
 
   @isTest
+  static void subListing() {
+    final List<Integer> values = new List<Integer>{ 1, 2, 3, 4, 5 };
+
+    try {
+      Utils.subList(values, -1, 1);
+
+      System.assert(false, 'It should have failed on start index');
+    } catch (IllegalArgumentException e) {
+      System.assertEquals('Start index cannot be lower than 0', e.getMessage());
+    }
+
+    try {
+      Utils.subList(values, 1, 0);
+
+      System.assert(false, 'It should have failed on start index');
+    } catch (IllegalArgumentException e) {
+      System.assertEquals('Start index cannot be greater than end index', e.getMessage());
+    }
+
+    try {
+      Utils.subList(values, 0, 10);
+
+      System.assert(false, 'It should have failed on end index');
+    } catch (IllegalArgumentException e) {
+      System.assertEquals(
+        'End index cannot be greater than the list size - 1',
+        e.getMessage()
+      );
+    }
+
+    System.assertEquals(new List<Integer>{ 2, 3, 4 }, Utils.subList(values, 1, 3));
+  }
+
+  @isTest
   static void uniquifiers() {
     Utils.ValueUniquifier uni = new Utils.ValueUniquifier();
 
