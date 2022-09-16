@@ -977,41 +977,4 @@ global inherited sharing class Utils {
       start = System.currentTimeMillis();
     }
   }
-
-  /**
-   * @description It returns a sublist of the passed list according to the start and end index passed
-   *
-   * @param l the list, not null
-   * @param startIndex the start index, not null
-   * @param endIndex the start index, not null
-   * @throws IllegalArgumentException if start and end index values are out of bounds
-   * @since 1.0.1
-   */
-  global static List<Object> subList(List<Object> l, Integer startIndex, Integer endIndex) {
-    requireNonNull(l, 'List cannot be null');
-    requireNonNull(startIndex, 'Start index cannot be null');
-    requireNonNull(endIndex, 'End index cannot be null');
-
-    if (startIndex < 0) {
-      throw new IllegalArgumentException('Start index cannot be lower than 0');
-    }
-
-    if (startIndex > endIndex) {
-      throw new IllegalArgumentException('Start index cannot be greater than end index');
-    }
-
-    if (endIndex > l.size() - 1) {
-      throw new IllegalArgumentException('End index cannot be greater than the list size - 1');
-    }
-
-    final List<Object> c = l.clone();
-
-    c.clear();
-
-    for (Integer i = startIndex; i <= endIndex; i++) {
-      c.add(l[i]);
-    }
-
-    return c;
-  }
 }
