@@ -8,7 +8,7 @@
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global class SObjectCollector {
-/**
+  /**
    * @description The criteria object used by a <code>SObjectCollector</code>
    * to organize <code>SObject</code> records.
    *
@@ -255,5 +255,26 @@ global class SObjectCollector {
    */
   global Set<SObject> values() {
     return records;
+  }
+
+  /**
+   * @description It creates a map of <code>SObject</code> lists
+   * organized by unique record field values.
+   *
+   * @param f the field, not null
+   * @param records the records, not null
+   * @return the records organized by field values
+   * @see SObjectCollector#makeMapOfLists
+   * @since 1.1
+   */
+  global static Map<Object, List<SObject>> collectBy(Schema.SObjectField f, List<SObject> records) {
+    Utils.requireNonNull(f, 'Field cannot be null');
+    Utils.requireNonNull(records, 'Records cannot be null');
+
+    final SObjectCollector coll = new SObjectCollector();
+
+    coll.addAll(records);
+
+    return coll.makeMapOfLists(new FieldCriteria(f));
   }
 }
