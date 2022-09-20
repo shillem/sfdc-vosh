@@ -2,11 +2,15 @@
 public class SecTest {
   @isTest
   static void authorization() {
-    Schema.User insufficientUser = createInsufficientUser();
-    Schema.Contact anyone = new Schema.Contact(LastName = 'Anyone', HasOptedOutOfEmail = true);
+    final Schema.Contact anyone = new Schema.Contact(
+      Description = 'Anything',
+      LastName = 'Anyone'
+    );
+
+    final Schema.User insufficientUser = createInsufficientUser();
 
     System.runAs(insufficientUser) {
-      Sec.AuditResult res = Sec.audit(anyone, Sec.AccessType.CREATABLE);
+      final Sec.AuditResult res = Sec.audit(anyone, Sec.AccessType.CREATABLE);
 
       System.assert(!res.isAuthorized(), 'It should not have been authorized');
 
@@ -16,18 +20,18 @@ public class SecTest {
         System.assert(false, 'It should have thrown a Sec.AuditException');
       } catch (Sec.AuditException e) {
         System.assert(
-          e.getMessage().contains(String.valueOf(Schema.Contact.HasOptedOutOfEmail)),
+          e.getMessage().contains(String.valueOf(Schema.Contact.LastName)),
           'It should have contained HasOptedOutOfEmail field: ' + e.getMessage()
         );
 
         System.assert(
-          res.getFailedFields().contains(Schema.Contact.HasOptedOutOfEmail),
+          res.getFailedFields().contains(Schema.Contact.LastName),
           'It should have contained HasOptedOutOfEmail field: ' + res.getFailedFields()
         );
       }
     }
 
-    Sec.AuditResult res = Sec.audit(anyone, Sec.AccessType.CREATABLE);
+    final Sec.AuditResult res = Sec.audit(anyone, Sec.AccessType.CREATABLE);
 
     System.assert(res.isAuthorized(), 'It should have been authorized');
   }
