@@ -71,6 +71,7 @@ global class TestUtils {
     private final Integer statusCode;
 
     private Object body;
+    private Integer invocations;
 
     /**
      * @description
@@ -89,6 +90,16 @@ global class TestUtils {
     global HttpResponseMock(System.Pattern rule, Integer statusCode) {
       this.rule = rule;
       this.statusCode = statusCode;
+      this.invocations = 0;
+    }
+
+    /**
+     * @description
+     * 
+     * @since 1.1
+     */
+    global Integer getInvocations() {
+      return invocations;
     }
 
     /**
@@ -106,6 +117,8 @@ global class TestUtils {
       } else if (body instanceof String) {
         res.setBody((String) body);
       }
+
+      invocations++;
 
       return res;
     }
