@@ -292,7 +292,12 @@ global inherited sharing class Sec {
     final Set<Schema.SObjectField> sFields = new Set<Schema.SObjectField>();
 
     for (String n : record.getPopulatedFieldsAsMap().keySet()) {
-      sFields.add(sTypeFields.get(n));
+      final Schema.SObjectField f = sTypeFields.get(n);
+
+      // Necessary check since to exclude children reference fields from real fields
+      if (f != null) {
+        sFields.add(f);
+      }
     }
 
     return new AuditResult(aType, sType, sFields);
