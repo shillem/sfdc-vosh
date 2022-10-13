@@ -218,6 +218,7 @@ global inherited sharing class Logger {
     global final Datetime t;
     global final Object v;
 
+    @TestVisible
     private Entry(System.LoggingLevel l, String n, Object v) {
       this.l = l;
       this.n = n;
