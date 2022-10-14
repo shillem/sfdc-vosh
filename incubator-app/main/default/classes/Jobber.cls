@@ -26,7 +26,7 @@ public inherited sharing class Jobber {
     'WAITING'
   };
 
-  public virtual SchedulingStatus disableAsync(List<System.Type> apexClasses) {
+  public static SchedulingStatus disableAsync(List<System.Type> apexClasses) {
     List<Schema.AsyncApexJob> jobs = getAsyncActive(apexClasses);
 
     if (jobs.isEmpty()) {
@@ -40,7 +40,7 @@ public inherited sharing class Jobber {
     return SchedulingStatus.DISABLED;
   }
 
-  public virtual SchedulingStatus disableScheduled(String jobName) {
+  public static SchedulingStatus disableScheduled(String jobName) {
     List<Schema.CronTrigger> jobs = getScheduledActive(jobName);
 
     if (jobs.isEmpty()) {
@@ -54,7 +54,7 @@ public inherited sharing class Jobber {
     return SchedulingStatus.DISABLED;
   }
 
-  public virtual SchedulingStatus enableScheduled(
+  public static SchedulingStatus enableScheduled(
     String jobName,
     String cronExpression,
     Schedulable sched
@@ -133,7 +133,7 @@ public inherited sharing class Jobber {
     Soqler query = new Soqler(Schema.CronTrigger.SObjectType);
 
     query.fields()
-      .add(Schema.CronTrigger.Id)
+      .add(new Soqler.IFieldName('CronJobDetail', Schema.CronJobDetail.Name))
       .add(Schema.CronTrigger.NextFireTime)
       .add(Schema.CronTrigger.PreviousFireTime)
       .add(Schema.CronTrigger.State);
