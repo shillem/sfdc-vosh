@@ -48,6 +48,16 @@ public abstract class Chainable {
     }
 
     /**
+     * @description The constructor for <code>Chainable</code> extending <code>Schedulable</code>.
+     *
+     * @param value the context as received in the <code>Queueable.execute()</code> method
+     * @since 1.1
+     */
+    public Context(SchedulableContext value) {
+      context = value;
+    }
+
+    /**
      * @description It returns the current <code>Batchable</code> or <code>Queueable</code>
      * underlying context.
      *
