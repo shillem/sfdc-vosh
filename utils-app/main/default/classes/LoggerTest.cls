@@ -6,6 +6,25 @@ public class LoggerTest implements Logger.AllowFlushes {
   };
 
   @isTest
+  static void badAppender() {
+    insert new Schema.Cs_Logger__c(
+      Appenders__c = 'InvalidAppender',
+      Name = '*',
+      Threshold__c = 'INFO'
+    );
+
+    try {
+      final Logger.Instance log = Logger.getInstance(LoggerTest.class);
+
+      log.info('Info');
+
+      System.assert(true, 'All good!');
+    } catch (System.Exception e) {
+      System.assert(false, 'It should not have thrown an exception');
+    }
+  }
+
+  @isTest
   static void catchAll() {
     insert new Schema.Cs_Logger__c(
       Appenders__c = String.join(ALL_APPENDERS, ','),

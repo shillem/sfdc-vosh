@@ -645,7 +645,19 @@ global inherited sharing class Logger {
         // Appenders
         for (String a : p.ap) {
           if (!singleton.appenders.containsKey(a)) {
-            singleton.appenders.put(a, (Appender) System.Type.forName(a).newInstance());
+            try {
+              System.Type appType = System.Type.forName(a);
+
+              if (appType == null) {
+                System.debug(System.LoggingLevel.ERROR, 'Could not find appender class ' + a);
+
+                continue;
+              }
+
+              singleton.appenders.put(a, (Appender) appType.newInstance());
+            } catch (System.Exception e) {
+              System.debug(System.LoggingLevel.ERROR, e.getMessage());
+            }
           }
         }
       }
