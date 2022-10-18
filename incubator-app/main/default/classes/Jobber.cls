@@ -83,7 +83,6 @@ public inherited sharing class Jobber {
     List<String> statuses
   ) {
     Utils.requireNonNull(apexClasses, 'Classes cannot be null');
-    Utils.requireNonNull(statuses, 'Statuses cannot be null');
 
     Soqler query = new Soqler(Schema.AsyncApexJob.SObjectType);
 
@@ -95,7 +94,7 @@ public inherited sharing class Jobber {
 
     query.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.JobType, 'IN', ASYNC_TYPES));
 
-    if (!statuses.isEmpty()) {
+    if (statuses != null && !statuses.isEmpty()) {
       query.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.Status, 'IN', statuses));
     }
 
@@ -128,7 +127,6 @@ public inherited sharing class Jobber {
 
   public static List<Schema.CronTrigger> getScheduled(String jobName, List<String> statuses) {
     Utils.requireNonNull(jobName, 'Job name cannot be null');
-    Utils.requireNonNull(statuses, 'Statuses cannot be null');
 
     Soqler query = new Soqler(Schema.CronTrigger.SObjectType);
 
@@ -149,7 +147,7 @@ public inherited sharing class Jobber {
       )
       .addAnd(new Soqler.IWhereName('CronJobDetail', Schema.CronJobDetail.JobType, '=', '7'));
 
-    if (!statuses.isEmpty()) {
+    if (statuses != null && !statuses.isEmpty()) {
       query.wheres().addAnd(new Soqler.IWhereName(Schema.CronTrigger.State, 'IN', statuses));
     }
 
@@ -158,5 +156,9 @@ public inherited sharing class Jobber {
 
   public static List<Schema.CronTrigger> getScheduledActive(String jobName) {
     return getScheduled(jobName, SCHEDULED_ACTIVE_STATUSES);
+  }
+
+  public static List<String> getScheduledActiveStatuses() {
+    return new List<String>(SCHEDULED_ACTIVE_STATUSES);
   }
 }
