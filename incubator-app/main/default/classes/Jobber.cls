@@ -15,7 +15,8 @@ public inherited sharing class Jobber {
   private static final List<String> ASYNC_TYPES = new List<String>{
     'BatchApex',
     'BatchApexWorker',
-    'Queueable'
+    'Queueable',
+    'ScheduledApex'
   };
   private static final List<String> SCHEDULED_ACTIVE_STATUSES = new List<String>{
     'ACQUIRED',
@@ -82,6 +83,14 @@ public inherited sharing class Jobber {
     List<System.Type> apexClasses,
     List<String> statuses
   ) {
+    return getAsync(apexClasses, statuses, ASYNC_TYPES);
+  }
+
+  public static List<Schema.AsyncApexJob> getAsync(
+    List<System.Type> apexClasses,
+    List<String> statuses,
+    List<String> types
+  ) {
     Utils.requireNonNull(apexClasses, 'Classes cannot be null');
 
     Soqler query = new Soqler(Schema.AsyncApexJob.SObjectType);
@@ -89,14 +98,17 @@ public inherited sharing class Jobber {
     query.fields()
       .add(Schema.AsyncApexJob.CronTriggerId)
       .add(Schema.AsyncApexJob.JobItemsProcessed)
+      .add(Schema.AsyncApexJob.JobType)
       .add(Schema.AsyncApexJob.NumberOfErrors)
       .add(Schema.AsyncApexJob.TotalJobItems)
       .add(Schema.AsyncApexJob.Status);
 
-    query.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.JobType, 'IN', ASYNC_TYPES));
-
     if (statuses != null && !statuses.isEmpty()) {
       query.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.Status, 'IN', statuses));
+    }
+
+    if (types != null && !types.isEmpty()) {
+      query.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.JobType, 'IN', types));
     }
 
     final Soqler.IWhereGroup classesGroup = new Soqler.IWhereGroup();
