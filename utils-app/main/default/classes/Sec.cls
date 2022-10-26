@@ -198,6 +198,26 @@ global inherited sharing class Sec {
       this.results = results;
     }
 
+    global List<Database.Error> getErrors(Integer numOfRecords) {
+      if (results.isEmpty()) {
+        return new List<Database.Error>();
+      }
+
+      if (results[0] instanceof Database.SaveResult) {
+        return readSaveErrors((List<Database.SaveResult>) results, numOfRecords);
+      }
+
+      if (results[0] instanceof Database.UpsertResult) {
+        return readUpsertErrors((List<Database.UpsertResult>) results, numOfRecords);
+      }
+
+      if (results[0] instanceof Database.DeleteResult) {
+        return readDeleteErrors((List<Database.DeleteResult>) results, numOfRecords);
+      }
+
+      return new List<Database.Error>();
+    }
+
     global List<SObject> getFailed() {
       if (failed == null) {
         load();
@@ -269,6 +289,69 @@ global inherited sharing class Sec {
           failed.add(submitted[i]);
         }
       }
+    }
+
+    private List<Database.Error> readDeleteErrors(
+      List<Database.DeleteResult> results,
+      Integer numOfRecords
+    ) {
+      final List<Database.Error> errors = new List<Database.Error>();
+
+      Integer count = 0;
+
+      for (Integer i = 0; i < results.size() && count < numOfRecords; i++) {
+        final Database.DeleteResult result = results[i];
+
+        if (!result.isSuccess()) {
+          errors.addAll(result.getErrors());
+
+          count++;
+        }
+      }
+
+      return errors;
+    }
+
+    private List<Database.Error> readSaveErrors(
+      List<Database.SaveResult> results,
+      Integer numOfRecords
+    ) {
+      final List<Database.Error> errors = new List<Database.Error>();
+
+      Integer count = 0;
+
+      for (Integer i = 0; i < results.size() && count < numOfRecords; i++) {
+        final Database.SaveResult result = results[i];
+
+        if (!result.isSuccess()) {
+          errors.addAll(result.getErrors());
+          
+          count++;
+        }
+      }
+
+      return errors;
+    }
+
+    private List<Database.Error> readUpsertErrors(
+      List<Database.UpsertResult> results,
+      Integer numOfRecords
+    ) {
+      final List<Database.Error> errors = new List<Database.Error>();
+
+      Integer count = 0;
+
+      for (Integer i = 0; i < results.size() && count < numOfRecords; i++) {
+        final Database.UpsertResult result = results[i];
+
+        if (!result.isSuccess()) {
+          errors.addAll(result.getErrors());
+          
+          count++;
+        }
+      }
+
+      return errors;
     }
   }
 
