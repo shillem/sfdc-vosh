@@ -115,20 +115,43 @@ public inherited sharing class Jobber {
       query.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.JobType, 'IN', types));
     }
 
-    final Soqler.IWhereGroup classesGroup = new Soqler.IWhereGroup();
+    final Map<String, List<String>> breakdown = new Map<String, List<String>>();
 
     for (System.Type t : apexClasses) {
-      final Soqler.IWhereGroup classGroup = new Soqler.IWhereGroup();
       final String[] n = t.getName().split('\\.');
+      final String namespace;
+      final String className;
 
       if (n.size() > 1) {
-        classGroup.wheres()
-          .addAnd(new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, '=', n[0]))
-          .addAnd(new Soqler.IWhereName('ApexClass', Schema.ApexClass.Name, '=', n[1]));
+        namespace = n[0];
+        className = n[1];
       } else {
-        classGroup.wheres()
-          .addAnd(new Soqler.IWhereName('ApexClass', Schema.ApexClass.Name, '=', n[0]));
+        namespace = '';
+        className = n[0];
       }
+
+      final List<String> classNames = breakdown.get(namespace);
+
+      if (classNames == null) {
+        classNames = new List<String>();
+        breakdown.put(namespace, classNames);
+      }
+
+      classNames.add(className);
+    }
+
+    final Soqler.IWhereGroup classesGroup = new Soqler.IWhereGroup();
+
+    for (String namespace : breakdown.keySet()) {
+      final Soqler.IWhereGroup classGroup = new Soqler.IWhereGroup();
+
+      classGroup.wheres()
+        .addAnd(
+          new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, '=', namespace)
+        )
+        .addAnd(
+          new Soqler.IWhereName('ApexClass', Schema.ApexClass.Name, 'IN', breakdown.get(namespace))
+        );
 
       classesGroup.wheres().addOr(classGroup);
     }
