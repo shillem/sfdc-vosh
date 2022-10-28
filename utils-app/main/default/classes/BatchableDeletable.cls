@@ -10,7 +10,7 @@ global inherited sharing class BatchableDeletable implements Database.Batchable<
   private final String q;
 
   /**
-   * @description It creates an instance taht will delete records returned by the specified query.
+   * @description It creates an instance that will delete records returned by the specified query.
    *
    * @param q the query
    * @see #BatchableDeletable(String, Boolean)
@@ -21,7 +21,7 @@ global inherited sharing class BatchableDeletable implements Database.Batchable<
   }
 
   /**
-   * @description It creates an instance taht will delete records returned by the specified query.
+   * @description It creates an instance that will delete records returned by the specified query.
    *
    * @param q the query
    * @param emptyRecycleBin the option for emptying the recycle bin after deletion
@@ -37,10 +37,10 @@ global inherited sharing class BatchableDeletable implements Database.Batchable<
   }
 
   global void execute(Database.BatchableContext context, List<SObject> records) {
-    delete records;
+    final Sec.DmlResponse response = Sec.deleteMany(records, new Sec.DmlRequest().any());
 
-    if (emptyRecycleBin) {
-      Database.emptyRecycleBin(records);
+    if (emptyRecycleBin && !response.getSucceeded().isEmpty()) {
+      Database.emptyRecycleBin(response.getSucceeded());
     }
   }
 
