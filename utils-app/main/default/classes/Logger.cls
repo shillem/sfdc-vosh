@@ -292,6 +292,8 @@ global inherited sharing class Logger {
      * @since 1.1
      */
     global void error(String description, System.Exception e) {
+      Utils.requireNonNull(e, 'Exception cannot be null');
+
       log(
         System.LoggingLevel.ERROR,
         description +
