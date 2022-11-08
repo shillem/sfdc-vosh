@@ -78,6 +78,15 @@ public abstract class Chainable {
   }
 
   /**
+   * @description It aborts the execution of the next and any subsequent chain link.
+   *
+   * @since 1.1
+   */
+  public void abort() {
+    next = null;
+  }
+
+  /**
    * @description It sets off the whole constructed chain.
    * Depending on the context the execution could be run asynchronously or synchronously:
    * when in test mode it will be synchronous, otherwise asynchronous.
