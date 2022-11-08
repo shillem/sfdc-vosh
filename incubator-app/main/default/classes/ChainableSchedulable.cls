@@ -22,7 +22,11 @@ public abstract class ChainableSchedulable extends Chainable implements Database
   }
 
   protected override void executeAsynchronously() {
-    System.schedule(name(), cronExpression(), this);
+    final String expr = cronExpression();
+
+    if (expr != null) {
+      System.schedule(name(), expr, this);
+    }
   }
 
   protected override void executeSynchronously(Chainable.Context context) {
