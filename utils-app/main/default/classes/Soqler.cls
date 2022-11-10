@@ -140,6 +140,18 @@ global inherited sharing class Soqler {
       return value;
     }
 
+    global Boolean equals(Object instance) {
+      if (instance instanceof IFieldName) {
+        return field == ((IFieldName) instance).field;
+      }
+  
+      return false;
+    }
+
+    global Integer hashCode() {
+      return 31 * 7 + String.valueOf(field).hashCode();
+    }
+
     /**
      * @description It flags the <code>Schema.SObjectField</code> as droppable or not.
      * <p>
@@ -635,10 +647,10 @@ global inherited sharing class Soqler {
   }
 
   private abstract class L extends A {
-    final List<I> instructions;
+    final Set<I> instructions;
 
     L() {
-      instructions = new List<I>();
+      instructions = new Set<I>();
     }
 
     override String build() {
@@ -885,7 +897,7 @@ global inherited sharing class Soqler {
      * @since 1.0.4
      */
     global LWhere addAnd(IWhere instruction) {
-      return add(I_WHERE_AND, instruction);
+      return add(new IWhereLogic('AND'), instruction);
     }
 
     /**
@@ -910,7 +922,7 @@ global inherited sharing class Soqler {
      * @since 1.0.4
      */
     global LWhere addOr(IWhere instruction) {
-      return add(I_WHERE_OR, instruction);
+      return add(new IWhereLogic('OR'), instruction);
     }
 
     /**
@@ -942,9 +954,6 @@ global inherited sharing class Soqler {
   private static final Converter C_DATE_TIME_DATE = new ConverterDateTimeDate();
   private static final Converter C_OBJECT = new Converter();
   private static final Converter C_STRING = new ConverterString();
-
-  private static final IWhereLogic I_WHERE_AND = new IWhereLogic('AND');
-  private static final IWhereLogic I_WHERE_OR = new IWhereLogic('OR');
 
   private final Schema.SObjectType type;
   private final LField flds;
