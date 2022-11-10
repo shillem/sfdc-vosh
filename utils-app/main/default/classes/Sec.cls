@@ -355,13 +355,14 @@ global inherited sharing class Sec {
     }
   }
 
-  private static final List<String> NON_UPDATABLE_FIELD_NAMES = new List<String>{
+  private static final Set<String> NON_UPDATABLE_FIELD_NAMES = new Set<String>{
     'CreatedById',
     'CreatedDate',
     'Id',
     'IsDeleted',
     'LastModifiedById',
     'LastModifiedDate',
+    'Name',
     'SystemModstamp'
   };
 
