@@ -45,6 +45,17 @@ public class SoqlerTest {
   }
 
   @isTest
+  static void duplicateFieldAvoidance() {
+    final Soqler query = new Soqler(Schema.Account.SObjectType);
+
+    query.fields()
+      .add(Schema.Account.Name)
+      .add(Schema.Account.Name);
+
+    System.assertEquals('SELECT Name FROM Account', query.queryToString());
+  }
+
+  @isTest
   static void queryAccounts() {
     Soqler query = new Soqler(Schema.Account.SObjectType);
 

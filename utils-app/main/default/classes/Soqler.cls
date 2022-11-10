@@ -140,16 +140,20 @@ global inherited sharing class Soqler {
       return value;
     }
 
-    global Boolean equals(Object instance) {
-      if (instance instanceof IFieldName) {
-        return field == ((IFieldName) instance).field;
+    global Boolean equals(Object value) {
+      if (value instanceof IFieldName) {
+        return field == ((IFieldName) value).field;
       }
   
       return false;
     }
 
     global Integer hashCode() {
-      return 31 * 7 + String.valueOf(field).hashCode();
+      Integer result = crossReference != null ? crossReference.hashCode() : 0;
+
+      result += String.valueOf(field).hashCode();
+
+      return 31 * 7 + result;
     }
 
     /**
@@ -647,10 +651,10 @@ global inherited sharing class Soqler {
   }
 
   private abstract class L extends A {
-    final Set<I> instructions;
+    private final List<I> instructions;
 
     L() {
-      instructions = new Set<I>();
+      instructions = new List<I>();
     }
 
     override String build() {
@@ -679,13 +683,28 @@ global inherited sharing class Soqler {
    *
    * @since 1.0.4
    */
-  global class LField extends L {
+  global class LField extends A {
+    private final Set<IField> instructions;
     private final Soqler query;
 
     LField(Soqler query) {
-      super();
-
+      this.instructions = new Set<IField>();
       this.query = query;
+    }
+
+    override String build() {
+      String value = '';
+      String separator = getSeparator();
+
+      for (IField instruction : instructions) {
+        String partial = ((A) instruction).build();
+
+        if (partial != null) {
+          value += partial + separator;
+        }
+      }
+
+      return value.length() > 0 ? value.removeEnd(separator) : null;
     }
 
     /**
@@ -779,6 +798,10 @@ global inherited sharing class Soqler {
       }
 
       return this;
+    }
+
+    virtual String getSeparator() {
+      return ', ';
     }
   }
 
