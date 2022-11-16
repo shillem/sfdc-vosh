@@ -1099,7 +1099,7 @@ global inherited sharing class Soqler {
    * @description It runs the dynamic SOQL currently composed.
    *
    * @return a list of the records matching the dynamic SOQL
-   * @throws Fls.AuditException if not-droppable SELECT fields were specified and are inaccessible
+   * @throws Sec.AuditException if not-droppable SELECT fields were specified and are inaccessible
    * @see #queryToString() queryToString
    * @since 1.0.4
    */
@@ -1111,7 +1111,7 @@ global inherited sharing class Soqler {
    * @description It runs the AggregateResult[] version of the dynamic SOQL currently composed.
    *
    * @return the aggregate results matching the dynamic SOQL
-   * @throws Fls.AuditException if not-droppable SELECT fields were specified and are inaccessible
+   * @throws Sec.AuditException if not-droppable SELECT fields were specified and are inaccessible
    * @see #queryToString() queryToString
    * @since 1.0.11
    */
@@ -1146,7 +1146,7 @@ global inherited sharing class Soqler {
    *
    * @return the dynamic SOQL string
    * @throws UnsupportedOperationException if the query was passed as subquery of another query
-   * @throws Fls.AuditException if not-droppable SELECT fields were specified and are inaccessible
+   * @throws Sec.AuditException if not-droppable SELECT fields were specified and are inaccessible
    * @see #query() query
    * @since 1.0.4
    */
