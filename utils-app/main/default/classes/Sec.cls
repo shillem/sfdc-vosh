@@ -63,7 +63,7 @@ global inherited sharing class Sec {
       }
 
       for (Schema.SObjectField sField : sFields) {
-        final DescribeFieldResult dfr = Describer.getInstance().getFieldDescribe(sField);
+        final Schema.DescribeFieldResult dfr = Describer.getInstance().getFieldDescribe(sField);
         final Boolean perm;
 
         switch on (aType) {
@@ -74,12 +74,16 @@ global inherited sharing class Sec {
             perm = dfr.isAccessible();
           }
           when UPDATABLE {
-            perm = NON_UPDATABLE_FIELD_NAMES.contains(dfr.getName()) || dfr.isUpdateable();
+            perm =
+              NON_UPDATABLE_FIELD_NAMES.contains(dfr.getName()) ||
+              dfr.isUpdateable() ||
+              dfr.isCalculated();
           }
           when UPSERTABLE {
             perm =
               NON_UPDATABLE_FIELD_NAMES.contains(dfr.getName()) ||
-              (dfr.isCreateable() && dfr.isUpdateable());
+              ((dfr.isCreateable() || dfr.isCalculated()) &&
+              (dfr.isUpdateable() || dfr.isCalculated()));
           }
           when else {
             throw new UnsupportedOperationException(aType.name());
@@ -99,7 +103,7 @@ global inherited sharing class Sec {
         return null;
       }
 
-      final DescribeSObjectResult dsr = Describer.getInstance().getObjectDescribe(sType);
+      final Schema.DescribeSObjectResult dsr = Describer.getInstance().getObjectDescribe(sType);
       final Boolean perm;
 
       switch on (aType) {
@@ -325,7 +329,7 @@ global inherited sharing class Sec {
 
         if (!result.isSuccess()) {
           errors.addAll(result.getErrors());
-          
+
           count++;
         }
       }
@@ -346,7 +350,7 @@ global inherited sharing class Sec {
 
         if (!result.isSuccess()) {
           errors.addAll(result.getErrors());
-          
+
           count++;
         }
       }
