@@ -100,7 +100,7 @@ global inherited sharing class Sec {
 
     private Schema.SObjectType check(Schema.SObjectType sType) {
       if (sType == null || Trigger.isExecuting) {
-        return sType;
+        return null;
       }
 
       final Schema.DescribeSObjectResult dsr = Describer.getInstance().getObjectDescribe(sType);
