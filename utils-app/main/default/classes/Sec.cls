@@ -56,9 +56,9 @@ global inherited sharing class Sec {
     }
 
     private Set<Schema.SObjectField> check(Set<Schema.SObjectField> sFields) {
-      Set<Schema.SObjectField> failures = new Set<Schema.SObjectField>();
+      final Set<Schema.SObjectField> failures = new Set<Schema.SObjectField>();
 
-      if (sFields == null || sFields.isEmpty()) {
+      if (sFields == null || sFields.isEmpty() || Trigger.isExecuting) {
         return failures;
       }
 
@@ -99,8 +99,8 @@ global inherited sharing class Sec {
     }
 
     private Schema.SObjectType check(Schema.SObjectType sType) {
-      if (sType == null) {
-        return null;
+      if (sType == null || Trigger.isExecuting) {
+        return sType;
       }
 
       final Schema.DescribeSObjectResult dsr = Describer.getInstance().getObjectDescribe(sType);
