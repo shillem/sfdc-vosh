@@ -69,11 +69,13 @@ public abstract class Chainable {
     }
   }
 
-  private Chainable previous;
+  private Integer failureCount;
   private Chainable next;
+  private Chainable previous;
   private Map<String, Object> variables;
 
   public Chainable() {
+    failureCount = 0;
     variables = new Map<String, Object>();
   }
 
@@ -121,6 +123,18 @@ public abstract class Chainable {
   protected abstract void executeSynchronously(Context context);
 
   /**
+   * @description It returns the arbitrary count
+   * of failures that have taken place during the execution.
+   *
+   * @return the current failure count
+   * @see Chainable#increaseFailureCount() increaseFailureCount
+   * @since 1.1
+   */
+  public Integer getFailureCount() {
+    return failureCount;
+  }
+
+  /**
    * @description It returns a previously set variable shared and accessible across all the
    * defined <code>Chainable</code> objects.
    *
@@ -131,6 +145,20 @@ public abstract class Chainable {
    */
   public Object getVariable(String key) {
     return variables.get(key);
+  }
+
+  /**
+   * @description It keeps track of an arbitrary count
+   * of failures taking place during the execution.
+   *
+   * @return the new failure count
+   * @see Chainable#getFailureCount() getFailureCount
+   * @since 1.1
+   */
+  public Integer increaseFailureCount() {
+    failureCount++;
+
+    return failureCount;
   }
 
   /**
