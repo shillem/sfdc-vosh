@@ -1258,7 +1258,7 @@ global inherited sharing class Soqler {
     }
 
     if (value instanceof Datetime) {
-      return C_DATE_TIME_DATE;
+      return C_DATE_TIME;
     }
 
     if (value instanceof String) {
