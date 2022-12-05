@@ -195,7 +195,8 @@ global inherited sharing class Logger {
       if (!entries.isEmpty()) {
         final Map<String, Object> payload = new Map<String, Object>{
           'count' => entries.size(),
-          'entries' => entries
+          'entries' => entries,
+          'userId' => UserInfo.getUserId()
         };
 
         EventBus.publish(new Pe_Logger__e(Payload__c = JSON.serialize(payload)));
