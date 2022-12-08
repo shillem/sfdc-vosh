@@ -412,21 +412,21 @@ global inherited sharing class Sec {
     return new AuditResult(aType, sType, null);
   }
 
-  global static DmlResponse deleteOne(SObject record, DmlRequest o) {
+  global static DmlResponse deleteOne(SObject record, DmlRequest req) {
     Utils.requireNonNull(record, 'Record cannot be null');
 
-    return deleteMany(new List<SObject>{ record }, o);
+    return deleteMany(new List<SObject>{ record }, req);
   }
 
-  global static DmlResponse deleteMany(List<SObject> records, DmlRequest o) {
+  global static DmlResponse deleteMany(List<SObject> records, DmlRequest req) {
     Utils.requireNonNull(records, 'Records cannot be null');
-    Utils.requireNonNull(o, 'Operation request cannot be null');
+    Utils.requireNonNull(req, 'Operation request cannot be null');
 
     if (records.isEmpty()) {
       return new DmlResponse(records, new List<Database.DeleteResult>());
     }
 
-    if (o.eif != null) {
+    if (req.eif != null) {
       throw new UnsupportedOperationException(
         'External Id Field can be specified only for upsert operations'
       );
@@ -435,31 +435,31 @@ global inherited sharing class Sec {
     final AuditResult aud = audit(records[0].getSObjectType(), AccessType.DELETABLE);
 
     if (!aud.isAuthorized()) {
-      if (!o.silent) {
+      if (!req.silent) {
         aud.throwExceptionIfUnauthorized();
       }
 
       return new DmlResponse(records, new List<Database.DeleteResult>());
     }
 
-    return new DmlResponse(records, Database.delete(records, o.allOrNone));
+    return new DmlResponse(records, Database.delete(records, req.allOrNone));
   }
 
-  global static DmlResponse insertOne(SObject record, DmlRequest o) {
+  global static DmlResponse insertOne(SObject record, DmlRequest req) {
     Utils.requireNonNull(record, 'Record cannot be null');
 
-    return insertMany(new List<SObject>{ record }, o);
+    return insertMany(new List<SObject>{ record }, req);
   }
 
-  global static DmlResponse insertMany(List<SObject> records, DmlRequest o) {
+  global static DmlResponse insertMany(List<SObject> records, DmlRequest req) {
     Utils.requireNonNull(records, 'Records cannot be null');
-    Utils.requireNonNull(o, 'Operation request cannot be null');
+    Utils.requireNonNull(req, 'Operation request cannot be null');
 
     if (records.isEmpty()) {
       return new DmlResponse(records, new List<Database.SaveResult>());
     }
 
-    if (o.eif != null) {
+    if (req.eif != null) {
       throw new UnsupportedOperationException(
         'External Id Field can be specified only for upsert operations'
       );
@@ -468,31 +468,31 @@ global inherited sharing class Sec {
     final AuditResult aud = audit(records[0], AccessType.CREATABLE);
 
     if (!aud.isAuthorized()) {
-      if (!o.silent) {
+      if (!req.silent) {
         aud.throwExceptionIfUnauthorized();
       }
 
       return new DmlResponse(records, new List<Database.SaveResult>());
     }
 
-    return new DmlResponse(records, Database.insert(records, o.allOrNone));
+    return new DmlResponse(records, Database.insert(records, req.allOrNone));
   }
 
-  global static DmlResponse updateOne(SObject record, DmlRequest o) {
+  global static DmlResponse updateOne(SObject record, DmlRequest req) {
     Utils.requireNonNull(record, 'Record cannot be null');
 
-    return updateMany(new List<SObject>{ record }, o);
+    return updateMany(new List<SObject>{ record }, req);
   }
 
-  global static DmlResponse updateMany(List<SObject> records, DmlRequest o) {
+  global static DmlResponse updateMany(List<SObject> records, DmlRequest req) {
     Utils.requireNonNull(records, 'Records cannot be null');
-    Utils.requireNonNull(o, 'Operation request cannot be null');
+    Utils.requireNonNull(req, 'Operation request cannot be null');
 
     if (records.isEmpty()) {
       return new DmlResponse(records, new List<Database.SaveResult>());
     }
 
-    if (o.eif != null) {
+    if (req.eif != null) {
       throw new UnsupportedOperationException(
         'External Id Field can be specified only for upsert operations'
       );
@@ -501,25 +501,25 @@ global inherited sharing class Sec {
     final AuditResult aud = audit(records[0], AccessType.UPDATABLE);
 
     if (!aud.isAuthorized()) {
-      if (!o.silent) {
+      if (!req.silent) {
         aud.throwExceptionIfUnauthorized();
       }
 
       return new DmlResponse(records, new List<Database.SaveResult>());
     }
 
-    return new DmlResponse(records, Database.update(records, o.allOrNone));
+    return new DmlResponse(records, Database.update(records, req.allOrNone));
   }
 
-  global static DmlResponse upsertOne(SObject record, DmlRequest o) {
+  global static DmlResponse upsertOne(SObject record, DmlRequest req) {
     Utils.requireNonNull(record, 'Record cannot be null');
 
-    return upsertMany(new List<SObject>{ record }, o);
+    return upsertMany(new List<SObject>{ record }, req);
   }
 
-  global static DmlResponse upsertMany(List<SObject> records, DmlRequest o) {
+  global static DmlResponse upsertMany(List<SObject> records, DmlRequest req) {
     Utils.requireNonNull(records, 'Records cannot be null');
-    Utils.requireNonNull(o, 'Operation request cannot be null');
+    Utils.requireNonNull(req, 'Operation request cannot be null');
 
     if (records.isEmpty()) {
       return new DmlResponse(records, new List<Database.UpsertResult>());
@@ -528,17 +528,17 @@ global inherited sharing class Sec {
     final AuditResult aud = audit(records[0], AccessType.UPSERTABLE);
 
     if (!aud.isAuthorized()) {
-      if (!o.silent) {
+      if (!req.silent) {
         aud.throwExceptionIfUnauthorized();
       }
 
       return new DmlResponse(records, new List<Database.UpsertResult>());
     }
 
-    if (o.eif != null) {
-      return new DmlResponse(records, Database.upsert(records, o.eif, o.allOrNone));
+    if (req.eif != null) {
+      return new DmlResponse(records, Database.upsert(records, req.eif, req.allOrNone));
     }
 
-    return new DmlResponse(records, Database.upsert(records, o.allOrNone));
+    return new DmlResponse(records, Database.upsert(records, req.allOrNone));
   }
 }
