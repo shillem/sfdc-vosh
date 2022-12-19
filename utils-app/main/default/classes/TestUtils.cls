@@ -8,7 +8,7 @@
 global class TestUtils {
   /**
    * @description
-   * 
+   *
    * @since 1.0.4
    */
   global class HttpCalloutMock implements System.HttpCalloutMock {
@@ -16,7 +16,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.0.4
      */
     global HttpCalloutMock() {
@@ -25,7 +25,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.0.4
      */
     global HttpCalloutMock addResponse(HttpResponseMock value) {
@@ -36,7 +36,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.1
      */
     global Boolean isEmpty() {
@@ -45,7 +45,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.0.4
      */
     global System.HTTPResponse respond(System.HTTPRequest req) {
@@ -63,7 +63,7 @@ global class TestUtils {
 
   /**
    * @description
-   * 
+   *
    * @since 1.0.4
    */
   global class HttpResponseMock {
@@ -75,7 +75,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.0.4
      */
     global HttpResponseMock(System.Pattern rule) {
@@ -84,7 +84,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.0.4
      */
     global HttpResponseMock(System.Pattern rule, Integer statusCode) {
@@ -95,7 +95,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.1
      */
     global Integer getInvocations() {
@@ -104,7 +104,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.0.4
      */
     global System.HTTPResponse respond() {
@@ -125,7 +125,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.0.4
      */
     global HttpResponseMock setBody(Blob value) {
@@ -136,7 +136,7 @@ global class TestUtils {
 
     /**
      * @description
-     * 
+     *
      * @since 1.0.4
      */
     global HttpResponseMock setBody(String value) {
@@ -147,40 +147,68 @@ global class TestUtils {
 
     /**
      * @description
-     * 
-     * @since 1.0.4
+     *
+     * @since 1.1
      */
-    global HttpResponseMock setStaticResourceBody(String name) {
-      return setStaticResourceBody(name, null);
-    }
+    public HttpResponseMock setBody(HttpResponseMockStaticResourceBody req) {
+      String body;
 
-    /**
-     * @description
-     * 
-     * @since 1.0.4
-     */
-    global HttpResponseMock setStaticResourceBody(String name, String key) {
-      return setStaticResourceBody(name, key, new List<String>());
-    }
+      {
+        final Soqler soql = new Soqler(Schema.StaticResource.SObjectType).setMaxCount(1);
 
-    /**
-     * @description
-     * 
-     * @since 1.0.4
-     */
-    global HttpResponseMock setStaticResourceBody(String name, String key, List<String> variables) {
-      Schema.StaticResource resource = [SELECT Body FROM StaticResource WHERE Name = :name LIMIT 1];
+        soql.fields()
+          .add(Schema.StaticResource.Body)
+          .add(Schema.StaticResource.Name)
+          .add(Schema.StaticResource.NamespacePrefix)
+          .add(Schema.StaticResource.SystemModstamp);
 
-      body = resource.Body.toString();
+        soql.wheres().addAnd(new Soqler.IWhereName(Schema.StaticResource.Name, '=', req.name));
 
-      if (key != null) {
-        body = JSON.serialize(Utils.deserializeToMapper((String) body).getObject(key));
+        final Schema.StaticResource resource = (Schema.StaticResource) soql.query()[0];
+
+        body = resource.Body.toString();
       }
 
-      for (Integer i = 0; i < variables.size(); i++) {
-        body = ((String) body).replace('{' + i + '}', variables.get(i));
+      if (req.key != null) {
+        body = JSON.serialize(Utils.deserializeToMapper(body).getObject(req.key));
       }
 
+      if (req.variables != null) {
+        for (Integer i = 0; i < req.variables.size(); i++) {
+          body = ((String) body).replace('{' + i + '}', req.variables.get(i));
+        }
+      }
+
+      this.body = body;
+
+      return this;
+    }
+  }
+
+  /**
+   * @description
+   *
+   * @since 1.1
+   */
+  public class HttpResponseMockStaticResourceBody {
+    private final String name;
+
+    private String key;
+    private List<String> variables;
+
+    public HttpResponseMockStaticResourceBody(String name) {
+      Utils.requireNonNull(name, 'Name cannot be null');
+
+      this.name = name;
+    }
+
+    public HttpResponseMockStaticResourceBody withKey(String value) {
+      key = value;
+      return this;
+    }
+
+    public HttpResponseMockStaticResourceBody withVariables(List<String> values) {
+      variables = values;
       return this;
     }
   }
@@ -644,12 +672,7 @@ global class TestUtils {
    * @since 1.1
    */
   global static Id getChatterProfileId() {
-    List<Schema.Profile> records = [
-      SELECT Id
-      FROM Profile
-      WHERE UserType = 'CsnOnly'
-      LIMIT 1
-    ];
+    List<Schema.Profile> records = [SELECT Id FROM Profile WHERE UserType = 'CsnOnly' LIMIT 1];
 
     return records[0]?.Id;
   }
