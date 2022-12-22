@@ -47,6 +47,161 @@ global class Describer {
     }
   }
 
+  global abstract class SObjectFilter {
+    private Set<String> contains;
+    private Set<String> names;
+    private String regex;
+    private Boolean regexInvert;
+    private transient System.Pattern regexPattern;
+
+    protected Boolean matchesContains(String name) {
+      if (contains == null) {
+        return null;
+      }
+
+      for (String part : contains) {
+        if (name.containsIgnoreCase(part)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    protected Boolean matchesRegex(String name) {
+      if (regex == null) {
+        return null;
+      }
+
+      if (regexPattern == null) {
+        regexPattern = System.Pattern.compile(regex);
+      }
+
+      Boolean matched = regexPattern.matcher(name).matches();
+
+      return regexInvert ? !matched : matched;
+    }
+
+    global void setContains(Set<String> values) {
+      contains = values;
+    }
+
+    global void setNames(Set<String> values) {
+      names = values;
+    }
+
+    global void setRegex(String value) {
+      setRegex(value, false);
+    }
+
+    global void setRegex(String value, Boolean invert) {
+      regex = value;
+
+      regexInvert = Utils.optBooleanOrElse(invert, false);
+    }
+  }
+
+  /**
+   * @description //TODO
+   *
+   * @since 1.1
+   */
+  global class SObjectFieldFilter extends SObjectFilter {
+    private String objectName;
+    private String type;
+
+    global void setObjectName(String value) {
+      objectName = value;
+    }
+
+    global void setType(String value) {
+      type = value;
+    }
+
+    global Boolean matches(Schema.SObjectField field, Describer describ) {
+      final String name = String.valueOf(field);
+
+      // 1st in evaluation order
+      if (names != null && !names.contains(name)) {
+        return false;
+      }
+
+      // 2nd in evaluation order
+      final Boolean containsResult = matchesContains(name);
+
+      if (containsResult != null && !containsResult) {
+        return false;
+      }
+
+      // 3rd in evaluation order
+      final Boolean regexResult = matchesRegex(name);
+
+      if (regexResult != null && !regexResult) {
+        return false;
+      }
+
+      // 4th in evaluation order
+      if (
+        type != null && !type.equalsIgnoreCase(describ.getFieldDescribe(field).getType().name())
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+  }
+
+  /**
+   * @description //TODO
+   *
+   * @since 1.1
+   */
+  global class SObjectTypeFilter extends SObjectFilter {
+    private Boolean customSettings;
+
+    global Boolean matches(Schema.SObjectType type, Describer describ) {
+      final String name = String.valueOf(type);
+
+      if (name.endsWith('ChangeEvent') || name.endsWith('Share')) {
+        return false;
+      }
+
+      // 1st in evaluation order
+      if (customSettings != null) {
+        Boolean isCustomSetting = describ.getObjectDescribe(type).isCustomSetting();
+
+        if ((customSettings && !isCustomSetting) || (!customSettings && isCustomSetting)) {
+          return false;
+        }
+      }
+
+      // 2nd in evaluation order
+      if (names != null && !names.contains(name)) {
+        return false;
+      }
+
+      // 3rd in evaluation order
+      final Boolean containsResult = matchesContains(name);
+
+      if (containsResult != null && !containsResult) {
+        return false;
+      }
+
+      // 4th in evaluation order
+      final Boolean regexResult = matchesRegex(name);
+
+      if (regexResult != null && !regexResult) {
+        return false;
+      }
+
+      return true;
+    }
+
+    global void setCustomSettings(Boolean flag) {
+      customSettings = flag;
+    }
+  }
+
   private static Map<Id, Describer> instances;
 
   private Map<String, Schema.SObjectType> globalDescriber;
@@ -264,6 +419,59 @@ global class Describer {
     return getInstance()
       .getObjectFieldMap(Schema.Account.SObjectType)
       .containsKey('IsPersonAccount');
+  }
+
+  /**
+   * @description It allows to query for and return any <code>SObjectField</code>
+   * that matches the passed filter.
+   *
+   * @param filter the filter, not null
+   * @return the list of matching fields
+   * @throws System.IllegalArgumentException if <code>SObjectType</code> could not be found
+   * @since 1.1
+   */
+  global List<Schema.SObjectField> querySObjectFields(SObjectFieldFilter filter) {
+    Utils.requireNonNull(filter, 'Filter name cannot be null');
+    Utils.requireNonNull(filter.objectName, 'Filter object name cannot be null');
+
+    final Schema.SObjectType type = getGlobal().get(filter.objectName);
+
+    if (type == null) {
+      throw new System.IllegalArgumentException('Could not find SObject ' + filter.objectName);
+    }
+
+    final List<Schema.SObjectField> results = new List<Schema.SObjectField>();
+
+    for (Schema.SObjectField field : getObjectFieldMap(type).values()) {
+      if (filter.matches(field, this)) {
+        results.add(field);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * @description It allows to query for and return any <code>SObjectType</code>
+   * that matches the passed filter.
+   *
+   * @param filter the filter, not null
+   * @return the list of matching types
+   * @since 1.1
+   */
+  global List<Schema.SObjectType> querySObjectTypes(SObjectTypeFilter filter) {
+    Utils.requireNonNull(filter, 'Filter name cannot be null');
+    
+    final Map<String, Schema.SObjectType> types = getGlobal();
+    final List<Schema.SObjectType> results = new List<Schema.SObjectType>();
+
+    for (Schema.SObjectType type : types.values()) {
+      if (filter.matches(type, this)) {
+        results.add(type);
+      }
+    }
+
+    return results;
   }
 
   /**

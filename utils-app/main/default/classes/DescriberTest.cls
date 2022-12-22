@@ -57,6 +57,123 @@ public class DescriberTest {
   }
 
   @isTest
+  static void querySObjectField() {
+    final Describer describ = Describer.getInstance();
+    final String objectName = String.valueOf(Schema.Account.SObjectType);
+
+    // Include all
+    {
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
+      filter.setObjectName(objectName);
+
+      System.assert(
+        !describ.querySObjectFields(filter).isEmpty(),
+        'It should have returned a list of the fields for ' + objectName
+      );
+    }
+
+    // Include only those that contain
+    {
+      final Schema.SObjectField field = Schema.Account.Name;
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
+      filter.setObjectName(objectName);
+      filter.setContains(new Set<String>{ String.valueOf(field).substring(3) });
+
+      System.assert(
+        describ.querySObjectFields(filter).contains(field),
+        'It should have contained ' + field
+      );
+    }
+
+    // Include only those that contain
+    {
+      final Schema.SObjectField field = Schema.Account.OwnerId;
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
+      filter.setObjectName(objectName);
+      filter.setType(Schema.DisplayType.REFERENCE.name());
+
+      System.assert(
+        describ.querySObjectFields(filter).contains(field),
+        'It should have contained ' + field
+      );
+    }
+
+    // Include only those that match regex
+    {
+      final Schema.SObjectField field = Schema.Account.OwnerId;
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
+      filter.setObjectName(objectName);
+      filter.setRegex('^Own.+Id');
+
+      System.assert(
+        describ.querySObjectFields(filter).contains(field),
+        'It should have contained ' + field
+      );
+
+      filter.setRegex('^Own.+Id', true);
+
+      System.assert(
+        !describ.querySObjectFields(filter).contains(field),
+        'It should not have contained ' + field
+      );
+    }
+  }
+
+  @isTest
+  static void queryObjectType() {
+    final Describer describ = Describer.getInstance();
+
+    // Include all
+    {
+      final Schema.SObjectType type = Schema.Account.SObjectType;
+      final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
+      final List<Schema.SObjectType> results = describ.querySObjectTypes(filter);
+
+      System.assert(!results.isEmpty(), 'It should have returned a list of the org SObject types');
+      System.assert(results.contains(type), 'It should have contained ' + type);
+    }
+
+    // Include only with specific names
+    {
+      final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
+      filter.setNames(new Set<String>{ String.valueOf(Schema.Account.SObjectType) });
+
+      System.assertEquals(1, describ.querySObjectTypes(filter).size());
+    }
+
+    // Include only those that contain
+    {
+      final Schema.SObjectType type = Schema.Account.SObjectType;
+      final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
+      filter.setContains(new Set<String>{ String.valueOf(type).substring(3) });
+
+      System.assert(
+        describ.querySObjectTypes(filter).contains(type),
+        'It should have contained ' + type
+      );
+    }
+
+    // Include only those that match regex
+    {
+      final Schema.SObjectType type = Schema.Account.SObjectType;
+      final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
+      filter.setRegex('^Acc.+');
+
+      System.assert(
+        describ.querySObjectTypes(filter).contains(type),
+        'It should have contained ' + type
+      );
+
+      filter.setRegex('^Acc.+', true);
+
+      System.assert(
+        !describ.querySObjectTypes(filter).contains(type),
+        'It should not have contained ' + type
+      );
+    }
+  }
+
+  @isTest
   static void relatedObject() {
     Schema.Account acct = (Schema.Account) new TestUtils.AccountMaker()
       .setName('Dummy')

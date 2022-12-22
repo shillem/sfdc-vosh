@@ -86,6 +86,25 @@ public class LoggerTest implements Logger.AllowFlushes {
     System.assert(((String) entries[2].v).contains('SELECT'));
   }
 
+  public static Schema.Cs_Logger__c createDefaultProfile() {
+    return createProfile(new List<System.Type>{ Logger.ConsoleAppender.class });
+  }
+
+  public static Schema.Cs_Logger__c createProfile(List<System.Type> types) {
+    final List<String> names = new List<String>();
+
+    for (System.Type t : types) {
+      names.add(t.getName());
+    }
+
+    return new Schema.Cs_Logger__c(
+      Appenders__c = String.join(names, ','),
+      Name = 'LoggerTest',
+      Namespaces__c = Pkg.getInstance().getNamespace(),
+      Threshold__c = 'FINE'
+    );
+  }
+
   @isTest
   static void fineAndDiscarded() {
     insert new List<Schema.Cs_Logger__c>{
