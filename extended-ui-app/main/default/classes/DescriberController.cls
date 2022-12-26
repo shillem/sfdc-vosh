@@ -9,10 +9,10 @@ global inherited sharing class DescriberController {
         Describer.SObjectFieldFilter.class
       );
 
-      final List<String> results = new List<String>();
+      final List<UI.ListboxItem> results = new List<UI.ListboxItem>();
 
       for (Schema.SObjectField f : Describer.getInstance().querySObjectFields(filter)) {
-        results.add(String.valueOf(f));
+        results.add(new UI.ListboxItem(String.valueOf(f)));
       }
 
       results.sort();
@@ -33,10 +33,10 @@ global inherited sharing class DescriberController {
         Describer.SObjectTypeFilter.class
       );
 
-      final List<String> results = new List<String>();
+      final List<UI.ListboxItem> results = new List<UI.ListboxItem>();
 
       for (Schema.SObjectType t : Describer.getInstance().querySObjectTypes(filter)) {
-        results.add(String.valueOf(t));
+        results.add(new UI.ListboxItem(String.valueOf(t)));
       }
 
       results.sort();
