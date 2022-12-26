@@ -2,6 +2,7 @@ import { api, LightningElement } from "lwc";
 
 export default class AutocompleteCombobox extends LightningElement {
   @api delay = 500;
+  @api disabled = false;
   @api fieldLevelHelp;
   @api label;
   @api length = 5;
@@ -23,6 +24,13 @@ export default class AutocompleteCombobox extends LightningElement {
   validation = true;
   validationCustomMessage;
   validationMessage;
+
+  get comboboxClass() {
+    return (
+      "slds-input slds-combobox__input slds-combobox__input-value" +
+      (this.disabled ? " slds-is-disabled" : "")
+    );
+  }
 
   get comboboxIcon() {
     return this.empty ? "utility:down" : "utility:close";
@@ -84,30 +92,7 @@ export default class AutocompleteCombobox extends LightningElement {
   }
 
   set value(val) {
-    this._value = val;
-
-    const findValueOn = (token, values) => {
-      const match = values.find((element) => element.value === token);
-
-      if (!match) {
-        return false;
-      }
-
-      this.selection = match;
-
-      return true;
-    };
-
-    if (
-      findValueOn(val, this.results) ||
-      (Array.isArray(this._options) && findValueOn(val, this._options))
-    ) {
-      return;
-    }
-
-    this.selection = {
-      label: val
-    };
+    this.selectValue(val);
   }
 
   @api get validity() {
@@ -133,11 +118,12 @@ export default class AutocompleteCombobox extends LightningElement {
 
     event.preventDefault();
 
+    this.selectValue("");
     this.fireValueChange("");
   }
 
   handleComboboxFocus(event) {
-    if (!this.empty && event.target.classList.contains("slds-input__icon")) {
+    if (this.disabled || (!this.empty && event.target.classList.contains("slds-input__icon"))) {
       return;
     }
 
@@ -189,13 +175,16 @@ export default class AutocompleteCombobox extends LightningElement {
 
     event.stopPropagation();
 
-    this.fireValueChange(event.currentTarget.dataset.value);
+    const value = event.currentTarget.dataset.value;
+
+    if (value !== this.value) {
+      this.selectValue(value);
+      this.fireValueChange(value);
+    }
   }
 
   fireValueChange(value) {
-    if (value !== this.value) {
-      this.dispatchEvent(new CustomEvent("change", { detail: { value } }));
-    }
+    this.dispatchEvent(new CustomEvent("change", { detail: { value } }));
   }
 
   lookup(term, force = false) {
@@ -257,8 +246,6 @@ export default class AutocompleteCombobox extends LightningElement {
                   value: "NA"
                 });
 
-                message.message = true;
-
                 dressed.push(message);
               }
 
@@ -294,6 +281,33 @@ export default class AutocompleteCombobox extends LightningElement {
     input.setAttribute("aria-controls", listbox.id);
 
     this.hasRendered = true;
+  }
+
+  selectValue(val) {
+    this._value = val;
+
+    const findValueOn = (token, values) => {
+      const match = values.find((element) => element.value === token);
+
+      if (!match) {
+        return false;
+      }
+
+      this.selection = match;
+
+      return true;
+    };
+
+    if (
+      findValueOn(val, this.results) ||
+      (Array.isArray(this._options) && findValueOn(val, this._options))
+    ) {
+      return;
+    }
+
+    this.selection = {
+      label: val
+    };
   }
 
   @api reportValidity() {

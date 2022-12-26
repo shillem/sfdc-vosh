@@ -15,7 +15,8 @@
         >
           <div
             aria-autocomplete="list"
-            class="slds-input slds-combobox__input slds-combobox__input-value"
+            aria-disabled={disabled}
+            class={comboboxClass}
             id="combobox"
             onclick={handleComboboxFocus}
           >
@@ -27,6 +28,7 @@
             </div>
           </div>
           <div
+            if:false={disabled}
             class="slds-input__icon-group slds-input__icon-group_right"
             onclick={handleComboboxIconClick}
           >
@@ -85,7 +87,6 @@
               <li key={result.value} role="presentation" class="slds-listbox__item">
                 <div
                   aria-disabled={result.disabled}
-                  aria-message={result.message}
                   aria-selected={result.selected}
                   class={result.containerClass}
                   data-value={result.value}

@@ -29,7 +29,7 @@ div.slds-input {
   background-color: initial;
 }
 
-.slds-listbox__option[aria-disabled="true"].slds-listbox__option[aria-message="true"] {
+.slds-listbox__option[aria-disabled="true"] {
   color: var(--lwc-colorTextDefault, rgb(8, 7, 7));
 }
 
