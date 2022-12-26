@@ -10,6 +10,7 @@
   >https://github.com/pmd/pmd/blob/master/pmd-apex/src/main/resources/rulesets/apex/quickstart.xml</description>
 
   <rule ref="rulesets/apex/quickstart.xml">
+    <exclude name="ApexDoc" />
     <exclude name="OneDeclarationPerLine" />
   </rule>
 
