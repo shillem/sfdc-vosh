@@ -107,8 +107,22 @@ global class Describer {
    * @since 1.1
    */
   global class SObjectFieldFilter extends SObjectFilter {
+    private Boolean editable;
     private String objectName;
+    private List<String> families;
     private String type;
+
+    global void setEditable(Boolean value) {
+      editable = value;
+    }
+
+    global void setFamily(String value) {
+      setFamilies(new List<String>{ value });
+    }
+
+    global void setFamilies(List<String> value) {
+      families = value;
+    }
 
     global void setObjectName(String value) {
       objectName = value;
@@ -140,10 +154,23 @@ global class Describer {
         return false;
       }
 
-      // 4th in evaluation order
-      if (
-        type != null && !type.equalsIgnoreCase(describ.getFieldDescribe(field).getType().name())
-      ) {
+      final Schema.DescribeFieldResult result = describ.getFieldDescribe(field);
+
+      if (editable != null) {
+        if ((editable && result.isCalculated()) || (!editable && !result.isCalculated())) {
+          return false;
+        }
+      }
+
+      final Schema.DisplayType dt = result.getType();
+
+      // 5th in evaluation order
+      if (type != null && !type.equalsIgnoreCase(dt.name())) {
+        return false;
+      }
+
+      // 6th in evaluation order
+      if (families != null && !families.contains(getDisplayFamily(dt).name())) {
         return false;
       }
 
@@ -461,7 +488,7 @@ global class Describer {
    */
   global List<Schema.SObjectType> querySObjectTypes(SObjectTypeFilter filter) {
     Utils.requireNonNull(filter, 'Filter name cannot be null');
-    
+
     final Map<String, Schema.SObjectType> types = getGlobal();
     final List<Schema.SObjectType> results = new List<Schema.SObjectType>();
 

@@ -117,6 +117,19 @@ public class DescriberTest {
         'It should not have contained ' + field
       );
     }
+
+    // Include only by family name
+    {
+      final Schema.SObjectField field = Schema.Account.NumberOfEmployees;
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
+      filter.setObjectName(objectName);
+      filter.setFamily('NUM');
+
+      System.assert(
+        describ.querySObjectFields(filter).contains(field),
+        'It should have contained ' + field
+      );
+    }
   }
 
   @isTest
