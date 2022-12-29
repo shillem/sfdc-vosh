@@ -187,6 +187,7 @@ public inherited sharing class Jobber {
 
     soql.fields()
       .add(new Soqler.IFieldName('CronJobDetail', Schema.CronJobDetail.Name))
+      .add(Schema.CronTrigger.CreatedById)
       .add(Schema.CronTrigger.NextFireTime)
       .add(Schema.CronTrigger.PreviousFireTime)
       .add(Schema.CronTrigger.State);
