@@ -9,6 +9,7 @@ global inherited sharing class Ins {
 
   private Boolean sandbox;
 
+  @SuppressWarnings('PMD.EmptyStatementBlock')
   private Ins() {
   }
 

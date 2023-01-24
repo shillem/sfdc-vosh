@@ -3,7 +3,8 @@
  *
  * @since 1.1
  */
-global inherited sharing class Collections {
+@SuppressWarnings('PMD.AvoidGlobalModifier')
+ global inherited sharing class Collections {
   /**
    * @description It returns a flattened list of the list of lists passed
    *

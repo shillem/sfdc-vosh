@@ -4,7 +4,8 @@
  *
  * @since 1.1
  */
-global inherited sharing class Sec {
+@SuppressWarnings('PMD.AvoidGlobalModifier')
+ global inherited sharing class Sec {
   global enum AccessType {
     CREATABLE,
     DELETABLE,
@@ -180,6 +181,7 @@ global inherited sharing class Sec {
     }
   }
 
+  @SuppressWarnings('PMD.CyclomaticComplexity')
   global class DmlResponse {
     private final List<Object> results;
     private final List<SObject> submitted;

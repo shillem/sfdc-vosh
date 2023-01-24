@@ -11,6 +11,7 @@
 
   <rule ref="rulesets/apex/quickstart.xml">
     <exclude name="ApexDoc" />
+    <exclude name="ApexUnitTestClassShouldHaveRunAs" />
     <exclude name="OneDeclarationPerLine" />
   </rule>
 
