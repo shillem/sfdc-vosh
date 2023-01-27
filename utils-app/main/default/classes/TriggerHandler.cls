@@ -145,38 +145,38 @@ global inherited sharing class TriggerHandler {
 
       switch on (operation) {
         when BEFORE_INSERT {
-          for (SObject record : Trigger.new) {
-            beforeInsert(record);
+          for (Integer i = 0, size = Trigger.new.size(); i < size; i++) {
+            beforeInsert(Trigger.new[i]);
           }
         }
         when BEFORE_UPDATE {
-          for (SObject record : Trigger.old) {
-            beforeUpdate(record, Trigger.newMap.get(record.Id));
+          for (Integer i = 0, size = Trigger.old.size(); i < size; i++) {
+            beforeUpdate(Trigger.old[i], Trigger.new[i]);
           }
         }
         when BEFORE_DELETE {
-          for (SObject record : Trigger.old) {
-            beforeDelete(record);
+          for (Integer i = 0, size = Trigger.old.size(); i < size; i++) {
+            beforeDelete(Trigger.old[i]);
           }
         }
         when AFTER_INSERT {
-          for (SObject record : Trigger.new) {
-            afterInsert(record);
+          for (Integer i = 0, size = Trigger.new.size(); i < size; i++) {
+            afterInsert(Trigger.new[i]);
           }
         }
         when AFTER_UPDATE {
-          for (SObject record : Trigger.old) {
-            afterUpdate(record, Trigger.newMap.get(record.Id));
+          for (Integer i = 0, size = Trigger.old.size(); i < size; i++) {
+            afterUpdate(Trigger.old[i], Trigger.new[i]);
           }
         }
         when AFTER_DELETE {
-          for (SObject record : Trigger.old) {
-            afterDelete(record);
+          for (Integer i = 0, size = Trigger.old.size(); i < size; i++) {
+            afterDelete(Trigger.old[i]);
           }
         }
         when AFTER_UNDELETE {
-          for (SObject record : Trigger.new) {
-            afterUndelete(record);
+          for (Integer i = 0, size = Trigger.new.size(); i < size; i++) {
+            afterUndelete(Trigger.new[i]);
           }
         }
       }
@@ -511,9 +511,7 @@ global inherited sharing class TriggerHandler {
 
       if (!Routine.class.isAssignableFrom(t)) {
         throw new UnsupportedOperationException(
-          'Cannot enable ' +
-          name +
-          ' because it does not extend vosh.TriggerHandler.Routine class'
+          'Cannot enable ' + name + ' because it does not extend vosh.TriggerHandler.Routine class'
         );
       }
 
