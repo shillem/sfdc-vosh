@@ -48,9 +48,7 @@ public class SoqlerTest {
   static void duplicateFieldAvoidance() {
     final Soqler query = new Soqler(Schema.Account.SObjectType);
 
-    query.fields()
-      .add(Schema.Account.Name)
-      .add(Schema.Account.Name);
+    query.fields().add(Schema.Account.Name).add(Schema.Account.Name);
 
     System.assertEquals('SELECT Name FROM Account', query.queryToString());
   }
@@ -264,9 +262,9 @@ public class SoqlerTest {
 
     System.assertEquals(
       'SELECT Name, toLabel(Type), Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account' +
-      ' WHERE Id NOT IN (\'FAKE_ID\')' +
-      ' AND Owner.Name != \'Test Test\'' +
-      ' AND Id IN (SELECT AccountId FROM Contact)',
+        ' WHERE Id NOT IN (\'FAKE_ID\')' +
+        ' AND Owner.Name != \'Test Test\'' +
+        ' AND Id IN (SELECT AccountId FROM Contact)',
       query.queryToString()
     );
 
@@ -287,11 +285,11 @@ public class SoqlerTest {
 
     System.assertEquals(
       'SELECT Id FROM Account' +
-      ' WHERE DAY_ONLY(CreatedDate) > 2018-01-01' +
-      ' AND NumberOfEmployees > 10' +
-      ' AND (DISTANCE(BillingAddress, GEOLOCATION(45.0, 11.0), \'km\') < 10.0' +
-      ' OR BillingCity = \'Vicenza\')' +
-      ' AND Type IN :accountTypes',
+        ' WHERE DAY_ONLY(CreatedDate) > 2018-01-01' +
+        ' AND NumberOfEmployees > 10' +
+        ' AND (DISTANCE(BillingAddress, GEOLOCATION(45.0, 11.0), \'km\') < 10.0' +
+        ' OR BillingCity = \'Vicenza\')' +
+        ' AND Type IN :accountTypes',
       query.queryToString()
     );
 
@@ -310,12 +308,12 @@ public class SoqlerTest {
 
     System.assertEquals(
       'SELECT Id FROM Account' +
-      ' ORDER BY DISTANCE(BillingAddress, GEOLOCATION(45.0, 11.0), \'km\')' +
-      ', Name' +
-      ', Owner.Name' +
-      ', Phone DESC NULLS LAST' +
-      ' LIMIT 1000' +
-      ' OFFSET 90',
+        ' ORDER BY DISTANCE(BillingAddress, GEOLOCATION(45.0, 11.0), \'km\')' +
+        ', Name' +
+        ', Owner.Name' +
+        ', Phone DESC NULLS LAST' +
+        ' LIMIT 1000' +
+        ' OFFSET 90',
       query.queryToString()
     );
 
@@ -347,9 +345,9 @@ public class SoqlerTest {
 
     System.assertEquals(
       'SELECT Id,' +
-      ' TYPEOF What WHEN Account THEN Phone WHEN Opportunity THEN Amount ELSE Id END' +
-      ' FROM Event' +
-      ' WHERE What.Type IN (\'Account\', \'Opportunity\')',
+        ' TYPEOF What WHEN Account THEN Phone WHEN Opportunity THEN Amount ELSE Id END' +
+        ' FROM Event' +
+        ' WHERE What.Type IN (\'Account\', \'Opportunity\')',
       query.queryToString()
     );
 
@@ -357,14 +355,26 @@ public class SoqlerTest {
     query = new Soqler(Schema.Event.SObjectType);
     query.fields()
       .add(Schema.Event.Subject)
-      .add(new Soqler.IFieldName(Schema.Event.CreatedDate).withFunction('AVG(CALENDAR_YEAR({0})'));
+      .add(new Soqler.IFieldName(Schema.Event.CreatedDate).withFunction('AVG(CALENDAR_YEAR({0}))'));
     query.groups().add(new Soqler.IGroupName('Owner', Schema.User.Name));
 
     System.assertEquals(
       'SELECT Subject,' +
-      ' AVG(CALENDAR_YEAR(CreatedDate)' +
-      ' FROM Event' +
-      ' GROUP BY Owner.Name',
+        ' AVG(CALENDAR_YEAR(CreatedDate))' +
+        ' FROM Event' +
+        ' GROUP BY Owner.Name',
+      query.queryToString()
+    );
+
+    // Composing Aggregates
+    query = new Soqler(Schema.Contact.SObjectType);
+    query.fields().add(Schema.Contact.AccountId);
+    query.groups().add(new Soqler.IGroupName(Schema.Contact.AccountId));
+    query.havings()
+      .addAnd(new Soqler.IWhereName(Schema.Contact.AccountId, '>', 5).withFunction('COUNT({0})'));
+
+    System.assertEquals(
+      'SELECT AccountId FROM Contact GROUP BY AccountId HAVING COUNT(AccountId) > 5',
       query.queryToString()
     );
   }

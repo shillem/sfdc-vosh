@@ -985,6 +985,7 @@ global inherited sharing class Soqler {
   private LWhere whrs;
   private LOrder ords;
   private LGroup grps;
+  private LWhere hvgs;
   private Integer maxCount;
   private Integer offset;
 
@@ -1007,15 +1008,17 @@ global inherited sharing class Soqler {
     final String fb = flds.build();
     final String wb = whrs != null ? whrs.build() : null;
     final String gb = grps != null ? grps.build() : null;
+    final String hv = hvgs != null ? hvgs.build() : null;
     final String ob = ords != null ? ords.build() : null;
 
     return String.format(
-      'SELECT {0} FROM {1}{2}{3}{4}{5}{6}',
+      'SELECT {0} FROM {1}{2}{3}{4}{5}{6}{7}',
       new List<String>{
         fb,
         (subquery != null ? subquery : String.valueOf(type)),
         wb == null ? '' : ' WHERE ' + wb,
         gb == null ? '' : ' GROUP BY ' + gb,
+        hv == null ? '' : ' HAVING ' + hv,
         ob == null ? '' : ' ORDER BY ' + ob,
         maxCount == null ? '' : ' LIMIT ' + maxCount,
         offset == null ? '' : ' OFFSET ' + offset
@@ -1056,6 +1059,21 @@ global inherited sharing class Soqler {
     }
 
     return grps;
+  }
+
+  /**
+   * @description It returns the instruction list that will compose the HAVING part of the query.
+   *
+   * @return the having instruction list
+   * @see Soqler.LWhere
+   * @since 1.1
+   */
+  global LWhere havings() {
+    if (hvgs == null) {
+      hvgs = new LWhere();
+    }
+
+    return hvgs;
   }
 
   /**
