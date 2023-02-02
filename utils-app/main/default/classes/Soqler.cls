@@ -121,7 +121,7 @@ global inherited sharing class Soqler {
     }
 
     override String build() {
-      Sec.AuditResult res = Sec.audit(field, Sec.AccessType.READABLE);
+      final Sec.AuditResult res = Sec.audit(field, Sec.AccessType.READABLE);
 
       if (!res.isAuthorized()) {
         if (droppable) {
@@ -131,7 +131,7 @@ global inherited sharing class Soqler {
         res.throwExceptionIfUnauthorized();
       }
 
-      String value = super.build();
+      final String value = super.build();
 
       if (fn != null) {
         return String.format(fn, new List<String>{ value });
@@ -144,7 +144,7 @@ global inherited sharing class Soqler {
       if (value instanceof IFieldName) {
         return field == ((IFieldName) value).field;
       }
-  
+
       return false;
     }
 
@@ -357,6 +357,8 @@ global inherited sharing class Soqler {
   global class IOrderName extends F implements IOrder {
     private final OrderType ot;
 
+    private String fn;
+
     global IOrderName(Schema.SObjectField field) {
       this(field, OrderType.ASCENDING_NULLS_FIRST);
     }
@@ -378,7 +380,11 @@ global inherited sharing class Soqler {
     }
 
     override String build() {
-      return super.build() + orderTypeToString();
+      final String name = fn != null
+        ? String.format(fn, new List<String>{ super.build() })
+        : super.build();
+
+      return name + orderTypeToString();
     }
 
     private String orderTypeToString() {
@@ -395,6 +401,27 @@ global inherited sharing class Soqler {
       }
 
       return '';
+    }
+
+    /**
+     * @description It wraps the <code>Schema.SObjectField</code> with a function.
+     * <p>
+     * Used to return aggregate results the function must be specified
+     * with proper syntax by making use of the parameter {0} (eg. 'COUNT({0})').
+     *
+     * @param value the function
+     * @return this FIELD instance
+     * @throws UnsupportedOperationException if the function syntax is invalid
+     * @since 1.1
+     */
+    global IOrderName withFunction(String value) {
+      if (value != null && !value.contains('{0}')) {
+        throwUnsupported('Function must contain \'{0}\' token for replacement');
+      }
+
+      fn = value;
+
+      return this;
     }
   }
 
@@ -506,9 +533,9 @@ global inherited sharing class Soqler {
           if (!(value instanceof List<Object>)) {
             throwUnsupported(
               'Either ' +
-              this.co +
-              ' is not a valid comparison operator or,' +
-              ' if the provided value was a Set<?>, it must be wrapped with List<?>'
+                this.co +
+                ' is not a valid comparison operator or,' +
+                ' if the provided value was a Set<?>, it must be wrapped with List<?>'
             );
           } else if (((List<Object>) value).isEmpty()) {
             throwUnsupported('There must be at least one value for ' + field);
@@ -528,8 +555,8 @@ global inherited sharing class Soqler {
     }
 
     override String build() {
-      Converter cvt;
-      String stringValue;
+      final Converter cvt;
+      final String stringValue;
 
       if (value instanceof List<Object>) {
         List<Object> values = (List<Object>) value;
@@ -540,7 +567,7 @@ global inherited sharing class Soqler {
         stringValue = cvt.convertValue(value);
       }
 
-      String name = fn != null
+      final String name = fn != null
         ? String.format(fn, new List<String>{ super.build() })
         : cvt.convertName(super.build());
 

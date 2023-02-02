@@ -372,9 +372,15 @@ public class SoqlerTest {
     query.groups().add(new Soqler.IGroupName(Schema.Contact.AccountId));
     query.havings()
       .addAnd(new Soqler.IWhereName(Schema.Contact.AccountId, '>', 5).withFunction('COUNT({0})'));
+    query.orders()
+      .add(new Soqler.IOrderName(Schema.Contact.AccountId).withFunction('COUNT({0})'));
 
     System.assertEquals(
-      'SELECT AccountId FROM Contact GROUP BY AccountId HAVING COUNT(AccountId) > 5',
+      'SELECT AccountId' +
+      ' FROM Contact' + 
+      ' GROUP BY AccountId' + 
+      ' HAVING COUNT(AccountId) > 5' +
+      ' ORDER BY COUNT(AccountId)',
       query.queryToString()
     );
   }
