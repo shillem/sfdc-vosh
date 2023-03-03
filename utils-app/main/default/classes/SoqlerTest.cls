@@ -258,7 +258,7 @@ public class SoqlerTest {
     query.wheres()
       .addAnd(new Soqler.IWhereName(Schema.Account.Id, 'NOT IN', new List<String>{ 'FAKE_ID' }))
       .addAnd(new Soqler.IWhereName('Owner', Schema.Contact.Name, '!=', 'Test Test'))
-      .addAnd(Schema.Account.Id, subquery);
+      .addAnd(Schema.Account.Id, 'IN', subquery);
 
     System.assertEquals(
       'SELECT Name, toLabel(Type), Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account' +

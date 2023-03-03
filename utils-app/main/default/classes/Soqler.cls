@@ -597,20 +597,29 @@ global inherited sharing class Soqler {
   }
 
   private class IWhereQuery extends F implements IWhere {
+    private final String co;
     private final Soqler instance;
 
-    IWhereQuery(Schema.SObjectField field, Soqler query) {
-      this(null, field, query);
+    IWhereQuery(Schema.SObjectField field, String co, Soqler query) {
+      this(null, field, co, query);
     }
 
-    IWhereQuery(String crossReference, Schema.SObjectField field, Soqler query) {
+    IWhereQuery(String crossReference, Schema.SObjectField field, String co, Soqler query) {
       super(crossReference, field);
+
+      requireNonNull(co, 'Comparison operator cannot be null');
+
+      this.co = co.trim();
+
+      if (!(this.co.equals('IN') || this.co.equals('NOT IN'))) {
+        throwUnsupported(this.co + ' comparison operator is not supported');
+      }
 
       instance = query.setAsSubquery(null);
     }
 
     override String build() {
-      return super.build() + ' IN (' + instance.build() + ')';
+      return super.build() + ' ' + co + ' (' + instance.build() + ')';
     }
   }
 
@@ -955,12 +964,13 @@ global inherited sharing class Soqler {
      * using the AND operator to concatenate the previous instruction if present.
      *
      * @param field the field the subquery to be run against, not null
+     * @param co the comparison operator, not null
      * @param subquery the query, not null
      * @see Soqler.IWhereQuery
-     * @since 1.0.4
+     * @since 1.1
      */
-    global LWhere addAnd(Schema.SObjectField field, Soqler subquery) {
-      return addAnd(new IWhereQuery(field, subquery));
+    global LWhere addAnd(Schema.SObjectField field, String co, Soqler subquery) {
+      return addAnd(new IWhereQuery(field, co, subquery));
     }
 
     /**
@@ -980,12 +990,13 @@ global inherited sharing class Soqler {
      * using the OR operator to concatenate the previous instruction if present.
      *
      * @param field the field the subquery to be run against, not null
+     * @param co the comparison operator, not null
      * @param subquery the query, not null
      * @see Soqler.IWhereQuery
-     * @since 1.0.4
+     * @since 1.1
      */
-    global LWhere addOr(Schema.SObjectField field, Soqler subquery) {
-      return addOr(new IWhereQuery(field, subquery));
+    global LWhere addOr(Schema.SObjectField field, String co, Soqler subquery) {
+      return addOr(new IWhereQuery(field, co, subquery));
     }
 
     override String getSeparator() {
