@@ -1,6 +1,34 @@
 global inherited sharing class DescriberController {
   private static final Logger.Instance LOG = Logger.getInstance(DescriberController.class);
 
+  global class SObjectDescriptorQuery {
+    global String type;
+  }
+
+  @AuraEnabled(cacheable=true)
+  global static String getSObjectDescriptor(String query) {
+    try {
+      final SObjectDescriptorQuery q = (SObjectDescriptorQuery) JSON.deserialize(
+        Utils.optStringOrElse(query, '{}'),
+        SObjectDescriptorQuery.class
+      );
+
+      Utils.requireNonNull(q.type, 'Type cannot be null');
+
+      final Schema.SObjectType type = Describer.getInstance().getGlobal().get(q.type);
+
+      if (type == null) {
+        throw new IllegalArgumentException('SObjectType ' + q.type + ' does not exist');
+      }
+
+      return JSON.serialize(new UI.SObjectDescriptor(type), true);
+    } catch (System.Exception e) {
+      LOG.error('getSObjectDescriptor()', e);
+
+      throw new AuraHandledException(e.getMessage());
+    }
+  }
+
   @AuraEnabled(cacheable=true)
   global static String getSObjectFields(String query) {
     try {

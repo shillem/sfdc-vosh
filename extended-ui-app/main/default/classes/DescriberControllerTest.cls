@@ -1,6 +1,21 @@
 @isTest(isParallel=true)
 public class DescriberControllerTest {
   @isTest
+  static void getSObjectDescriptor() {
+    insert LoggerTest.createDefaultProfile();
+
+    final DescriberController.SObjectDescriptorQuery query = new DescriberController.SObjectDescriptorQuery();
+    query.type = String.valueOf(Schema.Account.SObjectType);
+
+    final Utils.Mapper mapper = Utils.deserializeToMapper(
+      DescriberController.getSObjectDescriptor(JSON.serialize(query))
+    );
+
+    System.assert(mapper.containsKey('name'), 'There should have been a name property');
+    System.assert(mapper.containsKey('fieldMap'), 'There should have been a fieldMap property');
+  }
+
+  @isTest
   static void getSObjectFields() {
     insert LoggerTest.createDefaultProfile();
 
