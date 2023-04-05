@@ -8,6 +8,7 @@ export default class AutocompleteCombobox extends LightningElement {
   @api length = 5;
   @api messageWhenValueMissing = "Complete this field.";
   @api minimum = 3;
+  @api name;
   @api placeholder;
   @api required = false;
   @api variant = "standard";
