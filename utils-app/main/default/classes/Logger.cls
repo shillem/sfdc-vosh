@@ -251,10 +251,10 @@ global inherited sharing class Logger {
       if (!AllowFlushes.class.isAssignableFrom(t)) {
         throw new UnsupportedOperationException(
           name +
-          ' is not entitled to ' +
-          operation +
-          ' entries since it is not implementing ' +
-          AllowFlushes.class.getName()
+            ' is not entitled to ' +
+            operation +
+            ' entries since it is not implementing ' +
+            AllowFlushes.class.getName()
         );
       }
     }
@@ -297,11 +297,7 @@ global inherited sharing class Logger {
 
       log(
         System.LoggingLevel.ERROR,
-        description +
-        '\n' +
-        e.getMessage() +
-        '\n' +
-        e.getStackTraceString()
+        description + '\n' + e.getMessage() + '\n' + e.getStackTraceString()
       );
     }
 
@@ -620,7 +616,18 @@ global inherited sharing class Logger {
           continue;
         }
 
-        final Profile p = new Profile(record);
+        final Profile p;
+
+        try {
+          p = new Profile(record);
+        } catch (System.Exception e) {
+          System.debug(
+            System.LoggingLevel.ERROR,
+            'Unable to initialize profile for ' + record.Id + ': ' + e.getMessage()
+          );
+
+          continue;
+        }
 
         // Profiles by namespace
         for (String n : p.ns) {
