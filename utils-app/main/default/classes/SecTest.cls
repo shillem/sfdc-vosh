@@ -2,10 +2,7 @@
 public class SecTest {
   @isTest
   static void authorization() {
-    final Schema.Contact anyone = new Schema.Contact(
-      Description = 'Anything',
-      LastName = 'Anyone'
-    );
+    final Schema.Contact anyone = new Schema.Contact(Description = 'Anything', LastName = 'Anyone');
 
     final Schema.User insufficientUser = createInsufficientUser();
 
@@ -71,7 +68,10 @@ public class SecTest {
 
       System.assert(res.getResults() instanceof List<Database.SaveResult>);
       System.assertEquals(3, res.getSucceeded().size());
-      System.assertEquals(1, [SELECT Id FROM Account WHERE Name = 'Demoist' LIMIT 10].size());
+
+      final Schema.Account acct = [SELECT Name FROM Account WHERE Id = :accts[0].Id];
+
+      System.assertEquals(accts[0].Name, acct.Name);
     }
 
     {
