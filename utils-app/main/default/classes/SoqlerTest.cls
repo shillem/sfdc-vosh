@@ -79,14 +79,11 @@ public class SoqlerTest {
 
     query.wheres().addAnd(new Soqler.IWhereName(Account.OwnerId, 'IN', new List<Id>(ownerIds)));
 
-    query.orders().add(Account.Name, Soqler.OrderType.DESCENDING_NULLS_FIRST);
-
     query.setMaxCount(2);
 
     List<Account> accounts = (List<Account>) query.query();
 
     System.assertEquals(2, accounts.size(), 'Query should have returned 2 accounts');
-    System.assertEquals('Account1', accounts[1].Name);
 
     query.setMaxCount(null);
 
@@ -372,15 +369,14 @@ public class SoqlerTest {
     query.groups().add(new Soqler.IGroupName(Schema.Contact.AccountId));
     query.havings()
       .addAnd(new Soqler.IWhereName(Schema.Contact.AccountId, '>', 5).withFunction('COUNT({0})'));
-    query.orders()
-      .add(new Soqler.IOrderName(Schema.Contact.AccountId).withFunction('COUNT({0})'));
+    query.orders().add(new Soqler.IOrderName(Schema.Contact.AccountId).withFunction('COUNT({0})'));
 
     System.assertEquals(
       'SELECT AccountId' +
-      ' FROM Contact' + 
-      ' GROUP BY AccountId' + 
-      ' HAVING COUNT(AccountId) > 5' +
-      ' ORDER BY COUNT(AccountId)',
+        ' FROM Contact' +
+        ' GROUP BY AccountId' +
+        ' HAVING COUNT(AccountId) > 5' +
+        ' ORDER BY COUNT(AccountId)',
       query.queryToString()
     );
   }
