@@ -171,6 +171,7 @@ public inherited sharing class Jobber {
     soql.fields()
       .add(new Soqler.IFieldName('ApexClass', Schema.ApexClass.Name))
       .add(Schema.AsyncApexJob.CronTriggerId)
+      .add(Schema.AsyncApexJob.ExtendedStatus)
       .add(Schema.AsyncApexJob.JobItemsProcessed)
       .add(Schema.AsyncApexJob.JobType)
       .add(Schema.AsyncApexJob.NumberOfErrors)
