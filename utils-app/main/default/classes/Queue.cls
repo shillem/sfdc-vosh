@@ -4,11 +4,11 @@
  * @since 1.1
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier')
- global inherited sharing class Queue {
-  private final List<Object> queue;
+global inherited sharing class Queue {
+  private final List<Object> values;
 
   global Queue() {
-    queue = new List<Object>();
+    values = new List<Object>();
   }
 
   /**
@@ -21,7 +21,7 @@
   global void add(Object element) {
     Utils.requireNonNull(element, 'The queue element cannot be null');
 
-    queue.add(element);
+    values.add(element);
   }
 
   /**
@@ -34,37 +34,7 @@
   global void addAll(List<Object> elements) {
     Utils.requireNonNull(elements, 'The queue element cannot be null');
 
-    queue.addAll(elements);
-  }
-
-  /**
-   * @description It peeks for the first element of the queue and returns it if the queue is not empty.
-   *
-   * @return the element at the beginning of the queue or null if the queue is empty
-   * @since 1.1
-   */
-  global Object peek() {
-    return isEmpty() ? null : queue[0];
-  }
-
-  /**
-   * @description It removes and returns the element at the beginning of the queue.
-   *
-   * @return the element at the beginning of the queue or null if the queue is empty
-   * @since 1.1
-   */
-  global Object poll() {
-    return isEmpty() ? null : queue.remove(0);
-  }
-
-  /**
-   * @description It returns the queue size.
-   *
-   * @return the queue size
-   * @since 1.1
-   */
-  global Integer size() {
-    return queue.size();
+    values.addAll(elements);
   }
 
   /**
@@ -74,6 +44,46 @@
    * @since 1.1
    */
   global Boolean isEmpty() {
-    return queue.isEmpty();
+    return values.isEmpty();
+  }
+
+  /**
+   * @description It peeks for the first element of the queue and returns it if the queue is not empty.
+   *
+   * @return the element at the beginning of the queue or null if the queue is empty
+   * @since 1.1
+   */
+  global Object peek() {
+    return isEmpty() ? null : values[0];
+  }
+
+  /**
+   * @description It removes and returns the element at the beginning of the queue.
+   *
+   * @return the element at the beginning of the queue or null if the queue is empty
+   * @since 1.1
+   */
+  global Object poll() {
+    return isEmpty() ? null : values.remove(0);
+  }
+
+  /**
+   * @description It returns the queue size.
+   *
+   * @return the queue size
+   * @since 1.1
+   */
+  global Integer size() {
+    return values.size();
+  }
+
+  /**
+   * @description It returns a new List instance of the queue.
+   *
+   * @return the queue as List
+   * @since 1.1
+   */
+  global List<Object> toList() {
+    return new List<Object>(values);
   }
 }
