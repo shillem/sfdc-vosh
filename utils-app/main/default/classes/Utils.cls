@@ -957,21 +957,22 @@ global inherited sharing class Utils {
   }
 
   /**
-   * @description It pauses the code execution for a given number of seconds
+   * @description It pauses the code execution for a given number of milliseconds
    *
-   * @param seconds the seconds the code execution will sleep for
-   * @throws UnsupportedOperationException if seconds are lower than 1 or greater than 10
-   * @since 1.0.1
+   * @param seconds the milliseconds the code execution will sleep for
+   * @throws UnsupportedOperationException if seconds are lower than 1 or greater than 10000
+   * @since 1.1
    */
-  global static void sleep(Integer seconds) {
-    if (seconds == null || seconds < 1 || seconds > 10) {
+  global static void sleepMillis(Integer value) {
+    if (value == null || value < 1 || value > 10000) {
       throw new System.UnsupportedOperationException(
-        'Seconds cannot be null and must be comprised between 1 and 10'
+        'Milliseconds cannot be null and must be comprised between 1 and 10000'
       );
     }
 
     Long start = System.currentTimeMillis();
-    Long stop = start + (seconds * 1000);
+
+    final Long stop = start + value;
 
     while (start <= stop) {
       start = System.currentTimeMillis();

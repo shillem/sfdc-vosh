@@ -175,20 +175,20 @@ public class UtilsTest {
       Utils.requireNonNull((Schema.Account) null, message);
 
       System.assert(false, 'It should have thrown a NullPointerException');
-    } catch (NullPointerException e) {
+    } catch (System.NullPointerException e) {
       System.assertEquals(message, e.getMessage());
     }
   }
 
   @isTest
   static void sleep() {
-    Long start = System.currentTimeMillis();
+    final Long start = System.currentTimeMillis();
 
-    Utils.sleep(3);
+    Utils.sleepMillis(100);
 
-    Long elapsed = System.currentTimeMillis() - start;
+    final Long elapsed = System.currentTimeMillis() - start;
 
-    System.assert(elapsed >= 3000, 'It should have slept for about 3 seconds');
+    Assert.isTrue(elapsed >= 100, 'It should have slept for about 100 milliseconds');
   }
 
   @isTest

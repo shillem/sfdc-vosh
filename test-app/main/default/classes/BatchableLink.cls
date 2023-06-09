@@ -18,7 +18,7 @@ public inherited sharing class BatchableLink extends ChainableBatchableSObject i
 
     LOG.debug('execute() The record batch is ' + records.size());
 
-    // Utils.sleep(5);
+    // Utils.sleepMillis(5000);
 
     logEntries = LOG.pullEntries();
   }
