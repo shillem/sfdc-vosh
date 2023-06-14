@@ -653,19 +653,6 @@ global class TestUtils {
   }
 
   /**
-   * @description It assigns the user the permission set provided.
-   *
-   * @param name the permission name
-   * @param userId the user id
-   * @since 1.0.9
-   */
-  global static void assignPermission(String name, Id userId) {
-    Schema.PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = :name];
-
-    insert new Schema.PermissionSetAssignment(AssigneeId = userId, PermissionSetId = ps.Id);
-  }
-
-  /**
    * @description It returns the chatter profile id.
    *
    * @return the profile id
@@ -684,35 +671,7 @@ global class TestUtils {
    * @since 1.1
    */
   global static Id getMinimumAccessProfileId() {
-    return getProfileId('Minimum Access - Salesforce');
-  }
-
-  /**
-   * @description It returns the profile id of the profile name provided.
-   *
-   * @param name the profile name
-   * @return the profile id
-   * @since 1.0.4
-   */
-  global static Id getProfileId(String name) {
-    return getProfileIds(new Set<String>{ name }).get(name);
-  }
-
-  /**
-   * @description It returns a map of profile names and respective ids for the names provided.
-   *
-   * @param names the profile names
-   * @return the map with names and ids
-   * @since 1.0.4
-   */
-  global static Map<String, Id> getProfileIds(Set<String> names) {
-    Map<String, Id> profiles = new Map<String, Id>();
-
-    for (Schema.Profile record : [SELECT Id, Name FROM Profile WHERE Name IN :names]) {
-      profiles.put(record.Name, record.Id);
-    }
-
-    return profiles;
+    return SchemaUtils.getProfileId('Minimum Access - Salesforce');
   }
 
   /**

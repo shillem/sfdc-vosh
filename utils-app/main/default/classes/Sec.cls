@@ -5,7 +5,7 @@
  * @since 1.1
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier')
- global inherited sharing class Sec {
+global inherited sharing class Sec {
   global enum AccessType {
     CREATABLE,
     DELETABLE,
