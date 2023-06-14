@@ -1,36 +1,5 @@
 global inherited sharing class SchemaUtils {
   /**
-   * @description It assigns the user the permission set provided.
-   *
-   * @param name the permission name
-   * @param userId the user id
-   * @since 1.1
-   */
-  global static void assignPermissionSet(String name, Id userId) {
-    Utils.requireNonNull(name, 'Name cannot be null');
-    Utils.requireNonNull(userId, 'User Id cannot be null');
-
-    final List<Schema.PermissionSet> records;
-
-    {
-      final Soqler soql = new Soqler(Schema.PermissionSet.SObjectType);
-      soql.fields().add(Schema.PermissionSet.Id);
-      soql.wheres().addAnd(new Soqler.IWhereName(Schema.PermissionSet.Name, '=', name));
-
-      records = (List<Schema.PermissionSet>) soql.query();
-    }
-
-    if (records.isEmpty()) {
-      throw new System.QueryException('Could not find permission set with name ' + name);
-    }
-
-    Sec.insertOne(
-      new Schema.PermissionSetAssignment(AssigneeId = userId, PermissionSetId = records[0].Id),
-      new Sec.DmlRequest().all()
-    );
-  }
-
-  /**
    * @description It returns the profile id of the profile name provided.
    *
    * @param name the profile name
@@ -67,6 +36,39 @@ global inherited sharing class SchemaUtils {
   }
 
   /**
+   * @description It assigns the user the permission set provided.
+   *
+   * @param name the permission name
+   * @param userId the user id
+   * @since 1.1
+   */
+  global static void permissionSetAssign(String name, Id userId) {
+    Utils.requireNonNull(name, 'Name cannot be null');
+    Utils.requireNonNull(userId, 'User Id cannot be null');
+
+    final List<Schema.PermissionSet> records;
+
+    {
+      final Soqler soql = new Soqler(Schema.PermissionSet.SObjectType);
+      soql.fields().add(Schema.PermissionSet.Id);
+      soql.wheres().addAnd(new Soqler.IWhereName(Schema.PermissionSet.Name, '=', name));
+
+      permissionSetNameAddClause(name, soql);
+
+      records = (List<Schema.PermissionSet>) soql.query();
+    }
+
+    if (records.isEmpty()) {
+      throw new System.QueryException('Could not find permission set with name ' + name);
+    }
+
+    Sec.insertOne(
+      new Schema.PermissionSetAssignment(AssigneeId = userId, PermissionSetId = records[0].Id),
+      new Sec.DmlRequest().all()
+    );
+  }
+
+  /**
    * @description It checks whether a user has the permission set provided.
    *
    * @param userId the user id
@@ -74,16 +76,37 @@ global inherited sharing class SchemaUtils {
    * @return whether the user has permission set or not
    * @since 1.1
    */
-  global static Boolean hasPermissionSet(Id userId, String name) {
+  global static Boolean permissionSetAssigned(Id userId, String name) {
     Utils.requireNonNull(userId, 'User Id cannot be null');
     Utils.requireNonNull(name, 'Name cannot be null');
 
     final Soqler soql = new Soqler(Schema.PermissionSetAssignment.SObjectType);
     soql.fields().add(Schema.PermissionSetAssignment.Id);
     soql.wheres()
-      .addAnd(new Soqler.IWhereName(Schema.PermissionSetAssignment.AssigneeId, '=', userId))
-      .addAnd(new Soqler.IWhereName('PermissionSet', Schema.PermissionSet.Name, '=', name));
+      .addAnd(new Soqler.IWhereName(Schema.PermissionSetAssignment.AssigneeId, '=', userId));
+
+    permissionSetNameAddClause(name, soql);
 
     return soql.queryCount() > 0;
+  }
+
+  private static void permissionSetNameAddClause(String name, Soqler soql) {
+    final String[] parts = name.split('\\.');
+
+    if (parts.size() > 1) {
+      soql.wheres()
+        .addAnd(
+          new Soqler.IWhereName(
+            'PermissionSet',
+            Schema.PermissionSet.NamespacePrefix,
+            '=',
+            parts[0]
+          )
+        )
+        .addAnd(new Soqler.IWhereName('PermissionSet', Schema.PermissionSet.Name, '=', parts[1]));
+    } else {
+      soql.wheres()
+        .addAnd(new Soqler.IWhereName('PermissionSet', Schema.PermissionSet.Name, '=', parts[0]));
+    }
   }
 }
