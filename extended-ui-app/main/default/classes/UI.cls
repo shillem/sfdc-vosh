@@ -7,6 +7,7 @@ global class UI {
     private final String type;
 
     private String help;
+    private Integer length;
     private Set<Utils.Entry> options;
 
     // Validation
@@ -47,6 +48,10 @@ global class UI {
       return label;
     }
 
+    global Integer getLength() {
+      return length;
+    }
+
     global String getName() {
       return name;
     }
@@ -77,6 +82,12 @@ global class UI {
 
     global Field setHelp(String value) {
       help = value;
+
+      return this;
+    }
+
+    global Field setLength(Integer value) {
+      length = value;
 
       return this;
     }
@@ -125,6 +136,7 @@ global class UI {
       super(result.getName(), result.getLabel(), result.getType().name());
 
       setHelp(result.getInlineHelpText());
+      setLength(result.getLength());
       setRequired(!result.isNillable());
 
       this.field = field;
