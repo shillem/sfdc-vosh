@@ -1,4 +1,4 @@
-export const aura = (framework, request) => {
+export const auraAction = (framework, request) => {
   return new Promise((resolve, reject) => {
     try {
       if (request.params) {
