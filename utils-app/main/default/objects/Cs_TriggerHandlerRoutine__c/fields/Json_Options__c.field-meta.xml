@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Json_Options__c</fullName>
+    <description>Value in JSON map format</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Value in JSON map format</inlineHelpText>
+    <label>JSON Options</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

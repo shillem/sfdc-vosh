@@ -21,7 +21,9 @@ public class TriggerHandlerTest {
     List<Schema.Cs_TriggerHandlerRoutine__c> records;
 
     TriggerHandler.enable(stype1);
-    TriggerHandler.enable(new Map<System.Type, Decimal>{ stype2 => 2 });
+    TriggerHandler.enable(
+      new List<TriggerHandler.Spec>{ new TriggerHandler.Spec(stype2).setOrder(2) }
+    );
 
     records = [
       SELECT Name, ClassName__c, Is_Disabled__c, SObjectType__c, Sort_Order__c
@@ -49,9 +51,7 @@ public class TriggerHandlerTest {
 
     System.assert(
       records[0].Is_Disabled__c,
-      'Routine ' +
-      stype2.getName() +
-      ' record should have been disabled'
+      'Routine ' + stype2.getName() + ' record should have been disabled'
     );
 
     // Tagging
@@ -79,14 +79,10 @@ public class TriggerHandlerTest {
     );
 
     System.assert(
-      handler.anyDiffer(
-        accts[0],
-        accts[1],
-        new List<Schema.SObjectField>{ Schema.Account.Id }
-      ),
+      handler.anyDiffer(accts[0], accts[1], new List<Schema.SObjectField>{ Schema.Account.Id }),
       'Account Ids should have mismatched'
     );
-    
+
     System.assert(
       !handler.allDiffer(
         accts[0],

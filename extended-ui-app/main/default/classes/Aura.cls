@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.AvoidGlobalModifier')
 global with sharing class Aura {
   @AuraEnabled(cacheable=true)
   global static String getFieldLabel(String pointer) {

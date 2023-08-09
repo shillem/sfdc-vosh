@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class DescriberController {
   private static final Logger.Instance LOG = Logger.getInstance(DescriberController.class);
 

@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class SchemaUtils {
   /**
    * @description It returns the profile id of the profile name provided.
