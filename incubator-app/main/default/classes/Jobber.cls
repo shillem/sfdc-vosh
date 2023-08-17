@@ -170,6 +170,7 @@ public inherited sharing class Jobber {
 
     soql.fields()
       .add(new Soqler.IFieldName('ApexClass', Schema.ApexClass.Name))
+      .add(new Soqler.IFieldName('CreatedBy', Schema.User.Name))
       .add(Schema.AsyncApexJob.CronTriggerId)
       .add(Schema.AsyncApexJob.ExtendedStatus)
       .add(Schema.AsyncApexJob.JobItemsProcessed)
@@ -188,7 +189,7 @@ public inherited sharing class Jobber {
 
     soql.fields()
       .add(new Soqler.IFieldName('CronJobDetail', Schema.CronJobDetail.Name))
-      .add(Schema.CronTrigger.CreatedById)
+      .add(new Soqler.IFieldName('CreatedBy', Schema.User.Name))
       .add(Schema.CronTrigger.NextFireTime)
       .add(Schema.CronTrigger.PreviousFireTime)
       .add(Schema.CronTrigger.State);
