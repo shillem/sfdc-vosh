@@ -1,97 +1,106 @@
 import { api, LightningElement } from "lwc";
 
 export default class Modal extends LightningElement {
-    @api disabled = false;
-    @api i18n = { cancel: "Cancel", close: "Close", next: "Next", ok: "OK", previous: "Previous" };
-    @api loading = false;
-    @api opened = false;
-    @api size;
-    @api step;
-    @api steps;
-    @api tagline;
-    @api title;
+  @api disabled = false;
+  @api hideFooter = false;
+  @api i18n = { cancel: "Cancel", close: "Close", next: "Next", ok: "OK", previous: "Previous" };
+  @api loading = false;
+  @api opened = false;
+  @api size;
+  @api step;
+  @api steps;
+  @api tagline;
+  @api title;
 
-    hasActions = false;
+  customFooter = false;
 
-    get backdropClass() {
-        let value = "slds-backdrop";
+  get backdropClass() {
+    let value = "slds-backdrop";
 
-        if (this.opened) {
-            value += " slds-backdrop_open";
-        }
-
-        return value;
+    if (this.opened) {
+      value += " slds-backdrop_open";
     }
 
-    get closed() {
-        return !this.opened;
+    return value;
+  }
+
+  get closed() {
+    return !this.opened;
+  }
+
+  get hasSteps() {
+    return Array.isArray(this.steps) && this.steps.length > 0;
+  }
+
+  get headerClass() {
+    return this.title || this.tagline
+      ? "slds-modal__header"
+      : "slds-modal__header slds-modal__header_empty";
+  }
+
+  get lastStep() {
+    return !this.hasSteps || this.steps[this.steps.length - 1].value === this.step;
+  }
+
+  get sectionClass() {
+    let value = "slds-modal";
+
+    if (this.opened) {
+      if (this.size) {
+        value += " slds-modal_" + this.size;
+      }
+
+      value += " slds-fade-in-open";
+    } else {
+      value += " slds-hide";
     }
 
-    fireAction(detail) {
-        this.dispatchEvent(new CustomEvent("action", { detail }));
-    }
+    return value;
+  }
 
-    handleActionsSlotChange(event) {
-        this.hasActions = event.target.assignedElements().length > 0;
-    }
+  get showDefaultFooter() {
+    return !this.noFooter;
+  }
 
-    handleClose() {
-        this.fireAction({ name: "close" });
-    }
+  get showFooter() {
+    return !this.hideFooter;
+  }
 
-    handleOk() {
-        this.fireAction({ name: "ok" });
-    }
+  get stepIndex() {
+    return this.steps.findIndex((step) => step.value === this.step);
+  }
 
-    handleStepNext() {
-        this.fireAction({
-            name: "stepNext",
-            step: this.steps[this.stepIndex + 1]
-        });
-    }
-    
-    handleStepPrevious() {
-        this.fireAction({
-            name: "stepPrevious",
-            step: this.steps[this.stepIndex - 1]
-        });
-    }
+  get subsequentStep() {
+    return this.hasSteps && !this.steps[0].value === this.step;
+  }
 
-    get hasSteps() {
-        return Array.isArray(this.steps) && this.steps.length > 0;
-    }
+  fireAction(detail) {
+    this.dispatchEvent(new CustomEvent("action", { detail }));
+  }
 
-    get headerClass() {
-        return this.title || this.tagline
-            ? "slds-modal__header"
-            : "slds-modal__header slds-modal__header_empty";
-    }
+  handleFooterSlotChange() {
+    this.customFooter = true;
+  }
 
-    get lastStep() {
-        return !this.hasSteps || this.steps[this.steps.length - 1].value === this.step;
-    }
+  handleClose() {
+    this.fireAction({ name: "close" });
+  }
 
-    get sectionClass() {
-        let value = "slds-modal";
+  handleOk() {
+    this.fireAction({ name: "ok" });
+  }
 
-        if (this.opened) {
-            if (this.size) {
-                value += " slds-modal_" + this.size;
-            }
+  handleStepNext() {
+    this.fireAction({
+      name: "stepNext",
+      step: this.steps[this.stepIndex + 1]
+    });
+  }
 
-            value += " slds-fade-in-open";
-        } else {
-            value += " slds-hide";
-        }
-
-        return value;
-    }
-
-    get stepIndex() {
-        return this.steps.findIndex((step) => step.value === this.step);
-    }
-
-    get subsequentStep() {
-        return this.hasSteps && !this.steps[0].value === this.step;
-    }
+  handleStepPrevious() {
+    this.fireAction({
+      name: "stepPrevious",
+      step: this.steps[this.stepIndex - 1]
+    });
+  }
 }
