@@ -6,40 +6,38 @@
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class BatchableDeletable implements Database.Batchable<SObject> {
-  private final Boolean emptyRecycleBin;
-  private final String q;
-
-  /**
-   * @description It creates an instance that will delete records returned by the specified query.
-   *
-   * @param q the query
-   * @see #BatchableDeletable(String, Boolean)
-   * @since 1.0.15
-   */
-  global BatchableDeletable(String q) {
-    this(q, false);
+  global class Parameters {
+    global Boolean emptyRecycleBin;
+    global String query;
   }
 
+  private final Parameters params;
+
   /**
    * @description It creates an instance that will delete records returned by the specified query.
    *
-   * @param q the query
-   * @param emptyRecycleBin the option for emptying the recycle bin after deletion
+   * @param params the JSON-serialized parameters
    * @see #BatchableDeletable(String)
    * @since 1.0.15
    */
-  global BatchableDeletable(String q, Boolean emptyRecycleBin) {
-    Utils.requireNonNull(q, 'Query cannot be null');
-    Utils.requireNonNull(emptyRecycleBin, 'Empty recycle bin option cannot be null');
+  global BatchableDeletable(String params) {
+    Utils.requireNonNull(params, 'Params cannot be null');
 
-    this.q = q;
-    this.emptyRecycleBin = emptyRecycleBin;
+    this.params = (Parameters) JSON.deserialize(params, Parameters.class);
+
+    if (this.params.query == null) {
+      throw new IllegalArgumentException('Parameter query cannot be null');
+    }
   }
 
   global void execute(Database.BatchableContext context, List<SObject> records) {
     final Sec.DmlResponse response = Sec.deleteMany(records, new Sec.DmlRequest().any());
 
-    if (emptyRecycleBin && !response.getSucceeded().isEmpty()) {
+    if (
+      params.emptyRecycleBin != null &&
+      params.emptyRecycleBin &&
+      !response.getSucceeded().isEmpty()
+    ) {
       Database.emptyRecycleBin(response.getSucceeded());
     }
   }
@@ -49,6 +47,6 @@ global inherited sharing class BatchableDeletable implements Database.Batchable<
   }
 
   global Database.QueryLocator start(Database.BatchableContext context) {
-    return Database.getQueryLocator(q);
+    return Database.getQueryLocator(params.query);
   }
 }
