@@ -39,20 +39,19 @@ global inherited sharing class SchemaUtils {
   /**
    * @description It assigns the user the permission set provided.
    *
-   * @param name the permission name
    * @param userId the user id
+   * @param name the permission name
    * @since 1.1
    */
-  global static void permissionSetAssign(String name, Id userId) {
-    Utils.requireNonNull(name, 'Name cannot be null');
+  global static void permissionSetAssign(Id userId, String name) {
     Utils.requireNonNull(userId, 'User Id cannot be null');
+    Utils.requireNonNull(name, 'Name cannot be null');
 
     final List<Schema.PermissionSet> records;
 
     {
       final Soqler soql = new Soqler(Schema.PermissionSet.SObjectType);
       soql.fields().add(Schema.PermissionSet.Id);
-      soql.wheres().addAnd(new Soqler.IWhereName(Schema.PermissionSet.Name, '=', name));
 
       permissionSetNameAddClause(name, soql);
 
