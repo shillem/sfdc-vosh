@@ -39,6 +39,15 @@ global class TestUtils {
      *
      * @since 1.1
      */
+    global List<HttpResponseMock> getResponses() {
+      return responses;
+    }
+
+    /**
+     * @description
+     *
+     * @since 1.1
+     */
     global Boolean isEmpty() {
       return responses.isEmpty();
     }
