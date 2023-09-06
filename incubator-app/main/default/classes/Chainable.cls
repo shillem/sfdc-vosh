@@ -134,6 +134,28 @@ public abstract class Chainable {
   }
 
   /**
+   * @description It inserts a chainable to the current instance
+   * that will be executed after the current one terminates.
+   *
+   * @param successor the next chainable that will be executed
+   * @return this CHAINABLE instance
+   * @since 1.1
+   */
+  public Chainable now(Chainable successor) {
+    if (next == null) {
+      return then(successor);
+    }
+
+    successor.next = next;
+    successor.previous = this;
+    successor.variables = variables;
+
+    next = successor;
+
+    return this;
+  }
+
+  /**
    * @description It sets a variable that will be shared and accessible across all the
    * defined <code>Chainable</code> objects.
    *
@@ -148,16 +170,20 @@ public abstract class Chainable {
       variables = new Map<String, Object>();
     }
 
-    variables.put(key, value);
+    if (value != null) {
+      variables.put(key, value);
+    } else {
+      variables.remove(key);
+    }
 
     return this;
   }
 
   /**
    * @description It appends a chainable to the current instance
-   * that will be executed after the current one terminates.
+   * that will be executed after the last in the chain terminates.
    *
-   * @param successor the next chainable that will be executed
+   * @param successor the last chainable that will be executed
    * @return this CHAINABLE instance
    * @since 1.1
    */
