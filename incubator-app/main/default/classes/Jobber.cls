@@ -27,8 +27,8 @@ public inherited sharing class Jobber {
     'WAITING'
   };
 
-  public static SchedulingStatus disableAsync(List<System.Type> apexClasses) {
-    final List<Schema.AsyncApexJob> jobs = getAsyncActive(apexClasses);
+  public static SchedulingStatus disableAsyncs(List<System.Type> apexClasses) {
+    final List<Schema.AsyncApexJob> jobs = getAsyncsActive(apexClasses);
 
     if (jobs.isEmpty()) {
       return SchedulingStatus.DISABLED_ALREADY;
@@ -82,23 +82,29 @@ public inherited sharing class Jobber {
   public static Schema.AsyncApexJob getAsync(Id jobId) {
     Utils.requireNonNull(jobId, 'Job Id cannot be null');
 
-    final Soqler soql = getAsyncSoqler();
-
-    soql.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.Id, '=', jobId));
-
-    List<Schema.AsyncApexJob> records = (List<Schema.AsyncApexJob>) soql.query();
+    final List<Schema.AsyncApexJob> records = getAsyncs(new Set<Id>{ jobId });
 
     return records.isEmpty() ? null : records[0];
   }
 
-  public static List<Schema.AsyncApexJob> getAsync(
+  public static List<Schema.AsyncApexJob> getAsyncs(Set<Id> jobIds) {
+    Utils.requireNonNull(jobIds, 'Job Ids cannot be null');
+
+    final Soqler soql = getAsyncSoqler();
+
+    soql.wheres().addAnd(new Soqler.IWhereVariable(Schema.AsyncApexJob.Id, 'IN', 'jobIds'));
+
+    return (List<Schema.AsyncApexJob>) Database.query(soql.queryToString());
+  }
+
+  public static List<Schema.AsyncApexJob> getAsyncs(
     List<System.Type> apexClasses,
     List<String> statuses
   ) {
-    return getAsync(apexClasses, statuses, ASYNC_TYPES);
+    return getAsyncs(apexClasses, statuses, ASYNC_TYPES);
   }
 
-  public static List<Schema.AsyncApexJob> getAsync(
+  public static List<Schema.AsyncApexJob> getAsyncs(
     List<System.Type> apexClasses,
     List<String> statuses,
     List<String> types
@@ -161,8 +167,8 @@ public inherited sharing class Jobber {
     return (List<Schema.AsyncApexJob>) query.query();
   }
 
-  public static List<Schema.AsyncApexJob> getAsyncActive(List<System.Type> apexClasses) {
-    return getAsync(apexClasses, ASYNC_ACTIVE_STATUSES);
+  public static List<Schema.AsyncApexJob> getAsyncsActive(List<System.Type> apexClasses) {
+    return getAsyncs(apexClasses, ASYNC_ACTIVE_STATUSES);
   }
 
   private static Soqler getAsyncSoqler() {
