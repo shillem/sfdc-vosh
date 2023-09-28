@@ -138,8 +138,7 @@ public class CmsmTest {
       newMemberTransition(
         'One',
         'Two',
-        [SELECT Id FROM EmailTemplate WHERE DeveloperName = 'CampaignMemberManagerInvitation']
-        .Id,
+        [SELECT Id FROM EmailTemplate WHERE DeveloperName = 'CampaignMemberManagerInvitation'].Id,
         null,
         campaigns[0].Id
       )

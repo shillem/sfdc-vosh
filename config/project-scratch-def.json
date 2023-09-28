@@ -1,18 +1,18 @@
 {
-    "orgName": "Shillem Volpato",
-    "edition": "Developer",
-    "hasSampleData": true,
-    "features": ["DebugApex"],
-    "language": "en_US",
-    "settings": {
-        "lightningExperienceSettings": {
-            "enableS1DesktopEnabled": true
-        },
-        "mobileSettings": {
-            "enableS1EncryptedStoragePref2": false
-        },
-        "schemaSettings": {
-            "enableListCustomSettingCreation": true
-        }
+  "orgName": "Shillem Volpato",
+  "edition": "Developer",
+  "hasSampleData": true,
+  "features": ["DebugApex"],
+  "language": "en_US",
+  "settings": {
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    },
+    "mobileSettings": {
+      "enableS1EncryptedStoragePref2": false
+    },
+    "schemaSettings": {
+      "enableListCustomSettingCreation": true
     }
+  }
 }

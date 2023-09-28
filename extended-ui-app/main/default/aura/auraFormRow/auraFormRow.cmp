@@ -1,16 +1,11 @@
 <aura:component access="global">
-    <!-- Global Attributes -->
-    <aura:attribute access="global" name="left" type="Aura.Component[]" />
-    <aura:attribute access="global" name="right" type="Aura.Component[]" />
+  <!-- Global Attributes -->
+  <aura:attribute access="global" name="left" type="Aura.Component[]" />
+  <aura:attribute access="global" name="right" type="Aura.Component[]" />
 
-    <div class="slds-form__row">
-        <div class="slds-form__item" role="listitem">
-            {!v.left}
-        </div>
+  <div class="slds-form__row">
+    <div class="slds-form__item" role="listitem">{!v.left}</div>
 
-        <div class="slds-form__item" role="listitem">
-            {!v.right}
-        </div>
-    </div>
-
-</aura:component>	
+    <div class="slds-form__item" role="listitem">{!v.right}</div>
+  </div>
+</aura:component>

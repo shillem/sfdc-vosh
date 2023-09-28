@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>It allows to set audit field values. It allows to delete field history. It allows to edit record with inactive owners.</description>
+    <description
+  >It allows to set audit field values. It allows to delete field history. It allows to edit record with inactive owners.</description>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Special Fields Editor</label>
     <license>Salesforce</license>

@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.ApexCRUDViolation, PMD.ApexSharingViolations')
 public with sharing class CampaignMemberTransitionController {
   private class DescriptorRequest {
     private final Id campaignId;
@@ -99,8 +100,7 @@ public with sharing class CampaignMemberTransitionController {
       } else if (request.campaignId != null) {
         campaignEntry = new Utils.Entry(
           request.campaignId,
-          [SELECT Name FROM Campaign WHERE Id = :request.campaignId]
-          .Name
+          [SELECT Name FROM Campaign WHERE Id = :request.campaignId].Name
         );
       } else {
         throw new UnsupportedOperationException('Either Campaign Id or Record Id must be present');

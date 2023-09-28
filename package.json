@@ -4,18 +4,17 @@
   "version": "1.0.0",
   "description": "Salesforce Vosh",
   "scripts": {
-    "lint": "npm run lint:lwc && npm run lint:aura",
-    "lint:aura": "eslint **/aura/**",
-    "lint:lwc": "eslint **/lwc/**",
+    "lint": "eslint **/aura|lwc/**",
+    "postinstall": "husky install",
+    "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+    "prettier:verify": "prettier --list-different \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+    "precommit": "lint-staged --relative",
+    "scanner:pmd": "sfdx scanner run --engine pmd --pmdconfig config/ruleset.xml --normalize-severity --severity-threshold 3 --target enhanced-campaigns-app,extended-ui-app,incubator-app,privacy-manager-app,test-app,utils-app",
     "test": "npm run test:unit",
     "test:unit": "sfdx-lwc-jest",
     "test:unit:watch": "sfdx-lwc-jest --watch",
     "test:unit:debug": "sfdx-lwc-jest --debug",
-    "test:unit:coverage": "sfdx-lwc-jest --coverage",
-    "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "prettier:verify": "prettier --list-different \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "postinstall": "husky install",
-    "precommit": "lint-staged"
+    "test:unit:coverage": "sfdx-lwc-jest --coverage"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^1.5.0",
@@ -32,18 +31,5 @@
     "lint-staged": "^13.1.0",
     "prettier": "^2.8.1",
     "prettier-plugin-apex": "^1.12.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [
-      "prettier --write"
-    ],
-    "**/{aura|lwc}/**": [
-      "eslint"
-    ]
   }
 }

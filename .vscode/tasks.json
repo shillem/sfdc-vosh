@@ -1,70 +1,66 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-          "label": "pmd",
-          "type": "shell",
-          "command": "pmd pmd -d utils-app,extended-ui-app,enhanced-campaigns-app,incubator-app -R config/ruleset.xml",
-          "options": {
-            "cwd": "${workspaceRoot}"
-          },
-          "problemMatcher": []
-        },
-        {
-            "label": "sfdx-create-scratch",
-            "type": "shell",
-            "command": "scripts/shell/create_project_scratch.sh -u Vosh",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "sfdx-check-limits",
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "command": "sfdx force:limits:api:display -u VoshDevHub",
-            "problemMatcher": []
-        },
-        {
-            "label": "sfdx-create-package-version",
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "command": "sfdx force:package:version:create -c -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub",
-            "problemMatcher": []
-        },
-        {
-            "label": "sfdx-create-package-version-with-no-validation",
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --skipvalidation --wait 15 -v VoshDevHub",
-            "problemMatcher": []
-        },
-        {
-            "label": "sfdx-open-devhub",
-            "type": "shell",
-            "command": "sfdx force:org:open -u VoshDevHub",
-            "problemMatcher": []
-        }
-    ],
-    "inputs": [
-        {
-            "id": "packagePath",
-            "type": "pickString",
-            "description": "Select the directory that contains the contents of the package.",
-            "options": [
-                "enhanced-campaigns-app",
-                "extended-ui-app",
-                "utils-app"
-            ]
-        }
-    ]
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pmd",
+      "type": "shell",
+      "command": "pmd pmd -d utils-app,extended-ui-app,enhanced-campaigns-app,incubator-app -R config/ruleset.xml",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "sfdx-create-scratch",
+      "type": "shell",
+      "command": "scripts/shell/create_project_scratch.sh -u Vosh",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "sfdx-check-limits",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "command": "sfdx force:limits:api:display -u VoshDevHub",
+      "problemMatcher": []
+    },
+    {
+      "label": "sfdx-create-package-version",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "command": "sfdx force:package:version:create -c -d ${input:packagePath} -k yBmMbZ3E --wait 15 -v VoshDevHub",
+      "problemMatcher": []
+    },
+    {
+      "label": "sfdx-create-package-version-with-no-validation",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "command": "sfdx force:package:version:create -d ${input:packagePath} -k yBmMbZ3E --skipvalidation --wait 15 -v VoshDevHub",
+      "problemMatcher": []
+    },
+    {
+      "label": "sfdx-open-devhub",
+      "type": "shell",
+      "command": "sfdx force:org:open -u VoshDevHub",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "packagePath",
+      "type": "pickString",
+      "description": "Select the directory that contains the contents of the package.",
+      "options": ["enhanced-campaigns-app", "extended-ui-app", "utils-app"]
+    }
+  ]
 }

@@ -1,0 +1,25 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" access="global">
+  <aura:attribute name="autocomplete1" type="String" access="private" />
+  <aura:attribute name="select1" type="String" access="private" />
+
+  <lightning:card>
+    <c:autocompleteCombobox
+      aura:id="input"
+      label="label"
+      minimum="0"
+      onlookup="{!c.handleAutocompleteLookup}"
+      value="{!v.autocomplete1}"
+    />
+  </lightning:card>
+
+  {!v.autocomplete1}
+
+  <lightning:select disabled="true" name="select1" label="How many tickets?" value="{!v.select1}">
+    <option value="">choose one...</option>
+    <option value="1">one</option>
+    <option value="2">two</option>
+    <option value="3">three</option>
+  </lightning:select>
+
+  {!v.select1}
+</aura:component>

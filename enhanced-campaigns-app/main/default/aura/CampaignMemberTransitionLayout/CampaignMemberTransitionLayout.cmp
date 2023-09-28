@@ -1,96 +1,96 @@
 <aura:component controller="CampaignMemberTransitionController" access="global">
-    <!-- Attributes -->
-    <aura:attribute name="recordId" type="Id" />
+  <!-- Attributes -->
+  <aura:attribute name="recordId" type="Id" />
 
-    <!-- Private Attributes -->
-    <aura:attribute name="campaignName" type="String" access="private" />
-    <aura:attribute name="descriptor" type="Map" access="private" />
-    <aura:attribute name="error" type="String" access="private" />
-    <aura:attribute name="record" type="Map" access="private" />
+  <!-- Private Attributes -->
+  <aura:attribute name="campaignName" type="String" access="private" />
+  <aura:attribute name="descriptor" type="Map" access="private" />
+  <aura:attribute name="error" type="String" access="private" />
+  <aura:attribute name="record" type="Map" access="private" />
 
-    <!-- Handlers -->
-    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
-    <aura:handler name="change" value="{!v.recordId}" action="{!c.handleRecordIdChange}" />
+  <!-- Handlers -->
+  <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+  <aura:handler name="change" value="{!v.recordId}" action="{!c.handleRecordIdChange}" />
 
-    <!-- Methods -->
-    <aura:method name="save" action="{!c.handleSave}" />
-    <aura:method name="setNewRecord" action="{!c.handleSetNewRecord}">
-        <aura:attribute name="campaignId" type="String" />
-    </aura:method>
+  <!-- Methods -->
+  <aura:method name="save" action="{!c.handleSave}" />
+  <aura:method name="setNewRecord" action="{!c.handleSetNewRecord}">
+    <aura:attribute name="campaignId" type="String" />
+  </aura:method>
 
-    <!-- Html -->
-    <c:utils aura:id="utils" />
+  <!-- Html -->
+  <c:utils aura:id="utils" />
 
-    <aura:if isTrue="{!v.descriptor}">
-        <div class="slds-form" role="list">
-            <c:auraFormRow>
-                <aura:set attribute="left">
-                    <lightning:input
-                        label="{!v.descriptor.fieldMap.vosh__Campaign__c.label}"
-                        name="{!v.descriptor.fieldMap.vosh__Campaign__c.name}"
-                        value="{!v.campaignName}"
-                        variant="label-stacked"
-                        readonly="true"
-                    />
-                </aura:set>
+  <aura:if isTrue="{!v.descriptor}">
+    <div class="slds-form" role="list">
+      <c:auraFormRow>
+        <aura:set attribute="left">
+          <lightning:input
+            label="{!v.descriptor.fieldMap.vosh__Campaign__c.label}"
+            name="{!v.descriptor.fieldMap.vosh__Campaign__c.name}"
+            value="{!v.campaignName}"
+            variant="label-stacked"
+            readonly="true"
+          />
+        </aura:set>
 
-                <aura:set attribute="right">
-                    <c:autocompleteCombobox
-                        aura:id="field"
-                        fieldLevelHelp="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.help}"
-                        label="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.label}"
-                        name="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.name}"
-                        onchange="{!c.handleEmailTemplateChange}"
-                        onlookup="{!c.handleEmailTemplateLookup}"
-                        options="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.options}"
-                        required="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.required}"
-                        value="{!v.record.vosh__Email_Template_Id__c}"
-                        variant="label-stacked"
-                    />
-                </aura:set>
-            </c:auraFormRow>
+        <aura:set attribute="right">
+          <c:autocompleteCombobox
+            aura:id="field"
+            fieldLevelHelp="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.help}"
+            label="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.label}"
+            name="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.name}"
+            onchange="{!c.handleEmailTemplateChange}"
+            onlookup="{!c.handleEmailTemplateLookup}"
+            options="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.options}"
+            required="{!v.descriptor.fieldMap.vosh__Email_Template_Id__c.required}"
+            value="{!v.record.vosh__Email_Template_Id__c}"
+            variant="label-stacked"
+          />
+        </aura:set>
+      </c:auraFormRow>
 
-            <c:auraFormRow>
-                <aura:set attribute="left">
-                    <lightning:combobox
-                        aura:id="field"
-                        label="{!v.descriptor.fieldMap.vosh__Initial_Status__c.label}"
-                        name="{!v.descriptor.fieldMap.vosh__Initial_Status__c.name}"
-                        options="{!v.descriptor.fieldMap.vosh__Initial_Status__c.options}"
-                        required="{!v.descriptor.fieldMap.vosh__Initial_Status__c.required}"
-                        value="{!v.record.vosh__Initial_Status__c}"
-                        variant="label-stacked"
-                    ></lightning:combobox>
-                </aura:set>
+      <c:auraFormRow>
+        <aura:set attribute="left">
+          <lightning:combobox
+            aura:id="field"
+            label="{!v.descriptor.fieldMap.vosh__Initial_Status__c.label}"
+            name="{!v.descriptor.fieldMap.vosh__Initial_Status__c.name}"
+            options="{!v.descriptor.fieldMap.vosh__Initial_Status__c.options}"
+            required="{!v.descriptor.fieldMap.vosh__Initial_Status__c.required}"
+            value="{!v.record.vosh__Initial_Status__c}"
+            variant="label-stacked"
+          ></lightning:combobox>
+        </aura:set>
 
-                <aura:set attribute="right">
-                    <lightning:combobox
-                        aura:id="field"
-                        label="{!v.descriptor.fieldMap.vosh__Organization_Wide_Email_Address_Id__c.label}"
-                        name="{!v.descriptor.fieldMap.vosh__Organization_Wide_Email_Address_Id__c.name}"
-                        options="{!v.descriptor.fieldMap.vosh__Organization_Wide_Email_Address_Id__c.options}"
-                        required="{!v.descriptor.fieldMap.vosh__Organization_Wide_Email_Address_Id__c.required}"
-                        value="{!v.record.vosh__Organization_Wide_Email_Address_Id__c}"
-                        variant="label-stacked"
-                    ></lightning:combobox>
-                </aura:set>
-            </c:auraFormRow>
+        <aura:set attribute="right">
+          <lightning:combobox
+            aura:id="field"
+            label="{!v.descriptor.fieldMap.vosh__Organization_Wide_Email_Address_Id__c.label}"
+            name="{!v.descriptor.fieldMap.vosh__Organization_Wide_Email_Address_Id__c.name}"
+            options="{!v.descriptor.fieldMap.vosh__Organization_Wide_Email_Address_Id__c.options}"
+            required="{!v.descriptor.fieldMap.vosh__Organization_Wide_Email_Address_Id__c.required}"
+            value="{!v.record.vosh__Organization_Wide_Email_Address_Id__c}"
+            variant="label-stacked"
+          ></lightning:combobox>
+        </aura:set>
+      </c:auraFormRow>
 
-            <c:auraFormRow>
-                <aura:set attribute="left">
-                    <lightning:combobox
-                        aura:id="field"
-                        label="{!v.descriptor.fieldMap.vosh__Final_Status__c.label}"
-                        name="{!v.descriptor.fieldMap.vosh__Final_Status__c.name}"
-                        options="{!v.descriptor.fieldMap.vosh__Final_Status__c.options}"
-                        required="{!v.descriptor.fieldMap.vosh__Final_Status__c.required}"
-                        value="{!v.record.vosh__Final_Status__c}"
-                        variant="label-stacked"
-                    ></lightning:combobox>
-                </aura:set>
-            </c:auraFormRow>
-        </div>
-    </aura:if>
+      <c:auraFormRow>
+        <aura:set attribute="left">
+          <lightning:combobox
+            aura:id="field"
+            label="{!v.descriptor.fieldMap.vosh__Final_Status__c.label}"
+            name="{!v.descriptor.fieldMap.vosh__Final_Status__c.name}"
+            options="{!v.descriptor.fieldMap.vosh__Final_Status__c.options}"
+            required="{!v.descriptor.fieldMap.vosh__Final_Status__c.required}"
+            value="{!v.record.vosh__Final_Status__c}"
+            variant="label-stacked"
+          ></lightning:combobox>
+        </aura:set>
+      </c:auraFormRow>
+    </div>
+  </aura:if>
 
-    {!v.error}
+  {!v.error}
 </aura:component>

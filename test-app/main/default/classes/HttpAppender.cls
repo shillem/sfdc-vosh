@@ -11,6 +11,7 @@ public inherited sharing class HttpAppender implements Queueable, Database.Allow
     }
   }
 
+  @SuppressWarnings('PMD.ApexInsecureEndpoint')
   private HttpRequest createRequest() {
     final HttpRequest req = new HttpRequest();
 
@@ -38,12 +39,12 @@ public inherited sharing class HttpAppender implements Queueable, Database.Allow
   public void execute(QueueableContext context) {
     try {
       final HttpRequest req = createRequest();
-      
+
       for (String s : serializedEntries) {
         req.setBody(s);
-        
+
         final HttpResponse res = new Http().send(req);
-  
+
         if (res.getStatusCode() != 200) {
           System.debug(
             System.LoggingLevel.ERROR,

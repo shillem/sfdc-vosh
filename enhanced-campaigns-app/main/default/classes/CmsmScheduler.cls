@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ApexCRUDViolation, PMD.ApexSharingViolations')
 global class CmsmScheduler implements Schedulable {
   private class Transition {
     private final Schema.Campaign_Member_Transition__c record;

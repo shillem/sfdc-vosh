@@ -35,9 +35,7 @@ public with sharing class RandomizerTest {
 
     builder = new Randomizer.Builder();
     random = builder
-      .setOptions(
-        new Set<Randomizer.Option>{ Randomizer.Option.INCLUDE_NUMBER }
-      )
+      .setOptions(new Set<Randomizer.Option>{ Randomizer.Option.INCLUDE_NUMBER })
       .setLength(3)
       .build()
       .generate();

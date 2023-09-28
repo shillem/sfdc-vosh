@@ -1,16 +1,17 @@
 {
-    "arrowParens": "always",
-    "overrides": [
-        {
-            "files": "*.{cmp,page,component}",
-            "options": { "parser": "html" }
-        },
-        {
-            "files": "**/lwc/**/*.html",
-            "options": { "parser": "lwc" }
-        }
-    ],
-    "printWidth": 100,
-    "tabWidth": 2,
-    "trailingComma": "none"
+  "arrowParens": "always",
+  "overrides": [
+    {
+      "files": "*.{cmp,page,component}",
+      "options": { "parser": "html" }
+    },
+    {
+      "files": "**/lwc/**/*.html",
+      "options": { "parser": "lwc" }
+    }
+  ],
+  "plugins": ["@prettier/plugin-xml", "prettier-plugin-apex"],
+  "printWidth": 100,
+  "tabWidth": 2,
+  "trailingComma": "none"
 }

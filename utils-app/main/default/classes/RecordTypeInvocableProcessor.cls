@@ -1,4 +1,4 @@
-@SuppressWarnings('PMD.AvoidGlobalModifier')
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ApexCRUDViolation')
 global inherited sharing class RecordTypeInvocableProcessor {
   global class Request {
     @InvocableVariable(required=true label='Record Id')

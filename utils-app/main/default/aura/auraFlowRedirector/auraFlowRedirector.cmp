@@ -1,12 +1,12 @@
 <aura:component access="global" implements="lightning:availableForFlowActions">
-    <!-- Global Attributes -->
-    <aura:attribute access="global" name="actionName" type="String" />
-    <aura:attribute access="global" name="filterName" type="String" />
-    <aura:attribute access="global" name="objectApiName" type="String" />
-    <aura:attribute access="global" name="recordId" type="String" />
-    <aura:attribute access="global" name="relationshipApiName" type="String" />
-    <aura:attribute access="global" name="type" type="String" />
-    <aura:attribute access="global" name="url" type="String" />
+  <!-- Global Attributes -->
+  <aura:attribute access="global" name="actionName" type="String" />
+  <aura:attribute access="global" name="filterName" type="String" />
+  <aura:attribute access="global" name="objectApiName" type="String" />
+  <aura:attribute access="global" name="recordId" type="String" />
+  <aura:attribute access="global" name="relationshipApiName" type="String" />
+  <aura:attribute access="global" name="type" type="String" />
+  <aura:attribute access="global" name="url" type="String" />
 
-    <lightning:navigation aura:id="navigator" />
+  <lightning:navigation aura:id="navigator" />
 </aura:component>

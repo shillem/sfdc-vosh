@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ApexCRUDViolation, PMD.ApexSharingViolations')
 global class CmsmTriggerHandler extends TriggerHandler.Routine {
   private class Rejiggler {
     private final Id campaignId;
@@ -167,10 +168,8 @@ global class CmsmTriggerHandler extends TriggerHandler.Routine {
     queueCampaign((Schema.Campaign) record);
   }
 
-  global override System.TriggerOperation pre() {
+  global override void pre() {
     campaigns = new Map<Id, String>();
-
-    return getOperationType();
   }
 
   global override void post() {

@@ -1,156 +1,145 @@
 <aura:component access="global">
-    <!-- Global Attributes -->
-    <aura:attribute access="global" name="actions" type="Aura.Component[]" />
-    <aura:attribute
-        access="global" 
-        name="i18n"
-        type="Map"
-        default="{ cancel: 'Cancel', close: 'Close', next: 'Next', ok: 'OK', previous: 'Previous' }"
-    />
-    <aura:attribute access="global" name="disabled" type="Boolean" />
-    <aura:attribute access="global" name="loading" type="Boolean" />
-    <aura:attribute access="global" name="opened" type="Boolean" />
-    <aura:attribute access="global" name="size" type="String" />
-    <aura:attribute access="global" name="step" type="String" />
-    <aura:attribute access="global" name="steps" type="List" />
-    <aura:attribute access="global" name="tagline" type="String" />
-    <aura:attribute access="global" name="title" type="String" />
+  <!-- Global Attributes -->
+  <aura:attribute access="global" name="actions" type="Aura.Component[]" />
+  <aura:attribute
+    access="global"
+    name="i18n"
+    type="Map"
+    default="{ cancel: 'Cancel', close: 'Close', next: 'Next', ok: 'OK', previous: 'Previous' }"
+  />
+  <aura:attribute access="global" name="disabled" type="Boolean" />
+  <aura:attribute access="global" name="loading" type="Boolean" />
+  <aura:attribute access="global" name="opened" type="Boolean" />
+  <aura:attribute access="global" name="size" type="String" />
+  <aura:attribute access="global" name="step" type="String" />
+  <aura:attribute access="global" name="steps" type="List" />
+  <aura:attribute access="global" name="tagline" type="String" />
+  <aura:attribute access="global" name="title" type="String" />
 
-    <!-- Private Attributes -->
-    <aura:attribute name="backdropClass" type="String" access="private" default="slds-backdrop" />
-    <aura:attribute name="firstStep" type="Boolean" access="private" />
-    <aura:attribute name="lastStep" type="Boolean" access="private" />
-    <aura:attribute
-        name="sectionClass"
-        type="String"
-        access="private"
-        default="slds-modal slds-hide"
-    />
+  <!-- Private Attributes -->
+  <aura:attribute name="backdropClass" type="String" access="private" default="slds-backdrop" />
+  <aura:attribute name="firstStep" type="Boolean" access="private" />
+  <aura:attribute name="lastStep" type="Boolean" access="private" />
+  <aura:attribute
+    name="sectionClass"
+    type="String"
+    access="private"
+    default="slds-modal slds-hide"
+  />
 
-    <!-- Events -->
-    <aura:registerEvent access="global" name="onaction" type="c:ComponentEvent" />
+  <!-- Events -->
+  <aura:registerEvent access="global" name="onaction" type="c:ComponentEvent" />
 
-    <!-- Handlers -->
-    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
-    <aura:handler name="change" value="{!v.opened}" action="{!c.handleOpenedChange}" />
-    <aura:handler name="change" value="{!v.step}" action="{!c.handleStepChange}" />
+  <!-- Handlers -->
+  <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+  <aura:handler name="change" value="{!v.opened}" action="{!c.handleOpenedChange}" />
+  <aura:handler name="change" value="{!v.step}" action="{!c.handleStepChange}" />
 
-    <section
-        aura:id="section"
-        aria-modal="true"
-        aria-hidden="{!not(v.opened)}"
-        class="{!v.sectionClass}"
-        role="dialog"
-        tabindex="-1"
-    >
-        <aura:if isTrue="{!v.opened}">
-            <div class="slds-modal__container">
-                <aura:if isTrue="{!empty(v.title)}">
-                    <header class="slds-modal__header slds-modal__header_empty">
-                        <lightning:buttonIcon
-                            class="slds-modal__close"
-                            iconName="utility:close"
-                            variant="bare-inverse"
-                            title="{!v.i18n.close}"
-                            alternativeText="{!v.i18n.close}"
-                            onclick="{!c.handleClose}"
-                            size="large"
-                        />
-                    </header>
+  <section
+    aura:id="section"
+    aria-modal="true"
+    aria-hidden="{!not(v.opened)}"
+    class="{!v.sectionClass}"
+    role="dialog"
+    tabindex="-1"
+  >
+    <aura:if isTrue="{!v.opened}">
+      <div class="slds-modal__container">
+        <aura:if isTrue="{!empty(v.title)}">
+          <header class="slds-modal__header slds-modal__header_empty">
+            <lightning:buttonIcon
+              class="slds-modal__close"
+              iconName="utility:close"
+              variant="bare-inverse"
+              title="{!v.i18n.close}"
+              alternativeText="{!v.i18n.close}"
+              onclick="{!c.handleClose}"
+              size="large"
+            />
+          </header>
 
-                    <aura:set attribute="else">
-                        <header class="slds-modal__header">
-                            <lightning:buttonIcon
-                                class="slds-modal__close"
-                                iconName="utility:close"
-                                variant="bare-inverse"
-                                title="{!v.i18n.close}"
-                                alternativeText="{!v.i18n.close}"
-                                onclick="{!c.handleClose}"
-                                size="large"
-                            />
-                            <h2 class="slds-text-heading_medium slds-hyphenate">
-                                {!v.title}
-                            </h2>
+          <aura:set attribute="else">
+            <header class="slds-modal__header">
+              <lightning:buttonIcon
+                class="slds-modal__close"
+                iconName="utility:close"
+                variant="bare-inverse"
+                title="{!v.i18n.close}"
+                alternativeText="{!v.i18n.close}"
+                onclick="{!c.handleClose}"
+                size="large"
+              />
+              <h2 class="slds-text-heading_medium slds-hyphenate">{!v.title}</h2>
 
-                            <aura:if isTrue="{!v.tagline}">
-                                <p class="slds-m-top_x-small">
-                                    {!v.tagline}
-                                </p>
-                            </aura:if>
-                        </header>
-                    </aura:set>
-                </aura:if>
-                <div class="slds-modal__content slds-p-around_medium">
-                    <aura:if isTrue="{!v.loading}">
-                        <div class="slds-is-relative" style="height: 6rem;">
-                            <lightning:spinner alternativeText="..." />
-                        </div>
-
-                        <aura:set attribute="else">
-                            {!v.body}
-                        </aura:set>
-                    </aura:if>
-                </div>
-                <footer class="slds-modal__footer">
-                    <div class="slds-grid slds-grid_vertical-align-center">
-                        <div class="slds-col slds-size_4-of-12 slds-text-align_left">
-                            <aura:if isTrue="{!not(empty(v.steps)) &amp;&amp; not(v.firstStep)}">
-                                <lightning:button
-                                    label="{!v.i18n.previous}"
-                                    title="{!v.i18n.previous}"
-                                    onclick="{!c.handleStepPrevious}"
-                                />
-                            </aura:if>
-                        </div>
-                        <div class="slds-col slds-text-align_center">
-                            <aura:if isTrue="{!not(empty(v.steps))}">
-                                <lightning:progressIndicator currentStep="{!v.step}">
-                                    <aura:iteration items="{!v.steps}" var="step">
-                                        <lightning:progressStep
-                                            label="{#step.label}"
-                                            value="{#step.value}"
-                                        />
-                                    </aura:iteration>
-                                </lightning:progressIndicator>
-                            </aura:if>
-                        </div>
-                        <div class="slds-col slds-size_4-of-12">
-                            <aura:if isTrue="{!empty(v.actions)}">
-                                <lightning:button
-                                    label="{!v.i18n.cancel}"
-                                    title="{!v.i18n.cancel}"
-                                    onclick="{!c.handleClose}"
-                                />
-
-                                <aura:if isTrue="{!empty(v.steps) || v.lastStep}">
-                                    <lightning:button
-                                        label="{!v.i18n.ok}"
-                                        title="{!v.i18n.ok}"
-                                        onclick="{!c.handleOk}"
-                                        variant="brand"
-                                        disabled="{!v.disabled}"
-                                    />
-
-                                    <aura:set attribute="else">
-                                        <lightning:button
-                                            label="{!v.i18n.next}"
-                                            title="{!v.i18n.next}"
-                                            onclick="{!c.handleStepNext}"
-                                            variant="brand"
-                                        />
-                                    </aura:set>
-                                </aura:if>
-
-                                <aura:set attribute="else">
-                                    {!v.actions}
-                                </aura:set>
-                            </aura:if>
-                        </div>
-                    </div>
-                </footer>
-            </div>
+              <aura:if isTrue="{!v.tagline}">
+                <p class="slds-m-top_x-small">{!v.tagline}</p>
+              </aura:if>
+            </header>
+          </aura:set>
         </aura:if>
-    </section>
-    <div aura:id="backdrop" class="{!v.backdropClass}"></div>
+        <div class="slds-modal__content slds-p-around_medium">
+          <aura:if isTrue="{!v.loading}">
+            <div class="slds-is-relative" style="height: 6rem">
+              <lightning:spinner alternativeText="..." />
+            </div>
+
+            <aura:set attribute="else"> {!v.body} </aura:set>
+          </aura:if>
+        </div>
+        <footer class="slds-modal__footer">
+          <div class="slds-grid slds-grid_vertical-align-center">
+            <div class="slds-col slds-size_4-of-12 slds-text-align_left">
+              <aura:if isTrue="{!not(empty(v.steps)) &amp;&amp; not(v.firstStep)}">
+                <lightning:button
+                  label="{!v.i18n.previous}"
+                  title="{!v.i18n.previous}"
+                  onclick="{!c.handleStepPrevious}"
+                />
+              </aura:if>
+            </div>
+            <div class="slds-col slds-text-align_center">
+              <aura:if isTrue="{!not(empty(v.steps))}">
+                <lightning:progressIndicator currentStep="{!v.step}">
+                  <aura:iteration items="{!v.steps}" var="step">
+                    <lightning:progressStep label="{#step.label}" value="{#step.value}" />
+                  </aura:iteration>
+                </lightning:progressIndicator>
+              </aura:if>
+            </div>
+            <div class="slds-col slds-size_4-of-12">
+              <aura:if isTrue="{!empty(v.actions)}">
+                <lightning:button
+                  label="{!v.i18n.cancel}"
+                  title="{!v.i18n.cancel}"
+                  onclick="{!c.handleClose}"
+                />
+
+                <aura:if isTrue="{!empty(v.steps) || v.lastStep}">
+                  <lightning:button
+                    label="{!v.i18n.ok}"
+                    title="{!v.i18n.ok}"
+                    onclick="{!c.handleOk}"
+                    variant="brand"
+                    disabled="{!v.disabled}"
+                  />
+
+                  <aura:set attribute="else">
+                    <lightning:button
+                      label="{!v.i18n.next}"
+                      title="{!v.i18n.next}"
+                      onclick="{!c.handleStepNext}"
+                      variant="brand"
+                    />
+                  </aura:set>
+                </aura:if>
+
+                <aura:set attribute="else"> {!v.actions} </aura:set>
+              </aura:if>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </aura:if>
+  </section>
+  <div aura:id="backdrop" class="{!v.backdropClass}"></div>
 </aura:component>

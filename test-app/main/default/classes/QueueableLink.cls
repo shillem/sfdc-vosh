@@ -9,7 +9,7 @@ public inherited sharing class QueueableLink extends ChainableQueueable implemen
 
   public override void execute(Chainable.Context context) {
     LOG.info('executeInner() executing ' + name);
-    
+
     final Soqler soql = new Soqler(Schema.Account.SObjectType);
     soql.fields().add(Schema.Account.Id);
     soql.setMaxCount(1);

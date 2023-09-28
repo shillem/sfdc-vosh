@@ -4,7 +4,7 @@
  * @since 1.1
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier')
- global inherited sharing class Collections {
+global inherited sharing class Collections {
   /**
    * @description It returns a flattened list of the list of lists passed
    *
@@ -16,13 +16,13 @@
     Utils.requireNonNull(lists, 'Lists cannot be null');
 
     if (lists.isEmpty()) {
-        throw new IllegalArgumentException('Lists cannot be empty');
+      throw new IllegalArgumentException('Lists cannot be empty');
     }
 
     final List<Object> flattened = lists[0].clone();
 
     for (Integer i = 1; i < lists.size(); i++) {
-        flattened.addAll(lists[i]);
+      flattened.addAll(lists[i]);
     }
 
     return flattened;

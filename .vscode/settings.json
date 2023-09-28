@@ -1,5 +1,5 @@
 {
-    "[xml]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+  "[xml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

@@ -61,8 +61,8 @@ public class DescriberTest {
     final Describer describ = Describer.getInstance();
     final String objectName = String.valueOf(Schema.Account.SObjectType);
 
-    // Include all
     {
+      // Include all
       final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
       filter.setObjectName(objectName);
 
@@ -72,8 +72,8 @@ public class DescriberTest {
       );
     }
 
-    // Include only those that contain
     {
+      // Include only those that contain
       final Schema.SObjectField field = Schema.Account.Name;
       final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
       filter.setObjectName(objectName);
@@ -85,8 +85,8 @@ public class DescriberTest {
       );
     }
 
-    // Include only those that contain
     {
+      // Include only those that contain
       final Schema.SObjectField field = Schema.Account.OwnerId;
       final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
       filter.setObjectName(objectName);
@@ -98,8 +98,8 @@ public class DescriberTest {
       );
     }
 
-    // Include only those that match regex
     {
+      // Include only those that match regex
       final Schema.SObjectField field = Schema.Account.OwnerId;
       final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
       filter.setObjectName(objectName);
@@ -118,8 +118,8 @@ public class DescriberTest {
       );
     }
 
-    // Include only by family name
     {
+      // Include only by family name
       final Schema.SObjectField field = Schema.Account.NumberOfEmployees;
       final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
       filter.setObjectName(objectName);
@@ -136,8 +136,8 @@ public class DescriberTest {
   static void queryObjectType() {
     final Describer describ = Describer.getInstance();
 
-    // Include all
     {
+      // Include all
       final Schema.SObjectType type = Schema.Account.SObjectType;
       final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
       final List<Schema.SObjectType> results = describ.querySObjectTypes(filter);
@@ -146,16 +146,16 @@ public class DescriberTest {
       System.assert(results.contains(type), 'It should have contained ' + type);
     }
 
-    // Include only with specific names
     {
+      // Include only with specific names
       final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
       filter.setNames(new Set<String>{ String.valueOf(Schema.Account.SObjectType) });
 
       System.assertEquals(1, describ.querySObjectTypes(filter).size());
     }
 
-    // Include only those that contain
     {
+      // Include only those that contain
       final Schema.SObjectType type = Schema.Account.SObjectType;
       final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
       filter.setContains(new Set<String>{ String.valueOf(type).substring(3) });
@@ -166,8 +166,8 @@ public class DescriberTest {
       );
     }
 
-    // Include only those that match regex
     {
+      // Include only those that match regex
       final Schema.SObjectType type = Schema.Account.SObjectType;
       final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
       filter.setRegex('^Acc.+');
@@ -253,16 +253,15 @@ public class DescriberTest {
     System.assertEquals(3, hops.size());
     System.assert(
       hops[0].getType() == Schema.Contact.SObjectType &&
-      hops[0].getField() == Schema.Contact.AccountId,
+        hops[0].getField() == Schema.Contact.AccountId,
       hops
     );
     System.assert(
       hops[1].getType() == Schema.Account.SObjectType &&
-      hops[1].getField() == Schema.Account.OwnerId
+        hops[1].getField() == Schema.Account.OwnerId
     );
     System.assert(
-      hops[2].getType() == Schema.User.SObjectType &&
-      hops[2].getField() == Schema.User.Name
+      hops[2].getType() == Schema.User.SObjectType && hops[2].getField() == Schema.User.Name
     );
 
     try {
@@ -278,7 +277,7 @@ public class DescriberTest {
     System.assertEquals(2, hops.size(), hops);
     System.assert(
       hops[0].getType() == Schema.Account.SObjectType &&
-      hops[0].getField() == Schema.Account.OwnerId
+        hops[0].getField() == Schema.Account.OwnerId
     );
     System.assert(hops[1].getType() == Schema.User.SObjectType && hops[1].getField() == null, hops);
   }
@@ -292,11 +291,10 @@ public class DescriberTest {
     System.assertEquals(2, hops.size());
     System.assert(
       hops[0].getType() == Schema.Account.SObjectType &&
-      hops[0].getField() == Schema.Account.OwnerId
+        hops[0].getField() == Schema.Account.OwnerId
     );
     System.assert(
-      hops[1].getType() == Schema.User.SObjectType &&
-      hops[1].getField() == Schema.User.Name
+      hops[1].getType() == Schema.User.SObjectType && hops[1].getField() == Schema.User.Name
     );
 
     try {
