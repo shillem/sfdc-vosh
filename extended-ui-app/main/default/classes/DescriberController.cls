@@ -38,20 +38,26 @@ global inherited sharing class DescriberController {
         Describer.SObjectFieldFilter.class
       );
 
-      final List<UI.ListboxItem> results = new List<UI.ListboxItem>();
-
-      for (Schema.SObjectField f : Describer.getInstance().querySObjectFields(filter)) {
-        results.add(new UI.ListboxItem(String.valueOf(f)));
-      }
-
-      results.sort();
-
-      return JSON.serialize(results, true);
+      return JSON.serialize(getSObjectFields(filter), true);
     } catch (System.Exception e) {
-      LOG.error('getSObjectFields()', e);
+      LOG.error('getSObjectFields(String)', e);
 
       throw new AuraHandledException(e.getMessage());
     }
+  }
+
+  global static List<UI.ListboxItem> getSObjectFields(Describer.SObjectFieldFilter filter) {
+    Utils.requireNonNull(filter, 'Filter cannot be null');
+
+    final List<UI.ListboxItem> results = new List<UI.ListboxItem>();
+
+    for (Schema.SObjectField f : Describer.getInstance().querySObjectFields(filter)) {
+      results.add(new UI.ListboxItem(String.valueOf(f)));
+    }
+
+    results.sort();
+
+    return results;
   }
 
   @AuraEnabled(cacheable=true)
