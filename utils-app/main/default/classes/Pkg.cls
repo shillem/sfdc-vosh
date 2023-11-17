@@ -57,7 +57,7 @@ global inherited sharing class Pkg {
         final List<Schema.Publisher> results = [
           SELECT MajorVersion, MinorVersion
           FROM Publisher
-          WHERE NamespacePrefix = :namespace AND MajorVersion > 0
+          WHERE NamespacePrefix = :namespace
         ];
 
         if (!results.isEmpty()) {
