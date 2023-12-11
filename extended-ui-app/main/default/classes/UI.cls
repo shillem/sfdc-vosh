@@ -9,6 +9,7 @@ global class UI {
 
     private String help;
     private Integer length;
+    private Boolean multiValue;
     private Set<Utils.Entry> options;
 
     // Validation
@@ -65,6 +66,10 @@ global class UI {
       return options;
     }
 
+    global Boolean isMultiValue() {
+      return multiValue != null && multiValue;
+    }
+
     global Boolean isReadonly() {
       return readonly != null && readonly;
     }
@@ -83,6 +88,12 @@ global class UI {
 
     global Field setHelp(String value) {
       help = value;
+
+      return this;
+    }
+
+    global Field setMultiValue(Boolean flag) {
+      multiValue = flag;
 
       return this;
     }
