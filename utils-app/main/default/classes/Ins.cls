@@ -5,9 +5,22 @@
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class Ins {
+  global class SensitivityLevel {
+    global final String name;
+    global final String label;
+    global final Integer order;
+
+    private SensitivityLevel(String name, String label, Integer order) {
+      this.name = name;
+      this.label = label;
+      this.order = order;
+    }
+  }
+
   private static Ins instance;
 
   private Boolean sandbox;
+  private List<SensitivityLevel> sensitivies;
 
   @SuppressWarnings('PMD.EmptyStatementBlock')
   private Ins() {
@@ -27,6 +40,24 @@ global inherited sharing class Ins {
     }
 
     return sandbox;
+  }
+
+  @SuppressWarnings('PMD.ApexCRUDViolation')
+  global List<SensitivityLevel> getSensitivityLevels() {
+    if (sensitivies == null) {
+      sensitivies = new List<SensitivityLevel>();
+
+      for (Schema.FieldSecurityClassification record : [
+        SELECT ApiName, MasterLabel, SortOrder
+        FROM FieldSecurityClassification
+        ORDER BY SortOrder
+        LIMIT 100
+      ]) {
+        sensitivies.add(new SensitivityLevel(record.ApiName, record.MasterLabel, record.SortOrder));
+      }
+    }
+
+    return new List<SensitivityLevel>(sensitivies);
   }
 
   /**
