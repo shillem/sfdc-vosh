@@ -106,10 +106,13 @@ global class Describer {
    *
    * @since 1.1
    */
-  global class SObjectFieldFilter extends SObjectFilter {
+  @SuppressWarnings('PMD.ApexCRUDViolation, PMD.StdCyclomaticComplexity')
+  global inherited sharing class SObjectFieldFilter extends SObjectFilter {
     private Boolean editable;
     private String objectName;
     private List<String> families;
+    private List<String> sensitivities;
+    private Map<String, String> sensitivityResults;
     private String type;
 
     global void setEditable(Boolean value) {
@@ -126,6 +129,10 @@ global class Describer {
 
     global void setObjectName(String value) {
       objectName = value;
+    }
+
+    global void setSensitivityLevels(List<String> value) {
+      sensitivities = value;
     }
 
     global void setType(String value) {
@@ -172,6 +179,33 @@ global class Describer {
       // 6th in evaluation order
       if (families != null && !families.contains(getDisplayFamily(dt).name())) {
         return false;
+      }
+
+      // 7th in evaluation order
+      if (sensitivities != null) {
+        if (objectName == null) {
+          throw new System.UnsupportedOperationException(
+            'Object name must be set when using sensitivity levels'
+          );
+        }
+
+        if (sensitivityResults == null) {
+          sensitivityResults = new Map<String, String>();
+
+          for (Schema.FieldDefinition d : [
+            SELECT DeveloperName, SecurityClassification
+            FROM FieldDefinition
+            WHERE
+              EntityDefinition.QualifiedApiName = :objectName
+              AND SecurityClassification IN :sensitivities
+          ]) {
+            sensitivityResults.put(d.DeveloperName, d.SecurityClassification);
+          }
+        }
+
+        if (!sensitivities.contains(sensitivityResults.get(name))) {
+          return false;
+        }
       }
 
       return true;
