@@ -9,7 +9,7 @@
  * @since 1.0.1
  */
 @SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity')
-global class Describer {
+global inherited sharing class Describer {
   /**
    * @description An enumerator to classify <code>DisplayType</code> in broader terms.
    *
@@ -106,37 +106,49 @@ global class Describer {
    *
    * @since 1.1
    */
-  @SuppressWarnings('PMD.ApexCRUDViolation, PMD.StdCyclomaticComplexity')
-  global inherited sharing class SObjectFieldFilter extends SObjectFilter {
+  global class SObjectFieldFilter extends SObjectFilter {
+    // Storing objectName as a String instead of SObjectType to avoid serialization issues
+    private final String objectName;
+
     private Boolean editable;
-    private String objectName;
-    private List<String> families;
+    private List<DisplayFamily> families;
     private List<String> sensitivities;
-    private Map<String, String> sensitivityResults;
-    private String type;
+    private Schema.DisplayType displayType;
+
+    global SObjectFieldFilter(Schema.SObjectType t) {
+      Utils.requireNonNull(t, 'SObjectType cannot be null');
+
+      this.objectName = String.valueOf(t);
+    }
+
+    global SObjectFieldFilter(String objectName) {
+      Utils.requireNonNull(objectName, 'Object name cannot be null');
+
+      this.objectName = objectName;
+    }
+
+    global void setDisplayType(Schema.DisplayType value) {
+      displayType = value;
+    }
 
     global void setEditable(Boolean value) {
       editable = value;
     }
 
-    global void setFamily(String value) {
-      setFamilies(new List<String>{ value });
+    global void setFamily(DisplayFamily value) {
+      setFamilies(new List<DisplayFamily>{ value });
     }
 
-    global void setFamilies(List<String> value) {
+    global void setFamilies(List<DisplayFamily> value) {
       families = value;
     }
 
-    global void setObjectName(String value) {
-      objectName = value;
+    global void setSensitivityLevel(String value) {
+      setSensitivityLevels(new List<String>{ value });
     }
 
     global void setSensitivityLevels(List<String> value) {
       sensitivities = value;
-    }
-
-    global void setType(String value) {
-      type = value;
     }
 
     global Boolean matches(Schema.SObjectField field, Describer describ) {
@@ -172,40 +184,23 @@ global class Describer {
       final Schema.DisplayType dt = result.getType();
 
       // 5th in evaluation order
-      if (type != null && !type.equalsIgnoreCase(dt.name())) {
+      if (displayType != null && displayType == dt) {
         return false;
       }
 
       // 6th in evaluation order
-      if (families != null && !families.contains(getDisplayFamily(dt).name())) {
+      if (families != null && !families.contains(getDisplayFamily(dt))) {
         return false;
       }
 
       // 7th in evaluation order
-      if (sensitivities != null) {
-        if (objectName == null) {
-          throw new System.UnsupportedOperationException(
-            'Object name must be set when using sensitivity levels'
-          );
-        }
-
-        if (sensitivityResults == null) {
-          sensitivityResults = new Map<String, String>();
-
-          for (Schema.FieldDefinition d : [
-            SELECT DeveloperName, SecurityClassification
-            FROM FieldDefinition
-            WHERE
-              EntityDefinition.QualifiedApiName = :objectName
-              AND SecurityClassification IN :sensitivities
-          ]) {
-            sensitivityResults.put(d.DeveloperName, d.SecurityClassification);
-          }
-        }
-
-        if (!sensitivities.contains(sensitivityResults.get(name))) {
-          return false;
-        }
+      if (
+        sensitivities != null &&
+        !sensitivities.contains(
+          describ.getFieldSensitivities(describ.getGlobal().get(objectName)).get(name)
+        )
+      ) {
+        return false;
       }
 
       return true;
@@ -269,6 +264,7 @@ global class Describer {
   private Map<Schema.SObjectType, Schema.DescribeSObjectResult> objectDescribers;
   private Map<Schema.SObjectType, Map<Schema.SObjectType, String>> objectRelationshipNames;
   private Map<Schema.SObjectField, Schema.DescribeFieldResult> fieldDescribers;
+  private Map<Schema.SObjectType, Map<String, String>> fieldSensitivities;
 
   @SuppressWarnings('PMD.EmptyStatementBlock')
   private Describer() {
@@ -330,6 +326,35 @@ global class Describer {
     }
 
     return value;
+  }
+
+  @SuppressWarnings('PMD.ApexCRUDViolation')
+  global Map<String, String> getFieldSensitivities(Schema.SObjectType type) {
+    Utils.requireNonNull(type, 'Type cannot be null');
+
+    if (fieldSensitivities == null) {
+      fieldSensitivities = new Map<Schema.SObjectType, Map<String, String>>();
+    }
+
+    Map<String, String> sub = fieldSensitivities.get(type);
+
+    if (sub == null) {
+      sub = new Map<String, String>();
+
+      fieldSensitivities.put(type, sub);
+
+      final String objectName = String.valueOf(type);
+
+      for (Schema.FieldDefinition d : [
+        SELECT DeveloperName, SecurityClassification
+        FROM FieldDefinition
+        WHERE EntityDefinition.QualifiedApiName = :objectName
+      ]) {
+        sub.put(d.DeveloperName, d.SecurityClassification);
+      }
+    }
+
+    return sub;
   }
 
   /**
@@ -493,17 +518,12 @@ global class Describer {
    */
   global List<Schema.SObjectField> querySObjectFields(SObjectFieldFilter filter) {
     Utils.requireNonNull(filter, 'Filter name cannot be null');
-    Utils.requireNonNull(filter.objectName, 'Filter object name cannot be null');
-
-    final Schema.SObjectType type = getGlobal().get(filter.objectName);
-
-    if (type == null) {
-      throw new System.IllegalArgumentException('Could not find SObject ' + filter.objectName);
-    }
 
     final List<Schema.SObjectField> results = new List<Schema.SObjectField>();
 
-    for (Schema.SObjectField field : getObjectFieldMap(type).values()) {
+    for (
+      Schema.SObjectField field : getObjectFieldMap(getGlobal().get(filter.objectName)).values()
+    ) {
       if (filter.matches(field, this)) {
         results.add(field);
       }

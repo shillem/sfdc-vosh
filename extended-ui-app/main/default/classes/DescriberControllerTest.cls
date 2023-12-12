@@ -19,8 +19,9 @@ public class DescriberControllerTest {
   static void getSObjectFields() {
     insert LoggerTest.createDefaultProfile();
 
-    final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
-    filter.setObjectName(String.valueOf(Schema.Account.SObjectType));
+    final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter(
+      Schema.Account.SObjectType
+    );
 
     final List<Object> results = (List<Object>) JSON.deserializeUntyped(
       DescriberController.getSObjectFields(JSON.serialize(filter))
