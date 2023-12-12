@@ -110,10 +110,10 @@ global inherited sharing class Describer {
     // Storing objectName as a String instead of SObjectType to avoid serialization issues
     private final String objectName;
 
+    private List<Schema.DisplayType> displayTypes;
     private Boolean editable;
     private List<DisplayFamily> families;
     private List<String> sensitivities;
-    private Schema.DisplayType displayType;
 
     global SObjectFieldFilter(Schema.SObjectType t) {
       Utils.requireNonNull(t, 'SObjectType cannot be null');
@@ -128,7 +128,11 @@ global inherited sharing class Describer {
     }
 
     global void setDisplayType(Schema.DisplayType value) {
-      displayType = value;
+      setDisplayTypes(new List<Schema.DisplayType>{ value });
+    }
+
+    global void setDisplayTypes(List<Schema.DisplayType> value) {
+      displayTypes = value;
     }
 
     global void setEditable(Boolean value) {
@@ -184,7 +188,7 @@ global inherited sharing class Describer {
       final Schema.DisplayType dt = result.getType();
 
       // 5th in evaluation order
-      if (displayType != null && displayType == dt) {
+      if (displayTypes != null && !displayTypes.contains(dt)) {
         return false;
       }
 

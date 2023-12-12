@@ -59,24 +59,22 @@ public class DescriberTest {
   @isTest
   static void querySObjectField() {
     final Describer describ = Describer.getInstance();
-    final String objectName = String.valueOf(Schema.Account.SObjectType);
+    final Schema.SObjectType so = Schema.Account.SObjectType;
 
     {
       // Include all
-      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
-      filter.setObjectName(objectName);
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter(so);
 
       System.assert(
         !describ.querySObjectFields(filter).isEmpty(),
-        'It should have returned a list of the fields for ' + objectName
+        'It should have returned a list of the fields for ' + so
       );
     }
 
     {
       // Include only those that contain
       final Schema.SObjectField field = Schema.Account.Name;
-      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
-      filter.setObjectName(objectName);
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter(so);
       filter.setContains(new Set<String>{ String.valueOf(field).substring(3) });
 
       System.assert(
@@ -88,9 +86,8 @@ public class DescriberTest {
     {
       // Include only those that contain
       final Schema.SObjectField field = Schema.Account.OwnerId;
-      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
-      filter.setObjectName(objectName);
-      filter.setType(Schema.DisplayType.REFERENCE.name());
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter(so);
+      filter.setDisplayType(Schema.DisplayType.REFERENCE);
 
       System.assert(
         describ.querySObjectFields(filter).contains(field),
@@ -101,8 +98,7 @@ public class DescriberTest {
     {
       // Include only those that match regex
       final Schema.SObjectField field = Schema.Account.OwnerId;
-      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
-      filter.setObjectName(objectName);
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter(so);
       filter.setRegex('^Own.+Id');
 
       System.assert(
@@ -121,9 +117,8 @@ public class DescriberTest {
     {
       // Include only by family name
       final Schema.SObjectField field = Schema.Account.NumberOfEmployees;
-      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter();
-      filter.setObjectName(objectName);
-      filter.setFamily('NUM');
+      final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter(so);
+      filter.setFamily(Describer.DisplayFamily.NUM);
 
       System.assert(
         describ.querySObjectFields(filter).contains(field),
