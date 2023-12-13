@@ -49,7 +49,7 @@
   ],
   "namespace": "vosh",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "55.0",
+  "sourceApiVersion": "58.0",
   "packageAliases": {
     "Vosh Enhanced Campaigns": "0Ho3V000000XZAqSAO",
     "Vosh Enhanced Campaigns@1.0.5-1": "04t3V000000EIQWQA4",
