@@ -11,6 +11,7 @@ global class UI {
     private Integer length;
     private Boolean multiValue;
     private Set<Utils.Entry> options;
+    private Boolean restrictedPicklist;
 
     // Validation
     private Boolean required;
@@ -78,6 +79,10 @@ global class UI {
       return required != null && required;
     }
 
+    global Boolean isRestrictedPicklist() {
+      return restrictedPicklist != null && restrictedPicklist;
+    }
+
     global String getType() {
       return type;
     }
@@ -116,6 +121,12 @@ global class UI {
       return this;
     }
 
+    global Field setRestrictedPicklist(Boolean flag) {
+      restrictedPicklist = flag;
+
+      return this;
+    }
+
     global Field setValue(Object value) {
       this.value = value;
 
@@ -137,19 +148,20 @@ global class UI {
 
   @JsonAccess(serializable='always' deserializable='always')
   global class FieldSObject extends Field {
-    private transient SObjectField field;
+    private transient Schema.SObjectField field;
     private transient Schema.DescribeFieldResult result;
 
-    global FieldSObject(SObjectField field) {
+    global FieldSObject(Schema.SObjectField field) {
       this(field, Describer.getInstance().getFieldDescribe(field));
     }
 
-    private FieldSObject(SObjectField field, Schema.DescribeFieldResult result) {
+    private FieldSObject(Schema.SObjectField field, Schema.DescribeFieldResult result) {
       super(result.getName(), result.getLabel(), result.getType().name());
 
       setHelp(result.getInlineHelpText());
       setLength(result.getLength());
       setRequired(!result.isNillable());
+      setRestrictedPicklist(result.isRestrictedPicklist());
 
       this.field = field;
       this.result = result;
