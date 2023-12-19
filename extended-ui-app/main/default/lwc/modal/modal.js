@@ -39,7 +39,13 @@ export default class Modal extends LightningElement {
   }
 
   get lastStep() {
-    return !this.hasSteps || this.steps[this.steps.length - 1].value === this.step;
+    return (
+      !this.loading && (!this.hasSteps || this.steps[this.steps.length - 1].value === this.step)
+    );
+  }
+
+  get nextStep() {
+    return !this.loading;
   }
 
   get sectionClass() {
