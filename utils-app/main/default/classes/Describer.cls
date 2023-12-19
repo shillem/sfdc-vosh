@@ -350,11 +350,11 @@ global inherited sharing class Describer {
       final String objectName = String.valueOf(type);
 
       for (Schema.FieldDefinition d : [
-        SELECT DeveloperName, SecurityClassification
+        SELECT QualifiedApiName, SecurityClassification
         FROM FieldDefinition
         WHERE EntityDefinition.QualifiedApiName = :objectName
       ]) {
-        sub.put(d.DeveloperName, d.SecurityClassification);
+        sub.put(d.QualifiedApiName, d.SecurityClassification);
       }
     }
 
