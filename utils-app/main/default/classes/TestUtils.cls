@@ -59,13 +59,16 @@ global class TestUtils {
      */
     global System.HTTPResponse respond(System.HTTPRequest req) {
       for (HttpResponseMock res : responses) {
-        if (res.rule.matcher(req.getEndpoint()).matches()) {
-          return res.respond();
+        if (res.matches(req)) {
+          return res.respond(req);
         }
       }
 
       throw new UnsupportedOperationException(
-        'No response implementation for ' + req.getEndpoint()
+        String.format(
+          'No response implementation for [{0}] {1}',
+          new List<Object>{ req.getMethod(), req.getEndpoint() }
+        )
       );
     }
   }
@@ -77,10 +80,7 @@ global class TestUtils {
    */
   global class HttpResponseMock {
     private final System.Pattern rule;
-    private final Integer statusCode;
-
-    private Object body;
-    private Integer invocations;
+    private final Map<String, HttpResponseMockCombo> combos;
 
     /**
      * @description
@@ -88,18 +88,37 @@ global class TestUtils {
      * @since 1.0.4
      */
     global HttpResponseMock(System.Pattern rule) {
-      this(rule, 200);
+      this.rule = rule;
+      this.combos = new Map<String, HttpResponseMockCombo>();
     }
 
     /**
      * @description
      *
-     * @since 1.0.4
+     * @since 1.1
      */
-    global HttpResponseMock(System.Pattern rule, Integer statusCode) {
-      this.rule = rule;
-      this.statusCode = statusCode;
-      this.invocations = 0;
+    global HttpResponseMock add(String method) {
+      return add(method, 200);
+    }
+
+    /**
+     * @description
+     *
+     * @since 1.1
+     */
+    global HttpResponseMock add(String method, Integer statusCode) {
+      return add(method, statusCode, null);
+    }
+
+    /**
+     * @description
+     *
+     * @since 1.1
+     */
+    global HttpResponseMock add(String method, Integer statusCode, Object body) {
+      combos.put(method, new HttpResponseMockCombo(method, statusCode, body));
+
+      return this;
     }
 
     /**
@@ -108,7 +127,17 @@ global class TestUtils {
      * @since 1.1
      */
     global Integer getInvocations() {
-      return invocations;
+      Integer value = 0;
+
+      for (HttpResponseMockCombo combo : combos.values()) {
+        value += combo.invocations;
+      }
+
+      return value;
+    }
+
+    global Boolean matches(System.HttpRequest req) {
+      return rule.matcher(req.getEndpoint()).matches() && combos.containsKey(req.getMethod());
     }
 
     /**
@@ -116,8 +145,28 @@ global class TestUtils {
      *
      * @since 1.0.4
      */
-    global System.HTTPResponse respond() {
-      System.HttpResponse res = new System.HttpResponse();
+    global System.HTTPResponse respond(System.HttpRequest req) {
+      return combos.get(req.getMethod()).respond();
+    }
+  }
+
+  private class HttpResponseMockCombo {
+    private final String method;
+    private final Integer statusCode;
+    private final Object body;
+
+    private Integer invocations;
+
+    private HttpResponseMockCombo(String method, Integer statusCode, Object body) {
+      this.method = method;
+      this.statusCode = statusCode;
+      this.body = treatBody(body);
+
+      this.invocations = 0;
+    }
+
+    private System.HttpResponse respond() {
+      final System.HttpResponse res = new System.HttpResponse();
 
       res.setStatusCode(statusCode);
 
@@ -132,35 +181,18 @@ global class TestUtils {
       return res;
     }
 
-    /**
-     * @description
-     *
-     * @since 1.0.4
-     */
-    global HttpResponseMock setBody(Blob value) {
-      body = value;
+    private Object treatBody(Object body) {
+      if (body instanceof Blob || body instanceof String) {
+        return body;
+      }
 
-      return this;
-    }
+      if (!(body instanceof HttpResponseMockStaticResourceBody)) {
+        return null;
+      }
 
-    /**
-     * @description
-     *
-     * @since 1.0.4
-     */
-    global HttpResponseMock setBody(String value) {
-      body = value;
+      final HttpResponseMockStaticResourceBody req = (HttpResponseMockStaticResourceBody) body;
 
-      return this;
-    }
-
-    /**
-     * @description
-     *
-     * @since 1.1
-     */
-    public HttpResponseMock setBody(HttpResponseMockStaticResourceBody req) {
-      String body;
+      String result;
 
       {
         final Soqler soql = new Soqler(Schema.StaticResource.SObjectType).setMaxCount(1);
@@ -175,22 +207,20 @@ global class TestUtils {
 
         final Schema.StaticResource resource = (Schema.StaticResource) soql.query()[0];
 
-        body = resource.Body.toString();
+        result = resource.Body.toString();
       }
 
       if (req.key != null) {
-        body = JSON.serialize(Utils.deserializeToMapper(body).getObject(req.key));
+        result = JSON.serialize(Utils.deserializeToMapper(result).getObject(req.key));
       }
 
       if (req.variables != null) {
         for (Integer i = 0; i < req.variables.size(); i++) {
-          body = ((String) body).replace('{' + i + '}', req.variables.get(i));
+          result = ((String) result).replace('{' + i + '}', req.variables.get(i));
         }
       }
 
-      this.body = body;
-
-      return this;
+      return result;
     }
   }
 
