@@ -10,6 +10,7 @@ export default class AutocompleteCombobox extends LightningElement {
   @api minimum = 3;
   @api name;
   @api placeholder;
+  readOnly = false;
   @api required = false;
   @api variant = "standard";
 
@@ -22,9 +23,13 @@ export default class AutocompleteCombobox extends LightningElement {
   _options;
   _value;
 
-  validation = true;
   validationCustomMessage;
+  validationInvalid = false;
   validationMessage;
+
+  get active() {
+    return !(this.disabled || this.readOnly);
+  }
 
   get comboboxClass() {
     return (
@@ -277,7 +282,7 @@ export default class AutocompleteCombobox extends LightningElement {
       return;
     }
 
-    const listbox = this.template.querySelector('[role="listbox"]');
+    const listbox = this.refs.listbox;
     const input = this.template.querySelector(".slds-combobox__input-value");
     input.setAttribute("aria-controls", listbox.id);
 
@@ -314,17 +319,17 @@ export default class AutocompleteCombobox extends LightningElement {
   @api reportValidity() {
     const state = this.validity;
 
-    this.validation = state.valid;
+    this.validationInvalid = !state.valid;
     this.validationMessage = state.valid
       ? ""
       : state.customError
-      ? this.validationCustomMessage
-      : this.messageWhenValueMissing;
+        ? this.validationCustomMessage
+        : this.messageWhenValueMissing;
 
-    if (this.validation) {
-      this.classList.remove("slds-has-error");
-    } else {
+    if (this.validationInvalid) {
       this.classList.add("slds-has-error");
+    } else {
+      this.classList.remove("slds-has-error");
     }
 
     return state.valid;

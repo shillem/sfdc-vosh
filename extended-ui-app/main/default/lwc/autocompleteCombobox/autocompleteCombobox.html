@@ -1,10 +1,10 @@
 <template>
-  <label if:true={label} class="slds-form-element__label" for="combobox">
-    <abbr if:true={required} class="slds-required" title="required">*</abbr>
+  <label lwc:if={label} class="slds-form-element__label" for="combobox">
+    <abbr lwc:if={required} class="slds-required" title="required">*</abbr>
     {label}
   </label>
 
-  <lightning-helptext if:true={fieldLevelHelp} content={fieldLevelHelp}></lightning-helptext>
+  <lightning-helptext lwc:if={fieldLevelHelp} content={fieldLevelHelp}></lightning-helptext>
 
   <div class="slds-form-element__control">
     <div class="slds-combobox_container">
@@ -20,15 +20,15 @@
             id="combobox"
             onclick={handleComboboxFocus}
           >
-            <span if:true={empty} class="slds-text-color_weak"> {placeholder} </span>
-            <div if:false={empty} class="slds-media">
+            <span lwc:if={empty} class="slds-text-color_weak"> {placeholder} </span>
+            <div lwc:else class="slds-media">
               <span class="slds-media__body">
                 <span class="slds-truncate" title={selection.label}> {selection.label} </span>
               </span>
             </div>
           </div>
           <div
-            if:false={disabled}
+            lwc:if={active}
             class="slds-input__icon-group slds-input__icon-group_right"
             onclick={handleComboboxIconClick}
           >
@@ -39,7 +39,13 @@
             ></lightning-icon>
           </div>
         </div>
-        <div id="listbox" class={listboxClass} onmousedown={handleListboxMouseDown} role="listbox">
+        <div
+          lwc:ref="listbox"
+          id="listbox"
+          class={listboxClass}
+          onmousedown={handleListboxMouseDown}
+          role="listbox"
+        >
           <ul class="slds-listbox slds-listbox_vertical" role="presentation">
             <li role="presentation" class="slds-listbox__item">
               <div
@@ -68,7 +74,7 @@
 
                     <div class="slds-input__icon-group slds-input__icon-group_right">
                       <div
-                        if:true={loading}
+                        lwc:if={loading}
                         class="slds-spinner slds-spinner_x-small slds-input__spinner"
                         role="status"
                       >
@@ -93,23 +99,13 @@
                 >
                   <span class="slds-media__figure slds-listbox__option-icon">
                     <lightning-icon
-                      if:true={result.icon}
+                      lwc:if={result.icon}
                       class={result.iconClass}
                       icon-name={result.icon}
                       size="small"
                     ></lightning-icon>
                   </span>
-                  <span if:false={result.meta} class="slds-media__body">
-                    <span class="slds-media__figure slds-listbox__option-icon"></span>
-                    <span class="slds-media__body">
-                      <span class="slds-truncate" title={result.label}>
-                        <lightning-formatted-rich-text
-                          value={result.label_matched}
-                        ></lightning-formatted-rich-text>
-                      </span>
-                    </span>
-                  </span>
-                  <span if:true={result.meta} class="slds-media__body">
+                  <span lwc:if={result.meta} class="slds-media__body">
                     <span class="slds-listbox__option-text slds-listbox__option-text_entity"
                       ><lightning-formatted-rich-text
                         value={result.label_matched}
@@ -119,6 +115,16 @@
                       ><lightning-formatted-rich-text
                         value={result.meta_matched}
                       ></lightning-formatted-rich-text>
+                    </span>
+                  </span>
+                  <span lwc:else class="slds-media__body">
+                    <span class="slds-media__figure slds-listbox__option-icon"></span>
+                    <span class="slds-media__body">
+                      <span class="slds-truncate" title={result.label}>
+                        <lightning-formatted-rich-text
+                          value={result.label_matched}
+                        ></lightning-formatted-rich-text>
+                      </span>
                     </span>
                   </span>
                 </div>
@@ -131,7 +137,7 @@
   </div>
 
   <div
-    if:false={validation}
+    lwc:if={validationInvalid}
     aria-live="assertive"
     class="slds-form-element__help"
     data-help-text="true"
