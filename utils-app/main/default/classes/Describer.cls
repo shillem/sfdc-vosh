@@ -665,7 +665,7 @@ global inherited sharing class Describer {
       when CURRENCY, DOUBLE, INTEGER, LONG, PERCENT {
         return DisplayFamily.NUM;
       }
-      when ENCRYPTEDSTRING, ID, PHONE, REFERENCE, STRING, TEXTAREA, URL {
+      when EMAIL, ENCRYPTEDSTRING, ID, PHONE, REFERENCE, STRING, TEXTAREA, URL {
         return DisplayFamily.TEXT;
       }
       when else {
