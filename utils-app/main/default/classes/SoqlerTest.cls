@@ -1,5 +1,20 @@
 @isTest(isParallel=true)
 public class SoqlerTest {
+  @isTest
+  static void bind() {
+    final Set<Id> acctIds = new Map<Id, Schema.Account>([SELECT Id FROM Account LIMIT 10]).keySet();
+
+    final Soqler query = new Soqler(Schema.Account.SObjectType);
+
+    query.fields().add(Schema.Account.Name);
+
+    query.wheres().addAnd(new Soqler.IWhereName(Schema.Account.Id, 'IN', query.bind(acctIds)));
+
+    Assert.areEqual('SELECT Name FROM Account WHERE Id IN :b0', query.queryToString());
+
+    Assert.areEqual(3, query.query().size());
+  }
+
   @testSetup
   static void init() {
     Id minimumProfileId = TestUtils.getMinimumAccessProfileId();
@@ -50,7 +65,7 @@ public class SoqlerTest {
 
     query.fields().add(Schema.Account.Name).add(Schema.Account.Name);
 
-    System.assertEquals('SELECT Name FROM Account', query.queryToString());
+    Assert.areEqual('SELECT Name FROM Account', query.queryToString());
   }
 
   @isTest
@@ -83,11 +98,11 @@ public class SoqlerTest {
 
     List<Account> accounts = (List<Account>) query.query();
 
-    System.assertEquals(2, accounts.size(), 'Query should have returned 2 accounts');
+    Assert.areEqual(2, accounts.size(), 'Query should have returned 2 accounts');
 
     query.setMaxCount(null);
 
-    System.assertEquals(3, query.queryCount());
+    Assert.areEqual(3, query.queryCount());
   }
 
   @isTest
@@ -105,7 +120,7 @@ public class SoqlerTest {
 
     AggregateResult[] results = query.queryAggregates();
 
-    System.assertEquals(3, results[0].get('expr0'), 'Query should have counted 3 accounts');
+    Assert.areEqual(3, results[0].get('expr0'), 'Query should have counted 3 accounts');
 
     query = new Soqler(Schema.Account.SObjectType);
     query.fields().add(Schema.Account.BillingCity);
@@ -113,10 +128,10 @@ public class SoqlerTest {
 
     results = query.queryAggregates();
 
-    System.assertEquals(1, results.size(), 'Query should have counted 1 unique BillingCity match');
+    Assert.areEqual(1, results.size(), 'Query should have counted 1 unique BillingCity match');
 
     for (AggregateResult result : results) {
-      System.assertEquals('Rome', result.get(String.valueOf(Schema.Account.BillingCity)));
+      Assert.areEqual('Rome', result.get(String.valueOf(Schema.Account.BillingCity)));
     }
   }
 
@@ -157,7 +172,7 @@ public class SoqlerTest {
 
     List<Schema.Event> events = (List<Schema.Event>) query.query();
 
-    System.assertEquals(3, events.size());
+    Assert.areEqual(3, events.size());
   }
 
   @isTest
@@ -198,7 +213,7 @@ public class SoqlerTest {
     // Composing COUNT()
     query = new Soqler(Schema.Organization.SObjectType);
 
-    System.assertEquals('SELECT COUNT() FROM Organization', query.queryCountToString());
+    Assert.areEqual('SELECT COUNT() FROM Organization', query.queryCountToString());
 
     // Adding all fields
     query = new Soqler(Schema.Organization.SObjectType);
@@ -210,7 +225,7 @@ public class SoqlerTest {
     query.fields().addAll();
 
     // Protecting against the possibility of having 0 fields returned due to restricted API access
-    System.assertEquals(
+    Assert.areEqual(
       ('SELECT ' +
         (fieldNames.isEmpty() ? null : String.join(fieldNames, ', ')) +
         ' FROM Organization')
@@ -221,7 +236,7 @@ public class SoqlerTest {
     // Adding specific fields
     query = new Soqler(Schema.Account.SObjectType);
 
-    System.assertEquals(Schema.Account.SObjectType, query.getType());
+    Assert.areEqual(Schema.Account.SObjectType, query.getType());
 
     query.fields()
       .add(new Soqler.IFieldName(Schema.Account.Name))
@@ -229,11 +244,11 @@ public class SoqlerTest {
       .add(new Soqler.IFieldName(Schema.Account.Phone).setDroppable(true))
       .add(new Soqler.IFieldName('Owner', Schema.User.Name));
 
-    System.assertEquals(
+    Assert.areEqual(
       'SELECT Name, toLabel(Type), Phone, Owner.Name FROM Account',
       query.queryToString()
     );
-    System.assertEquals(query.queryToString(), query.queryLocator().getQuery());
+    Assert.areEqual(query.queryToString(), query.queryLocator().getQuery());
 
     subquery = new Soqler(Schema.Contact.SObjectType);
 
@@ -241,7 +256,7 @@ public class SoqlerTest {
 
     query.fields().add(subquery);
 
-    System.assertEquals(
+    Assert.areEqual(
       'SELECT Name, toLabel(Type), Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account',
       query.queryToString()
     );
@@ -257,7 +272,7 @@ public class SoqlerTest {
       .addAnd(new Soqler.IWhereName('Owner', Schema.Contact.Name, '!=', 'Test Test'))
       .addAnd(Schema.Account.Id, 'IN', subquery);
 
-    System.assertEquals(
+    Assert.areEqual(
       'SELECT Name, toLabel(Type), Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account' +
         ' WHERE Id NOT IN (\'FAKE_ID\')' +
         ' AND Owner.Name != \'Test Test\'' +
@@ -280,7 +295,7 @@ public class SoqlerTest {
       .addAnd(grp)
       .addAnd(new Soqler.IWhereVariable(Schema.Account.Type, 'IN', 'accountTypes'));
 
-    System.assertEquals(
+    Assert.areEqual(
       'SELECT Id FROM Account' +
         ' WHERE DAY_ONLY(CreatedDate) > 2018-01-01' +
         ' AND NumberOfEmployees > 10' +
@@ -303,7 +318,7 @@ public class SoqlerTest {
       .add(new Soqler.IOrderName('Owner', Schema.User.Name))
       .add(new Soqler.IOrderName(Schema.Account.Phone, Soqler.OrderType.DESCENDING_NULLS_LAST));
 
-    System.assertEquals(
+    Assert.areEqual(
       'SELECT Id FROM Account' +
         ' ORDER BY DISTANCE(BillingAddress, GEOLOCATION(45.0, 11.0), \'km\')' +
         ', Name' +
@@ -340,7 +355,7 @@ public class SoqlerTest {
         )
       );
 
-    System.assertEquals(
+    Assert.areEqual(
       'SELECT Id,' +
         ' TYPEOF What WHEN Account THEN Phone WHEN Opportunity THEN Amount ELSE Id END' +
         ' FROM Event' +
@@ -355,7 +370,7 @@ public class SoqlerTest {
       .add(new Soqler.IFieldName(Schema.Event.CreatedDate).withFunction('AVG(CALENDAR_YEAR({0}))'));
     query.groups().add(new Soqler.IGroupName('Owner', Schema.User.Name));
 
-    System.assertEquals(
+    Assert.areEqual(
       'SELECT Subject,' +
         ' AVG(CALENDAR_YEAR(CreatedDate))' +
         ' FROM Event' +
@@ -371,7 +386,7 @@ public class SoqlerTest {
       .addAnd(new Soqler.IWhereName(Schema.Contact.AccountId, '>', 5).withFunction('COUNT({0})'));
     query.orders().add(new Soqler.IOrderName(Schema.Contact.AccountId).withFunction('COUNT({0})'));
 
-    System.assertEquals(
+    Assert.areEqual(
       'SELECT AccountId' +
         ' FROM Contact' +
         ' GROUP BY AccountId' +

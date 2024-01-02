@@ -58,6 +58,14 @@ global inherited sharing class Soqler {
     }
   }
 
+  global class Binding {
+    private final String name;
+
+    private Binding(String name) {
+      this.name = name;
+    }
+  }
+
   private class ConverterDateTime extends Converter {
     override String convertValue(Object value) {
       return JSON.serialize(value).removeStart('"').removeEnd('"');
@@ -523,6 +531,14 @@ global inherited sharing class Soqler {
 
       this.co = co.trim();
 
+      if (!(value instanceof Binding)) {
+        checkValueOperatorCompatibility(value);
+      }
+
+      this.value = value;
+    }
+
+    private void checkValueOperatorCompatibility(Object value) {
       switch on (this.co) {
         when '<', '<=', '=', '>=', '>', '!=' {
           if (value instanceof List<Object>) {
@@ -550,13 +566,15 @@ global inherited sharing class Soqler {
           throwUnsupported(this.co + ' comparison operator is not supported');
         }
       }
-
-      this.value = value;
     }
 
     override String build() {
       final Converter cvt;
       final String stringValue;
+
+      if (value instanceof Binding) {
+        return super.build() + ' ' + co + ' :' + ((Binding) value).name;
+      }
 
       if (value instanceof List<Object>) {
         List<Object> values = (List<Object>) value;
@@ -1020,6 +1038,7 @@ global inherited sharing class Soqler {
   private final LField flds;
   private String subquery;
 
+  private Map<String, Object> bnds;
   private LWhere whrs;
   private LOrder ords;
   private LGroup grps;
@@ -1039,6 +1058,18 @@ global inherited sharing class Soqler {
 
     this.type = type;
     this.flds = new LField(this);
+  }
+
+  global Binding bind(Object value) {
+    if (bnds == null) {
+      bnds = new Map<String, Object>();
+    }
+
+    final String key = 'b' + bnds.size();
+
+    bnds.put(key, value);
+
+    return new Binding(key);
   }
 
   @SuppressWarnings('PMD.StdCyclomaticComplexity')
@@ -1063,6 +1094,7 @@ global inherited sharing class Soqler {
       }
     );
   }
+
   /**
    * @description It returns the instruction list that will compose the SELECT part of the query.
    *
@@ -1160,7 +1192,11 @@ global inherited sharing class Soqler {
    * @since 1.0.4
    */
   global List<SObject> query() {
-    return (List<SObject>) Database.query(queryToString());
+    if (bnds != null) {
+      return Database.queryWithBinds(queryToString(), bnds, System.AccessLevel.USER_MODE);
+    }
+
+    return Database.query(queryToString());
   }
 
   /**
@@ -1172,6 +1208,14 @@ global inherited sharing class Soqler {
    * @since 1.0.11
    */
   global AggregateResult[] queryAggregates() {
+    if (bnds != null) {
+      return (AggregateResult[]) Database.queryWithBinds(
+        queryToString(),
+        bnds,
+        System.AccessLevel.USER_MODE
+      );
+    }
+
     return (AggregateResult[]) Database.query(queryToString());
   }
 
@@ -1183,6 +1227,10 @@ global inherited sharing class Soqler {
    * @since 1.0.4
    */
   global Integer queryCount() {
+    if (bnds != null) {
+      return Database.countQueryWithBinds(queryCountToString(), bnds, System.AccessLevel.USER_MODE);
+    }
+
     return Database.countQuery(queryCountToString());
   }
 
@@ -1194,6 +1242,12 @@ global inherited sharing class Soqler {
    * @since 1.0.4
    */
   global Database.QueryLocator queryLocator() {
+    if (bnds != null) {
+      throw new UnsupportedOperationException(
+        'Cannot return a query locator when binds are specified'
+      );
+    }
+
     return Database.getQueryLocator(queryToString());
   }
 
