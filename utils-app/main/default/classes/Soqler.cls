@@ -1193,7 +1193,7 @@ global inherited sharing class Soqler {
    */
   global List<SObject> query() {
     if (bnds != null) {
-      return Database.queryWithBinds(queryToString(), bnds, System.AccessLevel.USER_MODE);
+      return Database.queryWithBinds(queryToString(), bnds, System.AccessLevel.SYSTEM_MODE);
     }
 
     return Database.query(queryToString());
@@ -1212,7 +1212,7 @@ global inherited sharing class Soqler {
       return (AggregateResult[]) Database.queryWithBinds(
         queryToString(),
         bnds,
-        System.AccessLevel.USER_MODE
+        System.AccessLevel.SYSTEM_MODE
       );
     }
 
@@ -1228,7 +1228,11 @@ global inherited sharing class Soqler {
    */
   global Integer queryCount() {
     if (bnds != null) {
-      return Database.countQueryWithBinds(queryCountToString(), bnds, System.AccessLevel.USER_MODE);
+      return Database.countQueryWithBinds(
+        queryCountToString(),
+        bnds,
+        System.AccessLevel.SYSTEM_MODE
+      );
     }
 
     return Database.countQuery(queryCountToString());
