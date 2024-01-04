@@ -1,5 +1,7 @@
 {
   "[xml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "prettier.configPath": "./.prettierrc",
+  "prettier.requireConfig": true
 }
