@@ -5,10 +5,10 @@
   "description": "Salesforce Vosh",
   "scripts": {
     "lint": "eslint **/aura|lwc/**",
-    "postinstall": "husky install",
+    "precommit": "lint-staged --relative",
     "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "prettier:verify": "prettier --list-different \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "precommit": "lint-staged --relative",
+    "postinstall": "husky install",
     "scanner:pmd": "sfdx scanner run --engine pmd --pmdconfig config/ruleset.xml --normalize-severity --severity-threshold 3 --target enhanced-campaigns-app,extended-ui-app,incubator-app,privacy-manager-app,test-app,utils-app",
     "test": "npm run test:unit",
     "test:unit": "sfdx-lwc-jest",
@@ -18,18 +18,18 @@
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^1.7.2",
-    "@prettier/plugin-xml": "^3.2.2",
+    "@prettier/plugin-xml": "^3.3.1",
     "@salesforce/eslint-config-lwc": "^3.5.2",
     "@salesforce/eslint-plugin-aura": "^2.1.0",
     "@salesforce/eslint-plugin-lightning": "^1.0.0",
-    "@salesforce/sfdx-lwc-jest": "^3.1.0",
+    "@salesforce/sfdx-lwc-jest": "^4.0.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jest": "^27.6.1",
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
-    "prettier": "^3.1.1",
+    "eslint-plugin-jest": "^27.6.3",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
     "prettier-plugin-apex": "^2.0.1"
   }
 }

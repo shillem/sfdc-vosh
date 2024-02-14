@@ -50,9 +50,12 @@ global inherited sharing class DescriberController {
     Utils.requireNonNull(filter, 'Filter cannot be null');
 
     final List<UI.ListboxItem> results = new List<UI.ListboxItem>();
+    final Describer descr = Describer.getInstance();
 
-    for (Schema.SObjectField f : Describer.getInstance().querySObjectFields(filter)) {
-      results.add(new UI.ListboxItem(String.valueOf(f)));
+    for (Schema.SObjectField f : descr.querySObjectFields(filter)) {
+      final Schema.DescribeFieldResult result = descr.getFieldDescribe(f);
+
+      results.add(new UI.ListboxItem(result.getName(), result.getLabel()));
     }
 
     results.sort();
@@ -69,9 +72,12 @@ global inherited sharing class DescriberController {
       );
 
       final List<UI.ListboxItem> results = new List<UI.ListboxItem>();
+      final Describer descr = Describer.getInstance();
 
       for (Schema.SObjectType t : Describer.getInstance().querySObjectTypes(filter)) {
-        results.add(new UI.ListboxItem(String.valueOf(t)));
+        final Schema.DescribeSObjectResult result = descr.getObjectDescribe(t);
+
+        results.add(new UI.ListboxItem(result.getLabel(), result.getName()));
       }
 
       results.sort();
