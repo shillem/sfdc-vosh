@@ -237,8 +237,8 @@ global class UI {
     }
 
     global SObjectDescriptor(Schema.SObjectType type, Set<Schema.SObjectField> fields) {
-      Describer describer = Describer.getInstance();
-      Schema.DescribeSObjectResult typeRes = describer.getObjectDescribe(type);
+      final Describer describer = Describer.getInstance();
+      final Schema.DescribeSObjectResult typeRes = describer.getObjectDescribe(type);
 
       label = typeRes.getLabel();
       labelPlural = typeRes.getLabelPlural();

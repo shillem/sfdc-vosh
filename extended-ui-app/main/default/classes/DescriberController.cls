@@ -3,6 +3,7 @@ global inherited sharing class DescriberController {
   private static final Logger.Instance LOG = Logger.getInstance(DescriberController.class);
 
   global class SObjectDescriptorQuery {
+    global List<String> fields;
     global String type;
   }
 
@@ -16,13 +17,27 @@ global inherited sharing class DescriberController {
 
       Utils.requireNonNull(q.type, 'Type cannot be null');
 
-      final Schema.SObjectType type = Describer.getInstance().getGlobal().get(q.type);
+      final Describer describ = Describer.getInstance();
+
+      final Schema.SObjectType type = describ.getGlobal().get(q.type);
 
       if (type == null) {
         throw new IllegalArgumentException('SObjectType ' + q.type + ' does not exist');
       }
 
-      return JSON.serialize(new UI.SObjectDescriptor(type), true);
+      Set<Schema.SObjectField> fields = null;
+
+      if (q.fields != null) {
+        fields = new Set<Schema.SObjectField>();
+
+        final Map<String, Schema.SObjectField> fieldMap = describ.getObjectFieldMap(type);
+
+        for (String f : q.fields) {
+          fields.add(fieldMap.get(f));
+        }
+      }
+
+      return JSON.serialize(new UI.SObjectDescriptor(type, fields), true);
     } catch (System.Exception e) {
       LOG.error('getSObjectDescriptor()', e);
 
