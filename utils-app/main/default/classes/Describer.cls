@@ -79,7 +79,7 @@ global inherited sharing class Describer {
 
       Boolean matched = regexPattern.matcher(name).matches();
 
-      return regexInvert ? !matched : matched;
+      return regexInvert != null && regexInvert ? !matched : matched;
     }
 
     global void setContains(Set<String> values) {
