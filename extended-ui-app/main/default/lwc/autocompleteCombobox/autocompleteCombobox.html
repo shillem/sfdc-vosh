@@ -13,13 +13,7 @@
           class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
           role="none"
         >
-          <div
-            aria-autocomplete="list"
-            aria-disabled={disabled}
-            class={comboboxClass}
-            id="combobox"
-            onclick={handleComboboxFocus}
-          >
+          <div class={comboboxClass} id="combobox" onclick={handleComboboxFocus}>
             <span lwc:if={empty} class="slds-text-color_weak"> {placeholder} </span>
             <div lwc:else class="slds-media">
               <span class="slds-media__body">
