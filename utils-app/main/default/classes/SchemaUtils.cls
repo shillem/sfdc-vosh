@@ -37,6 +37,46 @@ global inherited sharing class SchemaUtils {
   }
 
   /**
+   * @description It fetches the record types of a given <code>SObject</code>.
+   * The map keys are the "Developer Name" value for the record type
+   * while the map values are their ids.
+   *
+   * @param type the SObject type, not null
+   * @return a map containing the SObject record type names and ids
+   * @since 1.0.1
+   */
+  global static Map<String, Id> getRecordTypeNames(Schema.SObjectType type) {
+    Utils.requireNonNull(type, 'SObject type cannot be null');
+
+    List<Schema.RecordTypeInfo> infos = Describer.getInstance()
+      .getObjectDescribe(type)
+      .getRecordTypeInfosByDeveloperName()
+      .values();
+
+    final Map<String, Id> names = new Map<String, Id>();
+
+    for (Schema.RecordTypeInfo info : infos) {
+      names.put(info.getDeveloperName(), info.getRecordTypeId());
+    }
+
+    return names;
+  }
+
+  /**
+   * @description It checks whether the Account record is a Person Account record.
+   *
+   * @param record the record
+   * @return true if the record is a Person Account record
+   * @since 1.1
+   */
+  global static Boolean isPersonAccount(Schema.Account record) {
+    Utils.requireNonNull(record, 'Record cannot be null');
+
+    return Describer.getInstance().isPersonAccountEnabled() &&
+      (Boolean) record.get('IsPersonAccount') == true;
+  }
+
+  /**
    * @description It assigns the user the permission set provided.
    *
    * @param userId the user id

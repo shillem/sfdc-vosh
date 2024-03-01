@@ -850,32 +850,6 @@ global inherited sharing class Utils {
   }
 
   /**
-   * @description It fetches the record types of a given <code>SObject</code>.
-   * The map keys are the "Developer Name" value for the record type
-   * while the map values are their ids.
-   *
-   * @param type the SObject type, not null
-   * @return a map containing the SObject record type names and ids
-   * @since 1.0.1
-   */
-  global static Map<String, Id> getRecordTypeNames(Schema.SObjectType type) {
-    requireNonNull(type, 'SObject type cannot be null');
-
-    List<Schema.RecordTypeInfo> infos = Describer.getInstance()
-      .getObjectDescribe(type)
-      .getRecordTypeInfosByDeveloperName()
-      .values();
-
-    Map<String, Id> names = new Map<String, Id>();
-
-    for (Schema.RecordTypeInfo info : infos) {
-      names.put(info.getDeveloperName(), info.getRecordTypeId());
-    }
-
-    return names;
-  }
-
-  /**
    * @description It returns the first value if not null, otherwise the alternative.
    *
    * @param value the value

@@ -244,7 +244,7 @@ global inherited sharing class TriggerHandler {
 
     private Map<String, Id> getRecordTypeDeveloperNames() {
       if (recordTypeDeveloperNames == null) {
-        recordTypeDeveloperNames = Utils.getRecordTypeNames(getSObjectType());
+        recordTypeDeveloperNames = SchemaUtils.getRecordTypeNames(getSObjectType());
       }
 
       return recordTypeDeveloperNames;
