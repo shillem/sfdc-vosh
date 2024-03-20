@@ -1247,8 +1247,10 @@ global inherited sharing class Soqler {
    */
   global Database.QueryLocator queryLocator() {
     if (bnds != null) {
-      throw new UnsupportedOperationException(
-        'Cannot return a query locator when binds are specified'
+      return Database.getQueryLocatorWithBinds(
+        queryToString(),
+        bnds,
+        System.AccessLevel.SYSTEM_MODE
       );
     }
 

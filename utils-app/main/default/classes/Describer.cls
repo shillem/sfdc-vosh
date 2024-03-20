@@ -411,7 +411,7 @@ global inherited sharing class Describer {
    * @return the map containing all the fields defined for the <code>SObject</code>
    * @since 1.0.1
    */
-  global Map<String, SObjectField> getObjectFieldMap(Schema.SObjectType type) {
+  global Map<String, Schema.SObjectField> getObjectFieldMap(Schema.SObjectType type) {
     return getObjectDescribe(type).fields.getMap();
   }
 
