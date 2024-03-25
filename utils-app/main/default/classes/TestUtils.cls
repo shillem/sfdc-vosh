@@ -192,23 +192,7 @@ global class TestUtils {
 
       final HttpResponseMockStaticResourceBody req = (HttpResponseMockStaticResourceBody) body;
 
-      String result;
-
-      {
-        final Soqler soql = new Soqler(Schema.StaticResource.SObjectType).setMaxCount(1);
-
-        soql.fields()
-          .add(Schema.StaticResource.Body)
-          .add(Schema.StaticResource.Name)
-          .add(Schema.StaticResource.NamespacePrefix)
-          .add(Schema.StaticResource.SystemModstamp);
-
-        soql.wheres().addAnd(new Soqler.IWhereName(Schema.StaticResource.Name, '=', req.name));
-
-        final Schema.StaticResource resource = (Schema.StaticResource) soql.query()[0];
-
-        result = resource.Body.toString();
-      }
+      String result = SchemaUtils.getStaticResourceBody(req.name);
 
       if (req.key != null) {
         result = JSON.serialize(Utils.deserializeToMapper(result).getObject(req.key));

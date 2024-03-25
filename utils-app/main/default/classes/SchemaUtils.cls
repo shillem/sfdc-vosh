@@ -48,7 +48,7 @@ global inherited sharing class SchemaUtils {
   global static Map<String, Id> getRecordTypeNames(Schema.SObjectType type) {
     Utils.requireNonNull(type, 'SObject type cannot be null');
 
-    List<Schema.RecordTypeInfo> infos = Describer.getInstance()
+    final List<Schema.RecordTypeInfo> infos = Describer.getInstance()
       .getObjectDescribe(type)
       .getRecordTypeInfosByDeveloperName()
       .values();
@@ -60,6 +60,36 @@ global inherited sharing class SchemaUtils {
     }
 
     return names;
+  }
+
+  /**
+   * @description It returns the body of a static resource.
+   * The name parameter accepts the namespace notation if necessary, e.g. 'namespace.resourceName'.
+   *
+   * @param name the static resource name
+   * @return the static resource body
+   * @since 1.1
+   */
+  global static String getStaticResourceBody(String name) {
+    Utils.requireNonNull(name, 'Name cannot be null');
+
+    final Soqler soql = new Soqler(Schema.StaticResource.SObjectType).setMaxCount(1);
+
+    soql.fields().add(Schema.StaticResource.Body);
+
+    final String[] parts = name.split('\\.');
+
+    if (parts.size() > 1) {
+      soql.wheres()
+        .addAnd(new Soqler.IWhereName(Schema.StaticResource.NamespacePrefix, '=', parts[0]))
+        .addAnd(new Soqler.IWhereName(Schema.StaticResource.Name, '=', parts[1]));
+    } else {
+      soql.wheres().addAnd(new Soqler.IWhereName(Schema.StaticResource.Name, '=', parts[0]));
+    }
+
+    final List<Schema.StaticResource> resources = soql.query();
+
+    return resources.isEmpty() ? null : resources[0].Body.toString();
   }
 
   /**
