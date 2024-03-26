@@ -9,8 +9,9 @@ global inherited sharing class Pkg {
 
   private System.Type t;
 
-  private String v;
-  private String n;
+  private String license;
+  private String namespace;
+  private String version;
 
   /**
    * @description The parameterless constructor
@@ -28,17 +29,37 @@ global inherited sharing class Pkg {
    * @since 1.1
    */
   global String getNamespace() {
-    if (n == null) {
-      n = '';
+    if (namespace == null) {
+      namespace = '';
 
       final List<String> classNameParts = String.valueOf(t).split('\\.', 2);
 
       if (classNameParts.size() > 1) {
-        n = classNameParts[0];
+        namespace = classNameParts[0];
       }
     }
 
-    return n;
+    return namespace;
+  }
+
+  /**
+   * @description It returns the package license status
+   *
+   * @since 1.1
+   */
+  @SuppressWarnings('PMD.ApexCRUDViolation')
+  private String getLicense() {
+    if (license == null) {
+      final List<Schema.PackageLicense> records = [
+        SELECT Status
+        FROM PackageLicense
+        WHERE NamespacePrefix = :getNamespace()
+      ];
+
+      license = records.isEmpty() ? 'N/A' : records[0].Status;
+    }
+
+    return license;
   }
 
   /**
@@ -48,8 +69,8 @@ global inherited sharing class Pkg {
    */
   @SuppressWarnings('PMD.ApexCRUDViolation')
   global String getVersion() {
-    if (v == null) {
-      v = 'N/A';
+    if (version == null) {
+      version = 'N/A';
 
       final String namespace = getNamespace();
 
@@ -61,12 +82,21 @@ global inherited sharing class Pkg {
         ];
 
         if (!results.isEmpty()) {
-          v = results[0].MajorVersion + '.' + results[0].MinorVersion;
+          version = results[0].MajorVersion + '.' + results[0].MinorVersion;
         }
       }
     }
 
-    return v;
+    return version;
+  }
+
+  /**
+   * @description Check if the license is valid
+   *
+   * @since 1.1
+   */
+  public Boolean isLicensed() {
+    return !getLicense().equals('N/A');
   }
 
   /**
