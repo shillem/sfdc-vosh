@@ -96,7 +96,9 @@ global inherited sharing class Pkg {
    * @since 1.1
    */
   public Boolean isLicensed() {
-    return !getLicense().equals('N/A');
+    final String value = getLicense();
+
+    return !value.equals('N/A') && !value.equals('Free');
   }
 
   /**
