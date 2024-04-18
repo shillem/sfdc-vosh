@@ -11,7 +11,7 @@ global inherited sharing class Pkg {
 
   private String license;
   private String namespace;
-  private String v;
+  private String ver;
 
   /**
    * @description The parameterless constructor
@@ -67,14 +67,32 @@ global inherited sharing class Pkg {
    *
    * @since 1.1
    */
+  @SuppressWarnings('PMD.ApexCRUDViolation')
   global String getVersion() {
-    if (v == null) {
-      final Version value = System.requestVersion();
+    if (ver == null) {
+      ver = 'N/A';
 
-      v = value.major() + '.' + value.minor() + (value.patch() > 0 ? '.' + value.patch() : '');
+      // This way of retrieving the package version isn't robust
+      // There could be multiple publishers for the same namespace and no way to
+      // determine to which package theyr refer to
+      // It would be nice to use System.getVersion() but it doesn't work with 2GP yet
+      final String namespace = getNamespace();
+
+      if (String.isNotEmpty(namespace)) {
+        final List<Schema.Publisher> results = [
+          SELECT MajorVersion, MinorVersion
+          FROM Publisher
+          WHERE NamespacePrefix = :namespace
+          ORDER BY MajorVersion DESC, MinorVersion DESC
+        ];
+
+        if (!results.isEmpty()) {
+          ver = results[0].MajorVersion + '.' + results[0].MinorVersion;
+        }
+      }
     }
 
-    return v;
+    return ver;
   }
 
   /**
