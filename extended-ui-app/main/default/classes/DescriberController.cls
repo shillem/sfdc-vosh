@@ -92,7 +92,7 @@ global inherited sharing class DescriberController {
       for (Schema.SObjectType t : Describer.getInstance().querySObjectTypes(filter)) {
         final Schema.DescribeSObjectResult result = descr.getObjectDescribe(t);
 
-        results.add(new UI.ListboxItem(result.getLabel(), result.getName()));
+        results.add(new UI.ListboxItem(result.getName(), result.getLabel()));
       }
 
       results.sort();
