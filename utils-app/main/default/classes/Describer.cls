@@ -52,6 +52,7 @@ global inherited sharing class Describer {
     private Set<String> names;
     private String regex;
     private Boolean regexInvert;
+
     private transient System.Pattern regexPattern;
 
     protected Boolean matchesContains(String name) {
@@ -106,6 +107,7 @@ global inherited sharing class Describer {
    *
    * @since 1.1
    */
+  @SuppressWarnings('PMD.StdCyclomaticComplexity')
   global class SObjectFieldFilter extends SObjectFilter {
     // Storing objectName as a String instead of SObjectType to avoid serialization issues
     private final String objectName;
@@ -113,6 +115,7 @@ global inherited sharing class Describer {
     private List<Schema.DisplayType> displayTypes;
     private Boolean editable;
     private List<DisplayFamily> families;
+    private List<String> referencesTo;
     private List<String> sensitivities;
 
     global SObjectFieldFilter(Schema.SObjectType t) {
@@ -145,6 +148,14 @@ global inherited sharing class Describer {
 
     global void setFamilies(List<DisplayFamily> value) {
       families = value;
+    }
+
+    global void setReferenceTo(String value) {
+      setReferencesTo(new List<String>{ value });
+    }
+
+    global void setReferencesTo(List<String> value) {
+      referencesTo = value;
     }
 
     global void setSensitivityLevel(String value) {
@@ -198,6 +209,21 @@ global inherited sharing class Describer {
       }
 
       // 7th in evaluation order
+      if (referencesTo != null && !referencesTo.isEmpty()) {
+        Boolean found = false;
+
+        for (Schema.SObjectType ref : result.getReferenceTo()) {
+          if (referencesTo.contains(String.valueOf(ref))) {
+            found = true;
+          }
+        }
+
+        if (!found) {
+          return false;
+        }
+      }
+
+      // 8th in evaluation order
       if (
         sensitivities != null &&
         !sensitivities.contains(
@@ -218,6 +244,7 @@ global inherited sharing class Describer {
    */
   global class SObjectTypeFilter extends SObjectFilter {
     private Boolean customSettings;
+    private Set<String> parentRelationships;
 
     global Boolean matches(Schema.SObjectType type, Describer describ) {
       final String name = String.valueOf(type);
@@ -259,6 +286,10 @@ global inherited sharing class Describer {
 
     global void setCustomSettings(Boolean flag) {
       customSettings = flag;
+    }
+
+    global void setParentRelationships(Set<String> value) {
+      parentRelationships = value;
     }
   }
 
@@ -547,10 +578,27 @@ global inherited sharing class Describer {
   global List<Schema.SObjectType> querySObjectTypes(SObjectTypeFilter filter) {
     Utils.requireNonNull(filter, 'Filter name cannot be null');
 
-    final Map<String, Schema.SObjectType> types = getGlobal();
+    final Map<String, Schema.SObjectType> all = getGlobal();
+
+    final List<Schema.SObjectType> types;
+
+    if (filter.parentRelationships != null && !filter.parentRelationships.isEmpty()) {
+      final Set<Schema.SObjectType> filtered = new Set<Schema.SObjectType>();
+
+      for (String parent : filter.parentRelationships) {
+        for (Schema.ChildRelationship rel : all.get(parent).getDescribe().getChildRelationships()) {
+          filtered.add(rel.getChildSObject());
+        }
+      }
+
+      types = new List<Schema.SObjectType>(filtered);
+    } else {
+      types = all.values();
+    }
+
     final List<Schema.SObjectType> results = new List<Schema.SObjectType>();
 
-    for (Schema.SObjectType type : types.values()) {
+    for (Schema.SObjectType type : types) {
       if (filter.matches(type, this)) {
         results.add(type);
       }

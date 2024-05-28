@@ -41,6 +41,32 @@ public class DescriberControllerTest {
   }
 
   @isTest
+  static void getSObjectFieldsWithReference() {
+    insert LoggerTest.createDefaultProfile();
+
+    final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter(
+      Schema.Contact.SObjectType
+    );
+    filter.setReferenceTo(String.valueOf(Schema.Account.SObjectType));
+
+    final List<Object> results = (List<Object>) JSON.deserializeUntyped(
+      DescriberController.getSObjectFields(JSON.serialize(filter))
+    );
+
+    final String fieldName = String.valueOf(Schema.Contact.AccountId);
+
+    for (Object result : results) {
+      final Map<String, Object> m = (Map<String, Object>) result;
+
+      if (fieldName.equals((String) m.get('value'))) {
+        return;
+      }
+    }
+
+    System.assert(false, 'It should have contained ' + fieldName);
+  }
+
+  @isTest
   static void getSObjectTypes() {
     insert LoggerTest.createDefaultProfile();
 
@@ -52,6 +78,31 @@ public class DescriberControllerTest {
     );
 
     final String objectName = String.valueOf(Schema.Account.SObjectType);
+
+    for (Object result : results) {
+      final Map<String, Object> m = (Map<String, Object>) result;
+
+      if (objectName.equals((String) m.get('value'))) {
+        return;
+      }
+    }
+
+    System.assert(false, 'It should have contained ' + objectName);
+  }
+
+  @isTest
+  static void getSObjectTypesForParentEntity() {
+    insert LoggerTest.createDefaultProfile();
+
+    final String objectName = String.valueOf(Schema.Contact.SObjectType);
+
+    final Describer.SObjectTypeFilter filter = new Describer.SObjectTypeFilter();
+    filter.setParentRelationships(new Set<String>{ String.valueOf(Schema.Account.SObjectType) });
+    filter.setNames(new Set<String>{ objectName });
+
+    final List<Object> results = (List<Object>) JSON.deserializeUntyped(
+      DescriberController.getSObjectTypes(JSON.serialize(filter))
+    );
 
     for (Object result : results) {
       final Map<String, Object> m = (Map<String, Object>) result;
