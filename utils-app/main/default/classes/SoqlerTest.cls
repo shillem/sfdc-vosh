@@ -270,12 +270,14 @@ public class SoqlerTest {
     query.wheres()
       .addAnd(new Soqler.IWhereName(Schema.Account.Id, 'NOT IN', new List<String>{ 'FAKE_ID' }))
       .addAnd(new Soqler.IWhereName('Owner', Schema.Contact.Name, '!=', 'Test Test'))
+      .addAnd(new Soqler.IWhereName(Schema.Contact.LastModifiedDate, '=', 'LAST_N_MONTHS:6'))
       .addAnd(Schema.Account.Id, 'IN', subquery);
 
     Assert.areEqual(
       'SELECT Name, toLabel(Type), Phone, Owner.Name, (SELECT Name FROM Contacts) FROM Account' +
         ' WHERE Id NOT IN (\'FAKE_ID\')' +
         ' AND Owner.Name != \'Test Test\'' +
+        ' AND LastModifiedDate = LAST_N_MONTHS:6' +
         ' AND Id IN (SELECT AccountId FROM Contact)',
       query.queryToString()
     );

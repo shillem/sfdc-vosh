@@ -1034,6 +1034,17 @@ global inherited sharing class Soqler {
   private static final Converter C_OBJECT = new Converter();
   private static final Converter C_STRING = new ConverterString();
 
+  private static final Pattern RELATIVE_DATE = Pattern.compile(
+    '(?i)\\b' +
+      '(?:LAST|NEXT)[ _]\\d+[ _]DAYS|' +
+      '(?:LAST|THIS|NEXT)[ _](?:WEEK|MONTH|(?:FISCAL[ _])*QUARTER|(?:FISCAL[ _])*YEAR)|' +
+      '(?:LAST|NEXT)[ _]N[ _](?:DAYS|WEEKS|MONTHS|(?:FISCAL[ _])*QUARTERS|(?:FISCAL[ _])*YEARS):\\d+|' +
+      'N[ _](?:DAYS|WEEKS|MONTHS|(?:FISCAL[ _])*QUARTERS|(?:FISCAL[ _])*YEARS)[ _]AGO:\\d+|' +
+      '\\d+[ _](?:DAYS|WEEKS|MONTHS|(?:FISCAL[ _])*QUARTERS|(?:FISCAL[ _])*YEARS)[ _]AGO|' +
+      'TODAY|TOMORROW|YESTERDAY' +
+      '\\b'
+  );
+
   private final Schema.SObjectType type;
   private final LField flds;
   private String subquery;
@@ -1378,6 +1389,14 @@ global inherited sharing class Soqler {
     }
 
     if (value instanceof String) {
+      if (RELATIVE_DATE.matcher((String) value).matches()) {
+        Schema.DisplayType t = Describer.getInstance().getFieldDescribe(field).getType();
+
+        if (t == Schema.DisplayType.DATE || t == Schema.DisplayType.DATETIME) {
+          return C_DATE_TIME;
+        }
+      }
+
       return C_STRING;
     }
 
