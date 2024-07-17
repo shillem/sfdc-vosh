@@ -48,14 +48,6 @@ export default class AutocompleteCombobox extends LightningElement {
     );
   }
 
-  connectedCallback() {
-    this.classList.add("slds-form-element");
-
-    if (this.variant === "label-stacked") {
-      this.classList.add("slds-form-element_stacked");
-    }
-  }
-
   get dropdownClass() {
     return (
       "slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" +
@@ -93,6 +85,18 @@ export default class AutocompleteCombobox extends LightningElement {
     this.selection = selected ? selected : {};
   }
 
+  @api get validity() {
+    const state = {
+      customError:
+        typeof this.validationCustomMessage === "string" && this.validationCustomMessage.length > 0,
+      valueMissing: this.required && this.empty
+    };
+
+    state.valid = !Object.values(state).some((bool) => bool);
+
+    return state;
+  }
+
   @api get value() {
     return this._value;
   }
@@ -101,20 +105,20 @@ export default class AutocompleteCombobox extends LightningElement {
     this.selectValue(val);
   }
 
-  @api get validity() {
-    const state = {
-      customError:
-        typeof this.validationCustomMessage === "string" && this.validationCustomMessage.length > 0,
-      valueMissing: this.empty
-    };
-
-    state.valid = !Object.values(state).some((bool) => bool);
-
-    return state;
-  }
-
   @api checkValidity() {
     return this.validity.valid;
+  }
+
+  connectedCallback() {
+    this.classList.add("slds-form-element");
+
+    if (this.variant === "label-stacked") {
+      this.classList.add("slds-form-element_stacked");
+    }
+  }
+
+  fireValueChange(value) {
+    this.dispatchEvent(new CustomEvent("change", { detail: { value } }));
   }
 
   handleComboboxIconClick(event) {
@@ -187,10 +191,6 @@ export default class AutocompleteCombobox extends LightningElement {
       this.selectValue(value);
       this.fireValueChange(value);
     }
-  }
-
-  fireValueChange(value) {
-    this.dispatchEvent(new CustomEvent("change", { detail: { value } }));
   }
 
   lookup(term, force = false) {
@@ -289,6 +289,25 @@ export default class AutocompleteCombobox extends LightningElement {
     this.hasRendered = true;
   }
 
+  @api reportValidity() {
+    const state = this.validity;
+
+    this.validationInvalid = !state.valid;
+    this.validationMessage = state.valid
+      ? ""
+      : state.customError
+        ? this.validationCustomMessage
+        : this.messageWhenValueMissing;
+
+    if (this.validationInvalid) {
+      this.classList.add("slds-has-error");
+    } else {
+      this.classList.remove("slds-has-error");
+    }
+
+    return state.valid;
+  }
+
   selectValue(val) {
     this._value = val;
 
@@ -314,25 +333,6 @@ export default class AutocompleteCombobox extends LightningElement {
     this.selection = {
       label: val
     };
-  }
-
-  @api reportValidity() {
-    const state = this.validity;
-
-    this.validationInvalid = !state.valid;
-    this.validationMessage = state.valid
-      ? ""
-      : state.customError
-        ? this.validationCustomMessage
-        : this.messageWhenValueMissing;
-
-    if (this.validationInvalid) {
-      this.classList.add("slds-has-error");
-    } else {
-      this.classList.remove("slds-has-error");
-    }
-
-    return state.valid;
   }
 
   @api setCustomValidity(message) {
