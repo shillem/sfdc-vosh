@@ -19,7 +19,7 @@ global inherited sharing class DescriberController {
 
       final Describer describ = Describer.getInstance();
 
-      final Schema.SObjectType type = describ.getGlobal().get(q.type);
+      final Schema.SObjectType type = describ.getObjectDescribe(q.type).getSObjectType();
 
       if (type == null) {
         throw new IllegalArgumentException('SObjectType ' + q.type + ' does not exist');
