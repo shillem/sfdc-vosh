@@ -227,7 +227,8 @@ global inherited sharing class Describer {
       if (
         sensitivities != null &&
         !sensitivities.contains(
-          describ.getFieldSensitivities(describ.getGlobal().get(objectName)).get(name)
+          describ.getFieldSensitivities(describ.getObjectDescribe(objectName).getSObjectType())
+            .get(name)
         )
       ) {
         return false;
@@ -311,14 +312,23 @@ global inherited sharing class Describer {
    *
    * @param value the string representing the <code>SObjectField</code>, not null
    * @return the <code>SObjectField</code> represented by the String or null if the field doesn't exist
+   * @throws System.IllegalArgumentException if the string representing the <code>SObjectType</code> is invalid
    * @since 1.0.1
    */
   global Schema.SObjectField fieldValueOf(String value) {
     Utils.requireNonNull(value, 'Value cannot be null');
 
-    List<String> mapping = value.split('\\.');
+    final List<String> mapping = value.split('\\.');
 
-    List<Hop> results = traverse(getGlobal().get(mapping[0]), value.removeStart(mapping[0] + '.'));
+    final Schema.SObjectType t;
+
+    try {
+      t = getObjectDescribe(mapping[0]).getSObjectType();
+    } catch (System.InvalidParameterValueException e) {
+      throw new IllegalArgumentException(mapping[0] + ' is not a valid SObject');
+    }
+
+    final List<Hop> results = traverse(t, value.removeStart(mapping[0] + '.'));
 
     return results.get(results.size() - 1).getField();
   }
@@ -404,9 +414,26 @@ global inherited sharing class Describer {
   global Schema.DescribeSObjectResult getObjectDescribe(String name) {
     Utils.requireNonNull(name, 'Name cannot be null');
 
-    Schema.SObjectType t = getGlobal().get(name);
+    final List<Schema.DescribeSObjectResult> results = Schema.describeSObjects(
+      new List<String>{ name },
+      Schema.SObjectDescribeOptions.DEFERRED
+    );
 
-    return t != null ? getObjectDescribe(t) : null;
+    if (results.isEmpty()) {
+      return null;
+    }
+
+    final Schema.DescribeSObjectResult result = results.get(0);
+
+    if (objectDescribers == null) {
+      objectDescribers = new Map<Schema.SObjectType, Schema.DescribeSObjectResult>();
+    }
+
+    if (!objectDescribers.containsKey(result.getSObjectType())) {
+      objectDescribers.put(result.getSObjectType(), result);
+    }
+
+    return result;
   }
 
   /**
@@ -425,7 +452,7 @@ global inherited sharing class Describer {
     Schema.DescribeSObjectResult result = objectDescribers.get(type);
 
     if (result == null) {
-      result = type.getDescribe();
+      result = type.getDescribe(Schema.SObjectDescribeOptions.DEFERRED);
 
       objectDescribers.put(type, result);
     }
@@ -557,7 +584,7 @@ global inherited sharing class Describer {
     final List<Schema.SObjectField> results = new List<Schema.SObjectField>();
 
     for (
-      Schema.SObjectField field : getObjectFieldMap(getGlobal().get(filter.objectName)).values()
+      Schema.SObjectField field : getObjectDescribe(filter.objectName).fields.getMap().values()
     ) {
       if (filter.matches(field, this)) {
         results.add(field);
@@ -618,12 +645,14 @@ global inherited sharing class Describer {
    * @since 1.1
    */
   global List<Hop> traverse(String syntax) {
-    List<String> breakdown = syntax.split('\\.');
-    String objectName = breakdown.remove(0);
+    final List<String> breakdown = syntax.split('\\.');
+    final String objectName = breakdown.remove(0);
 
-    Schema.SObjectType t = getGlobal().get(objectName);
+    final Schema.SObjectType t;
 
-    if (t == null) {
+    try {
+      t = getObjectDescribe(objectName).getSObjectType();
+    } catch (System.InvalidParameterValueException e) {
       throw new IllegalArgumentException(objectName + ' is not a valid SObject');
     }
 
