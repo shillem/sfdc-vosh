@@ -150,7 +150,9 @@ global inherited sharing class Soqler {
 
     global Boolean equals(Object value) {
       if (value instanceof IFieldName) {
-        return field == ((IFieldName) value).field;
+        final IFieldName ifn = (IFieldName) value;
+
+        return field == ifn.field && crossReference == ifn.crossReference;
       }
 
       return false;
