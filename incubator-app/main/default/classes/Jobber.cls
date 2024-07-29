@@ -1,4 +1,130 @@
-public inherited sharing class Jobber {
+public without sharing class Jobber {
+  private static final Logger.Instance LOG = Logger.getInstance(Jobber.class);
+
+  public class Instance {
+    public String className { get; private set; }
+    public InstanceCron cron { get; private set; }
+    public Id jobId { get; private set; }
+    public String name { get; private set; }
+    public String state { get; private set; }
+    public Boolean userActive { get; private set; }
+    public String userId { get; private set; }
+    public String userName { get; private set; }
+
+    public Boolean abort() {
+      try {
+        if (isActive()) {
+          System.abortJob(hasCron() ? cron.jobId : jobId);
+
+          return true;
+        }
+      } catch (System.Exception e) {
+        LOG.warn('abort() ' + e.getMessage());
+      }
+
+      return false;
+    }
+
+    public Boolean hasCron() {
+      return cron != null;
+    }
+
+    public Boolean isActive() {
+      if (
+        STATUSES_ACTIVE.contains(state) || (hasCron() && STATUSES_CRON_ACTIVE.contains(cron.state))
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+  }
+
+  public class InstanceCron {
+    public Id jobId { get; private set; }
+    public String name { get; private set; }
+    public Datetime nextFireTime { get; private set; }
+    public Datetime previousFireTime { get; private set; }
+    public String state { get; private set; }
+    public Boolean userActive { get; private set; }
+    public String userId { get; private set; }
+    public String userName { get; private set; }
+  }
+
+  public abstract class Snapshot {
+    private final List<Instance> values;
+
+    public Snapshot() {
+      values = new List<Instance>();
+    }
+
+    public SchedulingStatus abortAll() {
+      SchedulingStatus status = SchedulingStatus.DISABLED_ALREADY;
+
+      for (Instance r : values) {
+        if (r.abort()) {
+          status = SchedulingStatus.DISABLED;
+        }
+      }
+
+      return status;
+    }
+
+    protected virtual Instance add(Schema.AsyncApexJob j) {
+      final Instance instance = new Instance();
+
+      instance.className = j.ApexClass.Name;
+      instance.jobId = j.Id;
+      instance.state = j.Status;
+      instance.userActive = j.CreatedBy?.IsActive;
+      instance.userId = j.CreatedBy?.Id;
+      instance.userName = j.CreatedBy?.Name;
+
+      if (j.CronTrigger != null) {
+        instance.cron = new InstanceCron();
+
+        instance.cron.jobId = j.CronTrigger.Id;
+        instance.cron.name = j.CronTrigger.CronJobDetail?.Name;
+        instance.cron.nextFireTime = j.CronTrigger.NextFireTime;
+        instance.cron.previousFireTime = j.CronTrigger.PreviousFireTime;
+        instance.cron.state = j.CronTrigger.State;
+        instance.cron.userActive = j.CronTrigger.CreatedBy?.IsActive;
+        instance.cron.userId = j.CronTrigger.CreatedBy?.Id;
+        instance.cron.userName = j.CronTrigger.CreatedBy?.Name;
+      }
+
+      values.add(instance);
+
+      return instance;
+    }
+
+    public List<Instance> getAll() {
+      return new List<Instance>(values);
+    }
+
+    public List<Instance> getCrons() {
+      final List<Instance> filtered = new List<Instance>();
+
+      for (Instance r : values) {
+        if (r.hasCron()) {
+          filtered.add(r);
+        }
+      }
+
+      return filtered;
+    }
+
+    public Boolean isActive() {
+      for (Instance r : values) {
+        if (r.isActive()) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+  }
+
   public enum SchedulingStatus {
     DISABLED,
     DISABLED_ALREADY,
@@ -6,19 +132,13 @@ public inherited sharing class Jobber {
     ENABLED_ALREADY
   }
 
-  private static final List<String> ASYNC_ACTIVE_STATUSES = new List<String>{
+  private static final List<String> STATUSES_ACTIVE = new List<String>{
     'Holding',
     'Preparing',
     'Processing',
     'Queued'
   };
-  private static final List<String> ASYNC_TYPES = new List<String>{
-    'BatchApex',
-    'BatchApexWorker',
-    'Queueable',
-    'ScheduledApex'
-  };
-  private static final List<String> SCHEDULED_ACTIVE_STATUSES = new List<String>{
+  private static final List<String> STATUSES_CRON_ACTIVE = new List<String>{
     'ACQUIRED',
     'BLOCKED',
     'EXECUTING',
@@ -27,103 +147,62 @@ public inherited sharing class Jobber {
     'WAITING'
   };
 
-  public static SchedulingStatus disableAsyncs(List<System.Type> apexClasses) {
-    final List<Schema.AsyncApexJob> jobs = getAsyncsActive(apexClasses);
-
-    if (jobs.isEmpty()) {
-      return SchedulingStatus.DISABLED_ALREADY;
-    }
+  private static SchedulingStatus abort(List<Schema.AsyncApexJob> jobs) {
+    SchedulingStatus status = SchedulingStatus.DISABLED_ALREADY;
 
     for (Schema.AsyncApexJob j : jobs) {
-      System.abortJob(j.Id);
+      System.abortJob(j.CronTrigger != null ? j.CronTrigger.Id : j.Id);
+
+      status = SchedulingStatus.DISABLED;
     }
 
-    return SchedulingStatus.DISABLED;
+    return status;
   }
 
-  public static SchedulingStatus disableScheduled(String jobName) {
-    final List<Schema.CronTrigger> jobs = getScheduledActive(jobName);
-
-    if (jobs.isEmpty()) {
-      return SchedulingStatus.DISABLED_ALREADY;
-    }
-
-    for (Schema.CronTrigger j : jobs) {
-      System.abortJob(j.Id);
-    }
-
-    return SchedulingStatus.DISABLED;
+  public static SchedulingStatus abortByClasses(List<System.Type> apexClasses) {
+    return abort(getActiveByClasses(apexClasses));
   }
 
-  public static SchedulingStatus enableScheduled(
+  public static SchedulingStatus abortByCronName(String name) {
+    return abort(getByCronName(name));
+  }
+
+  public static SchedulingStatus abortByNamespaces(List<String> namespaces) {
+    return abort(getActiveByNamespaces(namespaces));
+  }
+
+  public static SchedulingStatus enlist(
     String jobName,
     String cronExpression,
-    Schedulable sched
+    System.Schedulable sched
   ) {
     Utils.requireNonNull(jobName, 'Job name cannot be null');
     Utils.requireNonNull(cronExpression, 'Cron expression cannot be null');
     Utils.requireNonNull(sched, 'Schedulable cannot be null');
 
-    final List<Schema.CronTrigger> jobs = getScheduledActive(jobName);
+    try {
+      final String jobIdentifier = System.schedule(jobName, cronExpression, sched);
 
-    if (!jobs.isEmpty()) {
+      if (Id.valueOf(jobIdentifier).getSObjectType() != Schema.CronTrigger.SObjectType) {
+        throw new System.UnexpectedException('Unable to schedule job ' + jobName);
+      }
+
+      return SchedulingStatus.ENABLED;
+    } catch (System.AsyncException e) {
       return SchedulingStatus.ENABLED_ALREADY;
     }
+  }
 
-    final String jobIdentifier = System.schedule(jobName, cronExpression, sched);
-
-    if (Id.valueOf(jobIdentifier).getSObjectType() != Schema.CronTrigger.SObjectType) {
-      throw new System.UnexpectedException('Unable to schedule job ' + jobName);
+  public static List<Schema.AsyncApexJob> getActiveByClasses(List<System.Type> classes) {
+    if (classes == null || classes.isEmpty()) {
+      throw new IllegalArgumentException('Classes cannot be null or empty');
     }
 
-    return SchedulingStatus.ENABLED;
-  }
-
-  public static Schema.AsyncApexJob getAsync(Id jobId) {
-    Utils.requireNonNull(jobId, 'Job Id cannot be null');
-
-    final List<Schema.AsyncApexJob> records = getAsyncs(new Set<Id>{ jobId });
-
-    return records.isEmpty() ? null : records[0];
-  }
-
-  public static List<Schema.AsyncApexJob> getAsyncs(Set<Id> jobIds) {
-    Utils.requireNonNull(jobIds, 'Job Ids cannot be null');
-
-    final Soqler soql = getAsyncSoqler();
-
-    soql.wheres().addAnd(new Soqler.IWhereVariable(Schema.AsyncApexJob.Id, 'IN', 'jobIds'));
-
-    return (List<Schema.AsyncApexJob>) Database.query(soql.queryToString());
-  }
-
-  public static List<Schema.AsyncApexJob> getAsyncs(
-    List<System.Type> apexClasses,
-    List<String> statuses
-  ) {
-    return getAsyncs(apexClasses, statuses, ASYNC_TYPES);
-  }
-
-  public static List<Schema.AsyncApexJob> getAsyncs(
-    List<System.Type> apexClasses,
-    List<String> statuses,
-    List<String> types
-  ) {
-    Utils.requireNonNull(apexClasses, 'Classes cannot be null');
-
-    final Soqler query = getAsyncSoqler();
-
-    if (statuses != null && !statuses.isEmpty()) {
-      query.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.Status, 'IN', statuses));
-    }
-
-    if (types != null && !types.isEmpty()) {
-      query.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.JobType, 'IN', types));
-    }
+    final Soqler soql = getSoqler(true);
 
     final Map<String, List<String>> breakdown = new Map<String, List<String>>();
 
-    for (System.Type t : apexClasses) {
+    for (System.Type t : classes) {
       final String[] n = t.getName().split('\\.');
       final String namespace;
       final String className;
@@ -162,23 +241,72 @@ public inherited sharing class Jobber {
       classesGroup.wheres().addOr(classGroup);
     }
 
-    query.wheres().addAnd(classesGroup);
+    soql.wheres().addAnd(classesGroup);
 
-    return (List<Schema.AsyncApexJob>) query.query();
+    return soql.query();
   }
 
-  public static List<Schema.AsyncApexJob> getAsyncsActive(List<System.Type> apexClasses) {
-    return getAsyncs(apexClasses, ASYNC_ACTIVE_STATUSES);
+  public static List<Schema.AsyncApexJob> getActiveByNamespaces(List<String> namespaces) {
+    if (namespaces == null || namespaces.isEmpty()) {
+      throw new IllegalArgumentException('Namespaces cannot be null or empty');
+    }
+
+    final Soqler soql = getSoqler(true);
+
+    soql.wheres()
+      .addAnd(
+        new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, 'IN', namespaces)
+      );
+
+    return soql.query();
   }
 
-  private static Soqler getAsyncSoqler() {
+  public static List<Schema.AsyncApexJob> getByCronName(String name) {
+    if (String.isEmpty(name)) {
+      throw new IllegalArgumentException('Name cannot be null or empty');
+    }
+
+    final Soqler soql = getSoqler(false);
+
+    soql.wheres()
+      .addAnd(
+        new Soqler.IWhereName(
+          'CronTrigger.CronJobDetail',
+          Schema.CronJobDetail.Name,
+          name.contains('%') ? 'LIKE' : '=',
+          name
+        )
+      );
+
+    return soql.query();
+  }
+
+  public static List<Schema.AsyncApexJob> getByIds(Set<Id> jobIds) {
+    if (jobIds == null || jobIds.isEmpty()) {
+      throw new IllegalArgumentException('Job Ids cannot be null or empty');
+    }
+
+    final Soqler soql = getSoqler(false);
+
+    soql.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.Id, 'IN', soql.bind(jobIds)));
+
+    return soql.query();
+  }
+
+  private static Soqler getSoqler(Boolean filterActiveStatuses) {
     final Soqler soql = new Soqler(Schema.AsyncApexJob.SObjectType);
 
     soql.fields()
       .add(new Soqler.IFieldName('ApexClass', Schema.ApexClass.Name))
       .add(new Soqler.IFieldName('CreatedBy', Schema.User.IsActive))
       .add(new Soqler.IFieldName('CreatedBy', Schema.User.Name))
-      .add(Schema.AsyncApexJob.CronTriggerId)
+      .add(new Soqler.IFieldName('CronTrigger', Schema.CronTrigger.NextFireTime))
+      .add(new Soqler.IFieldName('CronTrigger', Schema.CronTrigger.PreviousFireTime))
+      .add(new Soqler.IFieldName('CronTrigger', Schema.CronTrigger.State))
+      .add(new Soqler.IFieldName('CronTrigger.CreatedBy', Schema.User.IsActive))
+      .add(new Soqler.IFieldName('CronTrigger.CreatedBy', Schema.User.Name))
+      .add(new Soqler.IFieldName('CronTrigger.CronJobDetail', Schema.CronJobDetail.Name))
+      .add(new Soqler.IFieldName('CronTrigger.CronJobDetail', Schema.CronJobDetail.JobType))
       .add(Schema.AsyncApexJob.ExtendedStatus)
       .add(Schema.AsyncApexJob.JobItemsProcessed)
       .add(Schema.AsyncApexJob.JobType)
@@ -186,45 +314,38 @@ public inherited sharing class Jobber {
       .add(Schema.AsyncApexJob.TotalJobItems)
       .add(Schema.AsyncApexJob.Status);
 
-    return soql;
-  }
+    if (filterActiveStatuses) {
+      final Soqler.IWhereGroup grp = new Soqler.IWhereGroup();
 
-  public static List<Schema.CronTrigger> getScheduled(String jobName, List<String> statuses) {
-    Utils.requireNonNull(jobName, 'Job name cannot be null');
+      grp.wheres()
+        .addOr(new Soqler.IWhereName(Schema.AsyncApexJob.Status, 'IN', soql.bind(STATUSES_ACTIVE)))
+        .addOr(
+          new Soqler.IWhereName(
+            'CronTrigger',
+            Schema.CronTrigger.State,
+            'IN',
+            soql.bind(STATUSES_CRON_ACTIVE)
+          )
+        );
 
-    final Soqler soql = new Soqler(Schema.CronTrigger.SObjectType);
-
-    soql.fields()
-      .add(new Soqler.IFieldName('CronJobDetail', Schema.CronJobDetail.Name))
-      .add(new Soqler.IFieldName('CreatedBy', Schema.User.IsActive))
-      .add(new Soqler.IFieldName('CreatedBy', Schema.User.Name))
-      .add(Schema.CronTrigger.NextFireTime)
-      .add(Schema.CronTrigger.PreviousFireTime)
-      .add(Schema.CronTrigger.State);
-
-    soql.wheres()
-      .addAnd(
-        new Soqler.IWhereName(
-          'CronJobDetail',
-          Schema.CronJobDetail.Name,
-          jobName.contains('%') ? 'LIKE' : '=',
-          jobName
-        )
-      )
-      .addAnd(new Soqler.IWhereName('CronJobDetail', Schema.CronJobDetail.JobType, '=', '7'));
-
-    if (statuses != null && !statuses.isEmpty()) {
-      soql.wheres().addAnd(new Soqler.IWhereName(Schema.CronTrigger.State, 'IN', statuses));
+      soql.wheres().addAnd(grp);
     }
 
-    return (List<Schema.CronTrigger>) soql.query();
-  }
+    soql.orders()
+      .add(
+        new Soqler.IOrderName(
+          Schema.AsyncApexJob.CreatedDate,
+          Soqler.OrderType.DESCENDING_NULLS_LAST
+        )
+      )
+      .add(
+        new Soqler.IOrderName(
+          'CronTrigger',
+          Schema.CronTrigger.CreatedDate,
+          Soqler.OrderType.DESCENDING_NULLS_LAST
+        )
+      );
 
-  public static List<Schema.CronTrigger> getScheduledActive(String jobName) {
-    return getScheduled(jobName, SCHEDULED_ACTIVE_STATUSES);
-  }
-
-  public static List<String> getScheduledActiveStatuses() {
-    return new List<String>(SCHEDULED_ACTIVE_STATUSES);
+    return soql;
   }
 }
