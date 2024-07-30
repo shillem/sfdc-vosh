@@ -194,11 +194,57 @@ public without sharing class Jobber {
   }
 
   public static List<Schema.AsyncApexJob> getActiveByClasses(List<System.Type> classes) {
+    return getByClasses(classes, true);
+  }
+
+  public static List<Schema.AsyncApexJob> getActiveByNamespaces(List<String> namespaces) {
+    if (namespaces == null || namespaces.isEmpty()) {
+      throw new IllegalArgumentException('Namespaces cannot be null or empty');
+    }
+
+    final Soqler soql = getSoqler(true);
+
+    soql.wheres()
+      .addAnd(
+        new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, 'IN', namespaces)
+      );
+
+    return soql.query();
+  }
+
+  public static List<Schema.AsyncApexJob> getByCronName(String name) {
+    if (String.isEmpty(name)) {
+      throw new IllegalArgumentException('Name cannot be null or empty');
+    }
+
+    final Soqler soql = getSoqler(false);
+
+    soql.wheres()
+      .addAnd(
+        new Soqler.IWhereName(
+          'CronTrigger.CronJobDetail',
+          Schema.CronJobDetail.Name,
+          name.contains('%') ? 'LIKE' : '=',
+          name
+        )
+      );
+
+    return soql.query();
+  }
+
+  public static List<Schema.AsyncApexJob> getByClasses(List<System.Type> classes) {
+    return getByClasses(classes, false);
+  }
+
+  private static List<Schema.AsyncApexJob> getByClasses(
+    List<System.Type> classes,
+    Boolean filterActiveStatuses
+  ) {
     if (classes == null || classes.isEmpty()) {
       throw new IllegalArgumentException('Classes cannot be null or empty');
     }
 
-    final Soqler soql = getSoqler(true);
+    final Soqler soql = getSoqler(filterActiveStatuses);
 
     final Map<String, List<String>> breakdown = new Map<String, List<String>>();
 
@@ -242,41 +288,6 @@ public without sharing class Jobber {
     }
 
     soql.wheres().addAnd(classesGroup);
-
-    return soql.query();
-  }
-
-  public static List<Schema.AsyncApexJob> getActiveByNamespaces(List<String> namespaces) {
-    if (namespaces == null || namespaces.isEmpty()) {
-      throw new IllegalArgumentException('Namespaces cannot be null or empty');
-    }
-
-    final Soqler soql = getSoqler(true);
-
-    soql.wheres()
-      .addAnd(
-        new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, 'IN', namespaces)
-      );
-
-    return soql.query();
-  }
-
-  public static List<Schema.AsyncApexJob> getByCronName(String name) {
-    if (String.isEmpty(name)) {
-      throw new IllegalArgumentException('Name cannot be null or empty');
-    }
-
-    final Soqler soql = getSoqler(false);
-
-    soql.wheres()
-      .addAnd(
-        new Soqler.IWhereName(
-          'CronTrigger.CronJobDetail',
-          Schema.CronJobDetail.Name,
-          name.contains('%') ? 'LIKE' : '=',
-          name
-        )
-      );
 
     return soql.query();
   }
