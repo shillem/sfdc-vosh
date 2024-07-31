@@ -148,6 +148,26 @@ global inherited sharing class Sec {
         throw new AuditException(this);
       }
     }
+
+    public override String toString() {
+      List<String> fields = new List<String>();
+
+      if (!failedFields.isEmpty()) {
+        final Describer des = Describer.getInstance();
+
+        for (Schema.SObjectField f : failedFields) {
+          fields.add(des.getFieldDescribe(f).getSObjectType() + '.' + f);
+        }
+      }
+
+      return 'AuditResult{accessType=' +
+        aType +
+        ', failedFields=' +
+        fields +
+        ', failedObject=' +
+        String.valueOf(failedObject) +
+        '}';
+    }
   }
 
   global class DmlRequest {
