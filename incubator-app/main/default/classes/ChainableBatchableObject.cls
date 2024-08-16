@@ -31,7 +31,11 @@ public abstract class ChainableBatchableObject extends Chainable implements Data
   }
 
   protected override void executeSynchronously(Chainable.Context context) {
-    Iterable<Object> fullScope = start(context);
+    final List<SObject> fullScope = new List<SObject>();
+
+    for (Iterator<SObject> iter = start(context).iterator(); iter.hasNext();) {
+      fullScope.add(iter.next());
+    }
 
     if (fullScope.iterator().hasNext()) {
       execute(context, fullScope);

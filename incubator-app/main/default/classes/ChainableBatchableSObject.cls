@@ -31,7 +31,11 @@ public abstract class ChainableBatchableSObject extends Chainable implements Dat
   }
 
   protected override void executeSynchronously(Chainable.Context context) {
-    List<SObject> fullScope = Database.query(start(context).getQuery());
+    final List<SObject> fullScope = new List<SObject>();
+
+    for (Iterator<SObject> iter = start(context).iterator(); iter.hasNext();) {
+      fullScope.add(iter.next());
+    }
 
     if (!fullScope.isEmpty()) {
       execute(context, fullScope);
