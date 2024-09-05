@@ -41,7 +41,7 @@ global inherited sharing class DescriberController {
     } catch (System.Exception e) {
       LOG.error('getSObjectDescriptor()', e);
 
-      throw new AuraHandledException(e.getMessage());
+      throw new System.AuraHandledException(e.getMessage());
     }
   }
 
@@ -57,7 +57,7 @@ global inherited sharing class DescriberController {
     } catch (System.Exception e) {
       LOG.error('getSObjectFields(String)', e);
 
-      throw new AuraHandledException(e.getMessage());
+      throw new System.AuraHandledException(e.getMessage());
     }
   }
 
@@ -101,7 +101,7 @@ global inherited sharing class DescriberController {
     } catch (System.Exception e) {
       LOG.error('getSObjectTypes()', e);
 
-      throw new AuraHandledException(e.getMessage());
+      throw new System.AuraHandledException(e.getMessage());
     }
   }
 }

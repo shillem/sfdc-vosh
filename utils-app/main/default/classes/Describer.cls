@@ -191,7 +191,12 @@ global inherited sharing class Describer {
       final Schema.DescribeFieldResult result = describ.getFieldDescribe(field);
 
       if (editable != null) {
-        if ((editable && result.isCalculated()) || (!editable && !result.isCalculated())) {
+        final Boolean isEditable =
+          result.isCreateable() &&
+          result.isUpdateable() &&
+          !result.isCalculated();
+
+        if ((editable && !isEditable) || (!editable && isEditable)) {
           return false;
         }
       }

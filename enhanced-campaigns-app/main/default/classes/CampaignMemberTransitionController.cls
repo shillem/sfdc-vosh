@@ -47,7 +47,7 @@ public with sharing class CampaignMemberTransitionController {
 
       return JSON.serialize(results, true);
     } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
+      throw new System.AuraHandledException(e.getMessage());
     }
   }
 
@@ -58,7 +58,7 @@ public with sharing class CampaignMemberTransitionController {
         .getObjectDescribe(Schema.Campaign_Member_Transition__c.SObjectType)
         .getLabel();
     } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
+      throw new System.AuraHandledException(e.getMessage());
     }
   }
 
@@ -146,7 +146,7 @@ public with sharing class CampaignMemberTransitionController {
         true
       );
     } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
+      throw new System.AuraHandledException(e.getMessage());
     }
   }
 
@@ -159,7 +159,7 @@ public with sharing class CampaignMemberTransitionController {
 
       return record;
     } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
+      throw new System.AuraHandledException(e.getMessage());
     }
   }
 
