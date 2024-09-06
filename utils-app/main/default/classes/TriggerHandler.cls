@@ -364,37 +364,11 @@ global inherited sharing class TriggerHandler {
     private Boolean disabled;
     private Map<String, Object> options;
     private Decimal order;
-    private Schema.Cs_TriggerHandlerRoutine__c record;
 
     global Spec(System.Type value) {
       Utils.requireNonNull(value, 'Type cannot be null');
 
       t = value;
-    }
-
-    private Schema.Cs_TriggerHandlerRoutine__c enable() {
-      if (record == null) {
-        record = new Schema.Cs_TriggerHandlerRoutine__c();
-      }
-
-      record.ClassName__c = t.getName();
-      record.Name = new Utils.Hasher().hash(t.getName());
-      record.Is_Disabled__c = false;
-      record.SObjectType__c = String.valueOf(((Routine) t.newInstance()).getSObjectType());
-
-      if (options != null) {
-        record.Json_Options__c = JSON.serialize(options);
-      }
-
-      if (order != null) {
-        record.Sort_Order__c = order;
-      }
-
-      return record;
-    }
-
-    global System.Type getType() {
-      return t;
     }
 
     global Object getOption(String name) {
@@ -403,6 +377,10 @@ global inherited sharing class TriggerHandler {
 
     global Decimal getOrder() {
       return order;
+    }
+
+    global System.Type getType() {
+      return t;
     }
 
     global Boolean isAllOptionsDisabled() {
@@ -452,6 +430,22 @@ global inherited sharing class TriggerHandler {
 
       return this;
     }
+
+    private Schema.Cs_TriggerHandlerRoutine__c toRecord() {
+      final Schema.Cs_TriggerHandlerRoutine__c record = new Schema.Cs_TriggerHandlerRoutine__c(
+        ClassName__c = t.getName(),
+        Name = new Utils.Hasher().hash(t.getName()),
+        Is_Disabled__c = isDisabled(),
+        SObjectType__c = String.valueOf(((Routine) t.newInstance()).getSObjectType()),
+        Sort_Order__c = order
+      );
+
+      if (options != null) {
+        record.Json_Options__c = JSON.serialize(options);
+      }
+
+      return record;
+    }
   }
 
   private static final Map<String, Set<Id>> TAGS = new Map<String, Set<Id>>();
@@ -495,83 +489,10 @@ global inherited sharing class TriggerHandler {
   }
 
   /**
-   * @description Disables a <code>TriggerHandler.Routine</code> extending class that,
-   * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
-   * The method ticks as disabled a corresponding <code>Cs_TriggerHandlerRoutine__c</code>
-   * custom setting record that bears the class' name if it exists.
-   *
-   * @param value the .class extending the abstract class <code>TriggerHandler.Routine</code>, not null
-   * @see #disable(Set<System.Type>) disable
-   * @since 1.0.3
-   */
-  global static void disable(System.Type value) {
-    disable(new Set<System.Type>{ value });
-  }
-
-  /**
-   * @description Disables <code>TriggerHandler.Routine</code> extending classes that,
-   * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
-   * The method ticks as disabled the corresponding <code>Cs_TriggerHandlerRoutine__c</code>
-   * custom setting records that bear the class' name if it exists.
-   *
-   * @param values the list containing classes extending the abstract class <code>TriggerHandler.Routine</code>, not null
-   * @see #enable(System.Type) enable
-   * @see #enable(Map<System.Type, Decimal>) enable
-   * @since 1.0.12
-   */
-  @SuppressWarnings('PMD.ApexCRUDViolation')
-  global static void disable(Set<System.Type> values) {
-    Utils.requireNonNull(values, 'Types cannot be null');
-
-    if (values.isEmpty()) {
-      return;
-    }
-
-    final Set<String> typeNames = new Set<String>();
-
-    for (System.Type t : values) {
-      typeNames.add(t.getName());
-    }
-
-    final List<Schema.Cs_TriggerHandlerRoutine__c> records = [
-      SELECT ClassName__c
-      FROM Cs_TriggerHandlerRoutine__c
-      WHERE ClassName__c IN :typeNames AND Is_Disabled__c = FALSE
-    ];
-
-    for (Schema.Cs_TriggerHandlerRoutine__c r : records) {
-      r.Is_Disabled__c = true;
-    }
-
-    update records;
-  }
-
-  /**
-   * @description Enables a <code>TriggerHandler.Routine</code> extending class that,
-   * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
-   * The coupling trigger will have to call <code>TriggerHandler.execute</code>
-   * for the class to be invoked.
-   * <p>
-   * The method creates - if it doesn't exist, or ticks as enabled, a corresponding
-   * <code>Cs_TriggerHandlerRoutine__c</code> custom setting record that bears the class' name.
-   *
-   * @param value the class extending the abstract class <code>TriggerHandler.Routine</code>, not null
-   * @throws UnsupportedOperationException if the type doesn't extend <code>TriggerHandler.Routine</code>
-   * @see #enable(Map<System.Type, Integer>) enable
-   * @since 1.0.3
-   */
-  global static void enable(System.Type value) {
-    enable(new List<Spec>{ new Spec(value) });
-  }
-
-  /**
-   * @description Enables <code>TriggerHandler.Routine</code> extending classes that,
+   * @description Updates <code>TriggerHandler.Routine</code> extending classes spec records that,
    * when matching the SObject of reference, will be invoked when the coupling trigger is fired.
    * The coupling trigger will have to call <code>TriggerHandler.execute</code>
    * for the classes to be invoked.
-   * <p>
-   * The method creates - if they don't exist, or ticks as enabled, the corresponding
-   * <code>Cs_TriggerHandlerRoutine__c</code> custom setting record that bears the class' name.
    *
    * @param values the specification list of the triggers extending the abstract class <code>TriggerHandler.Routine</code> to enable, not null
    * @throws UnsupportedOperationException if the type of any of the specification doesn't extend <code>TriggerHandler.Routine</code>
@@ -579,77 +500,43 @@ global inherited sharing class TriggerHandler {
    * @since 1.0.12
    */
   @SuppressWarnings('PMD.ApexCRUDViolation')
-  global static void enable(List<Spec> values) {
+  global static void commitSpecs(List<Spec> values) {
     Utils.requireNonNull(values, 'Specs cannot be null');
-
-    if (values.isEmpty()) {
-      return;
-    }
-
-    final Map<String, Spec> tms = new Map<String, Spec>();
-
-    for (Spec d : values) {
-      final String name = d.t.getName();
-
-      if (!Routine.class.isAssignableFrom(d.t)) {
-        throw new System.UnsupportedOperationException(
-          'Cannot enable ' + name + ' because it does not extend vosh.TriggerHandler.Routine class'
-        );
-      }
-
-      tms.put(name, d);
-    }
-
-    for (Schema.Cs_TriggerHandlerRoutine__c r : [
-      SELECT ClassName__c
-      FROM Cs_TriggerHandlerRoutine__c
-      WHERE ClassName__c IN :tms.keySet()
-    ]) {
-      tms.get(r.ClassName__c).record = r;
-    }
 
     final List<Schema.Cs_TriggerHandlerRoutine__c> records = new List<Schema.Cs_TriggerHandlerRoutine__c>();
 
-    for (Spec d : values) {
-      records.add(d.enable());
+    for (Spec sp : values) {
+      if (!Routine.class.isAssignableFrom(sp.t)) {
+        throw new System.UnsupportedOperationException(
+          'Cannot enable ' +
+            sp.t.getName() +
+            ' because it does not extend vosh.TriggerHandler.Routine class'
+        );
+      }
+
+      records.add(sp.toRecord());
     }
 
     upsert records;
   }
 
-  @SuppressWarnings('PMD.ApexCRUDViolation')
-  global static Map<System.Type, Spec> fetch(Set<System.Type> values) {
-    Utils.requireNonNull(values, 'Types cannot be null');
+  global static Spec readSpec(System.Type value) {
+    final Spec sp = new Spec(value);
 
-    final Map<String, System.Type> typeNames = new Map<String, System.Type>();
+    final Schema.Cs_TriggerHandlerRoutine__c record = Schema.Cs_TriggerHandlerRoutine__c.getValue(
+      new Utils.Hasher().hash(sp.t.getName())
+    );
 
-    for (System.Type t : values) {
-      typeNames.put(t.getName(), t);
-    }
+    if (record != null) {
+      sp.setDisabled(record.Is_Disabled__c);
 
-    final Map<System.Type, Spec> result = new Map<System.Type, Spec>();
-
-    for (Schema.Cs_TriggerHandlerRoutine__c r : [
-      SELECT ClassName__c, Is_Disabled__c, Json_Options__c, Sort_Order__c
-      FROM Cs_TriggerHandlerRoutine__c
-      WHERE ClassName__c IN :typeNames.keySet()
-    ]) {
-      final System.Type t = typeNames.get(r.ClassName__c);
-      final Spec s = new Spec(t);
-
-      s.disabled = r.Is_Disabled__c;
-
-      if (r.Json_Options__c != null && r.Json_Options__c.startsWith('{')) {
-        s.options = (Map<String, Object>) JSON.deserializeUntyped(r.Json_Options__c);
+      if (record.Json_Options__c != null && record.Json_Options__c.startsWith('{')) {
+        sp.setOptions((Map<String, Object>) JSON.deserializeUntyped(record.Json_Options__c));
       }
 
-      if (r.Sort_Order__c != null) {
-        s.order = r.Sort_Order__c;
-      }
-
-      result.put(t, s);
+      sp.setOrder(record.Sort_Order__c);
     }
 
-    return result;
+    return sp;
   }
 }
