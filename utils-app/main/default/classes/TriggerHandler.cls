@@ -397,16 +397,48 @@ global inherited sharing class TriggerHandler {
       return t;
     }
 
-    global Boolean isDisabled() {
-      return disabled;
-    }
-
     global Object getOption(String name) {
-      return options != null ? options.get(name) : null;
+      return options?.get(name);
     }
 
     global Decimal getOrder() {
       return order;
+    }
+
+    global Boolean isAllOptionsDisabled() {
+      if (options == null) {
+        return true;
+      }
+
+      for (String name : options.keySet()) {
+        if (options.get(name) == true) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    public Boolean isDisabled() {
+      return disabled != null && !disabled;
+    }
+
+    global Spec setDisabled(Boolean value) {
+      disabled = value;
+
+      return this;
+    }
+
+    global Spec setOption(String name, Object value) {
+      Utils.requireNonNull(name, 'Name cannot be null');
+
+      if (options == null) {
+        options = new Map<String, Object>();
+      }
+
+      options.put(name, value);
+
+      return this;
     }
 
     global Spec setOptions(Map<String, Object> value) {
