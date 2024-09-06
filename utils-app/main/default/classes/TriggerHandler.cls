@@ -360,6 +360,7 @@ global inherited sharing class TriggerHandler {
 
   global class Spec {
     private final System.Type t;
+    private final String name;
 
     private Boolean disabled;
     private Map<String, Object> options;
@@ -369,6 +370,7 @@ global inherited sharing class TriggerHandler {
       Utils.requireNonNull(value, 'Type cannot be null');
 
       t = value;
+      name = new Utils.Hasher().hash(t.getName());
     }
 
     global Object getOption(String name) {
@@ -398,7 +400,7 @@ global inherited sharing class TriggerHandler {
     }
 
     public Boolean isDisabled() {
-      return disabled != null && !disabled;
+      return disabled != null && disabled;
     }
 
     global Spec setDisabled(Boolean value) {
@@ -434,10 +436,10 @@ global inherited sharing class TriggerHandler {
     private Schema.Cs_TriggerHandlerRoutine__c toRecord() {
       final Schema.Cs_TriggerHandlerRoutine__c record = new Schema.Cs_TriggerHandlerRoutine__c(
         ClassName__c = t.getName(),
-        Name = new Utils.Hasher().hash(t.getName()),
+        Name = name,
         Is_Disabled__c = isDisabled(),
         SObjectType__c = String.valueOf(((Routine) t.newInstance()).getSObjectType()),
-        Sort_Order__c = order
+        Sort_Order__c = order != null ? order : 1
       );
 
       if (options != null) {
@@ -514,7 +516,16 @@ global inherited sharing class TriggerHandler {
         );
       }
 
-      records.add(sp.toRecord());
+      final Schema.Cs_TriggerHandlerRoutine__c record = sp.toRecord();
+      final Schema.Cs_TriggerHandlerRoutine__c stored = Schema.Cs_TriggerHandlerRoutine__c.getInstance(
+        sp.name
+      );
+
+      if (stored != null) {
+        record.Id = stored.Id;
+      }
+
+      records.add(record);
     }
 
     upsert records;
@@ -523,8 +534,8 @@ global inherited sharing class TriggerHandler {
   global static Spec readSpec(System.Type value) {
     final Spec sp = new Spec(value);
 
-    final Schema.Cs_TriggerHandlerRoutine__c record = Schema.Cs_TriggerHandlerRoutine__c.getValue(
-      new Utils.Hasher().hash(sp.t.getName())
+    final Schema.Cs_TriggerHandlerRoutine__c record = Schema.Cs_TriggerHandlerRoutine__c.getInstance(
+      sp.name
     );
 
     if (record != null) {

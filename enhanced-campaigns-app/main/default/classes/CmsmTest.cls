@@ -51,7 +51,9 @@ public class CmsmTest {
       .getPicklistValues()[0];
     String emailCampaignType = firstTypeEntry != null ? firstTypeEntry.getValue() : null;
 
-    TriggerHandler.enable(CmsmTriggerHandler.class);
+    TriggerHandler.commitSpecs(
+      new List<TriggerHandler.Spec>{ new TriggerHandler.Spec(CmsmTriggerHandler.class) }
+    );
 
     Test.startTest();
 
@@ -114,7 +116,9 @@ public class CmsmTest {
 
   @isTest
   static void memberStatusTransitioner() {
-    TriggerHandler.enable(CmsmTriggerHandler.class);
+    TriggerHandler.commitSpecs(
+      new List<TriggerHandler.Spec>{ new TriggerHandler.Spec(CmsmTriggerHandler.class) }
+    );
 
     List<Schema.Campaign> campaigns = new List<Schema.Campaign>{
       new Schema.Campaign(Name = 'Bucket1', IsActive = true),
