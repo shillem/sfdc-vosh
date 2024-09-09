@@ -15,9 +15,9 @@ public class TriggerHandlerTest {
   @isTest
   static void triggerHandler() {
     // Enablement
-    String acctTypeName = String.valueOf(Schema.Account.SObjectType);
-    System.Type stype1 = AccountTriggerHandlerTest1.class;
-    System.Type stype2 = AccountTriggerHandlerTest2.class;
+    final String acctTypeName = String.valueOf(Schema.Account.SObjectType);
+    final System.Type stype1 = AccountTriggerHandlerTest1.class;
+    final System.Type stype2 = AccountTriggerHandlerTest2.class;
 
     TriggerHandler.commitSpecs(
       new List<TriggerHandler.Spec>{
@@ -104,5 +104,23 @@ public class TriggerHandlerTest {
         'Account Ids should have mismatched'
       );
     }
+  }
+
+  @isTest
+  static void triggerHandlerSpecOptions() {
+    final TriggerHandler.Spec spec = new TriggerHandler.Spec(AccountTriggerHandlerTest1.class);
+
+    spec.setOption('a', true);
+
+    Assert.isTrue((Boolean) spec.getOption('a'), 'Option a should have been set to true');
+    Assert.isFalse(spec.isAllOptionsDisabled(), 'It should have returned true because a is true');
+    Assert.isFalse(
+      spec.isDisabled(),
+      'It should have returned false because a new spec is enabled by default'
+    );
+
+    spec.setOption('a', false);
+    spec.setDisabled(spec.isAllOptionsDisabled());
+    Assert.isTrue(spec.isDisabled(), 'It should have returned true because a is now false');
   }
 }
