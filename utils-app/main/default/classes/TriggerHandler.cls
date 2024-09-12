@@ -94,44 +94,6 @@ global inherited sharing class TriggerHandler {
     }
 
     /**
-     * @description It checks whether all value for the given fields differ between 2 records.
-     *
-     * @param record1 the first record to check
-     * @param record2 the second record to check
-     * @param fields the fields to check upon
-     * @return true if all the field values differ between the records, otherwise false
-     * @since 1.1
-     */
-    global Boolean allDiffer(SObject record1, SObject record2, List<Schema.SObjectField> fields) {
-      for (Schema.SObjectField f : fields) {
-        if (record1.get(f) == record2.get(f)) {
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    /**
-     * @description It checks whether any value for the given fields differ between 2 records.
-     *
-     * @param record1 the first record to check
-     * @param record2 the second record to check
-     * @param fields the fields to check upon
-     * @return true if any of the field values differ between the records, otherwise false
-     * @since 1.1
-     */
-    global Boolean anyDiffer(SObject record1, SObject record2, List<Schema.SObjectField> fields) {
-      for (Schema.SObjectField f : fields) {
-        if (record1.get(f) != record2.get(f)) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    /**
      * @description It executes the implemented logic on the records passed
      * in the <code>Trigger</code> context.
      *
@@ -296,19 +258,6 @@ global inherited sharing class TriggerHandler {
      */
     global Boolean isTagged(Id recordId, String key) {
       return getTaggedIds(key).contains(recordId);
-    }
-
-    /**
-     * @description It checks whether the value of a given field matches between 2 records.
-     *
-     * @param record1 the first record check
-     * @param record2 the second record check
-     * @param field the field to check upon
-     * @return true if the field value is the same for both records, otherwise false
-     * @since 1.0.18
-     */
-    global Boolean match(SObject record1, SObject record2, Schema.SObjectField field) {
-      return record1.get(field) == record2.get(field);
     }
 
     /**

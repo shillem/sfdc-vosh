@@ -1,6 +1,116 @@
 @SuppressWarnings('PMD.AvoidGlobalModifier')
 global inherited sharing class SchemaUtils {
   /**
+   * @description It checks field value differences between 2 records.
+   *
+   * @param record1 the first record to check
+   * @param record2 the second record to check
+   * @param fieldName the field to check upon
+   * @return true, if the field values differ, otherwise false
+   * @since 1.1
+   */
+  global static Boolean differ(SObject record1, SObject record2, String fieldName) {
+    return record1.get(fieldName) != record2.get(fieldName);
+  }
+
+  /**
+   * @description It checks field value differences between 2 records.
+   *
+   * @param record1 the first record to check
+   * @param record2 the second record to check
+   * @param field the field to check upon
+   * @return true, if the field values differ, otherwise false
+   * @since 1.1
+   */
+  global static Boolean differ(SObject record1, SObject record2, Schema.SObjectField field) {
+    return record1.get(field) != record2.get(field);
+  }
+
+  /**
+   * @description It checks field value differences between 2 records.
+   *
+   * @param record1 the first record to check
+   * @param record2 the second record to check
+   * @param fieldNames the fields to check upon
+   * @return true, if all field values differ, otherwise false
+   * @since 1.1
+   */
+  global static Boolean differAll(SObject record1, SObject record2, List<String> fieldNames) {
+    for (String f : fieldNames) {
+      if (!differ(record1, record2, f)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * @description It checks field value differences between 2 records.
+   *
+   * @param record1 the first record to check
+   * @param record2 the second record to check
+   * @param fields the fields to check upon
+   * @return true, if all field values differ, otherwise false
+   * @since 1.1
+   */
+  global static Boolean differAll(
+    SObject record1,
+    SObject record2,
+    List<Schema.SObjectField> fields
+  ) {
+    for (Schema.SObjectField f : fields) {
+      if (!differ(record1, record2, f)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * @description It checks field value differences between 2 records.
+   *
+   * @param record1 the first record to check
+   * @param record2 the second record to check
+   * @param fieldNames the fields to check upon
+   * @return true, if any field value differs, otherwise false
+   * @since 1.1
+   */
+  global static Boolean differAny(SObject record1, SObject record2, List<String> fieldNames) {
+    for (String f : fieldNames) {
+      if (differ(record1, record2, f)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * @description It checks field value differences between 2 records.
+   *
+   * @param record1 the first record to check
+   * @param record2 the second record to check
+   * @param fields the fields to check upon
+   * @return true, if any field value differs, otherwise false
+   * @since 1.1
+   */
+  global static Boolean differAny(
+    SObject record1,
+    SObject record2,
+    List<Schema.SObjectField> fields
+  ) {
+    for (Schema.SObjectField f : fields) {
+      if (differ(record1, record2, f)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * @description It returns the profile id of the profile name provided.
    *
    * @param name the profile name
