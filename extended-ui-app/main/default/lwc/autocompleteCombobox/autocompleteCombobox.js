@@ -109,6 +109,11 @@ export default class AutocompleteCombobox extends LightningElement {
     return this.validity.valid;
   }
 
+  @api clearCache() {
+    this.currentTerm = undefined;
+    this.results = [];
+  }
+
   connectedCallback() {
     this.classList.add("slds-form-element");
 
