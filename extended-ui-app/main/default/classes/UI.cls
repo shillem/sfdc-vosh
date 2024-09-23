@@ -180,6 +180,7 @@ global class UI {
 
   @JsonAccess(serializable='always' deserializable='always')
   global class ListboxItem extends Utils.Entry implements Comparable {
+    private Map<String, Object> attrs;
     private Boolean disabled;
     private String icon;
     private String meta;
@@ -192,6 +193,10 @@ global class UI {
       super(value, label);
     }
 
+    global Map<String, Object> getAttrs() {
+      return attrs;
+    }
+
     global Boolean getDisabled() {
       return disabled;
     }
@@ -202,6 +207,12 @@ global class UI {
 
     global String getMeta() {
       return meta;
+    }
+
+    global ListboxItem setAttrs(Map<String, Object> value) {
+      attrs = value;
+
+      return this;
     }
 
     global ListboxItem setDisabled(Boolean value) {

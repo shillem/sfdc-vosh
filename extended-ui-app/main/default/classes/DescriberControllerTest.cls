@@ -28,16 +28,27 @@ public class DescriberControllerTest {
     );
 
     final String fieldName = String.valueOf(Schema.Account.Name);
+    final Map<String, Object> nameEntry;
 
     for (Object result : results) {
       final Map<String, Object> m = (Map<String, Object>) result;
 
       if (fieldName.equals((String) m.get('value'))) {
-        return;
+        nameEntry = m;
+        break;
       }
     }
 
-    System.assert(false, 'It should have contained ' + fieldName);
+    if (nameEntry == null) {
+      Assert.fail('It should have contained the entry for ' + fieldName);
+    }
+
+    Assert.isTrue(nameEntry.containsKey('attrs'));
+
+    final Map<String, Object> nameEntryAttrs = (Map<String, Object>) nameEntry.get('attrs');
+
+    Assert.areEqual('STRING', nameEntryAttrs.get('type'));
+    Assert.isTrue(nameEntryAttrs.containsKey('family'));
   }
 
   @isTest

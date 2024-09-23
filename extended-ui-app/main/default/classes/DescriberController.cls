@@ -69,8 +69,16 @@ global inherited sharing class DescriberController {
 
     for (Schema.SObjectField f : descr.querySObjectFields(filter)) {
       final Schema.DescribeFieldResult result = descr.getFieldDescribe(f);
+      final UI.ListboxItem item = new UI.ListboxItem(result.getName(), result.getLabel());
 
-      results.add(new UI.ListboxItem(result.getName(), result.getLabel()));
+      item.setAttrs(
+        new Map<String, Object>{
+          'family' => Describer.getDisplayFamily(result.getType()),
+          'type' => result.getType().name()
+        }
+      );
+
+      results.add(item);
     }
 
     results.sort();
