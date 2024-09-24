@@ -126,26 +126,6 @@ export default class AutocompleteCombobox extends LightningElement {
     this.dispatchEvent(new CustomEvent("change", { detail: { value } }));
   }
 
-  @api getValueAttributes() {
-    let value = this.results.find((result) => result.value === this.value);
-
-    if (value) {
-      return { ...value.attrs };
-    }
-
-    if (!Array.isArray(this.options)) {
-      return undefined;
-    }
-
-    value = this.options.find((option) => option.value === this.value);
-
-    if (value) {
-      return { ...value.attrs };
-    }
-
-    return undefined;
-  }
-
   handleComboboxIconClick(event) {
     if (this.empty) {
       return;
