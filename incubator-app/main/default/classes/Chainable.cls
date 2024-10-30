@@ -142,15 +142,15 @@ public abstract class Chainable {
    * @since 1.1
    */
   public Chainable now(Chainable successor) {
-    if (next == null) {
-      return then(successor);
+    if (next != null) {
+      successor.next = next;
+      successor.previous = this;
+      successor.variables = variables;
+
+      next = successor;
+    } else {
+      then(successor);
     }
-
-    successor.next = next;
-    successor.previous = this;
-    successor.variables = variables;
-
-    next = successor;
 
     return this;
   }
