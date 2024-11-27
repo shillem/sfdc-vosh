@@ -30,9 +30,11 @@ public without sharing class Jobber {
     }
 
     public Boolean isActive() {
-      if (
-        STATUSES_ACTIVE.contains(state) || (hasCron() && STATUSES_CRON_ACTIVE.contains(cron.state))
-      ) {
+      if (STATUSES_ACTIVE.contains(state)) {
+        return !hasCron() || cron.isActive();
+      }
+
+      if (hasCron() && cron.isActive()) {
         return true;
       }
 
@@ -49,6 +51,10 @@ public without sharing class Jobber {
     public Boolean userActive { get; private set; }
     public String userId { get; private set; }
     public String userName { get; private set; }
+
+    public Boolean isActive() {
+      return STATUSES_CRON_ACTIVE.contains(state);
+    }
   }
 
   public abstract class Snapshot {
@@ -91,6 +97,11 @@ public without sharing class Jobber {
         instance.cron.userActive = j.CronTrigger.CreatedBy?.IsActive;
         instance.cron.userId = j.CronTrigger.CreatedBy?.Id;
         instance.cron.userName = j.CronTrigger.CreatedBy?.Name;
+      } else if (j.CronTriggerId != null) {
+        LOG.warn('add() CronTriggerId is not null but CronTrigger is');
+
+        instance.cron = new InstanceCron();
+        instance.cron.jobId = j.CronTriggerId;
       }
 
       values.add(instance);
