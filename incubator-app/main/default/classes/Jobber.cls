@@ -30,8 +30,8 @@ public without sharing class Jobber {
     }
 
     public Boolean isActive() {
-      if (STATUSES_ACTIVE.contains(state)) {
-        return !hasCron() || cron.isActive();
+      if (!hasCron() && STATUSES_ACTIVE.contains(state)) {
+        return true;
       }
 
       if (hasCron() && cron.isActive()) {
@@ -39,6 +39,10 @@ public without sharing class Jobber {
       }
 
       return false;
+    }
+
+    public Boolean isZombie() {
+      return hasCron() && !cron.isValid();
     }
   }
 
@@ -53,7 +57,11 @@ public without sharing class Jobber {
     public String userName { get; private set; }
 
     public Boolean isActive() {
-      return STATUSES_CRON_ACTIVE.contains(state);
+      return isValid() && STATUSES_CRON_ACTIVE.contains(state);
+    }
+
+    public Boolean isValid() {
+      return state != null;
     }
   }
 
