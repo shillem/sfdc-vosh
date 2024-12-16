@@ -29,7 +29,7 @@ global inherited sharing class Sec {
 
       if (!value.failedFields.isEmpty()) {
         for (Schema.SObjectField field : value.failedFields) {
-          objs.add(String.valueOf(field));
+          objs.add(field.getDescribe().getSObjectType() + '.' + field);
         }
       }
 
