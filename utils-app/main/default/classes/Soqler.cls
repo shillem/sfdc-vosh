@@ -152,16 +152,22 @@ global inherited sharing class Soqler {
       if (value instanceof IFieldName) {
         final IFieldName ifn = (IFieldName) value;
 
-        return field == ifn.field && crossReference == ifn.crossReference;
+        return field == ifn.field && crossReference == ifn.crossReference && fn == ifn.fn;
       }
 
       return false;
     }
 
     global Integer hashCode() {
-      Integer result = crossReference != null ? crossReference.hashCode() : 0;
+      Integer result = String.valueOf(field).hashCode();
 
-      result += String.valueOf(field).hashCode();
+      if (crossReference != null) {
+        result += crossReference.hashCode();
+      }
+
+      if (fn != null) {
+        result += fn.hashCode();
+      }
 
       return 31 * 7 + result;
     }
