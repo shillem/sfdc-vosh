@@ -1,7 +1,7 @@
 @isTest(isParallel=true)
 public with sharing class RandomizerTest {
   @isTest
-  static void main() {
+  static void generate() {
     Randomizer.Builder builder;
     String random;
     List<String> components;
@@ -46,5 +46,24 @@ public with sharing class RandomizerTest {
       !components[0].isAlpha(),
       'The component should not have contained letters: ' + components[0]
     );
+  }
+
+  @isTest
+  static void randoms() {
+    Assert.isTrue(Randomizer.getRandomLetter().length() == 1);
+
+    {
+      final Integer randomNumber = Randomizer.getRandomNumber();
+
+      Assert.isTrue(randomNumber >= 0 && randomNumber <= 9);
+    }
+
+    {
+      final Integer minValue = 150;
+      final Integer maxValue = 175;
+      final Integer randomNumber = Randomizer.getRandomNumber(minValue, maxValue);
+
+      Assert.isTrue(randomNumber >= minValue && randomNumber <= maxValue);
+    }
   }
 }

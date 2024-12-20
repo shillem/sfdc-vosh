@@ -213,24 +213,24 @@ global class TestUtils {
    *
    * @since 1.1
    */
-  public class HttpResponseMockStaticResourceBody {
+  global class HttpResponseMockStaticResourceBody {
     private final String name;
 
     private String key;
     private List<String> variables;
 
-    public HttpResponseMockStaticResourceBody(String name) {
+    global HttpResponseMockStaticResourceBody(String name) {
       Utils.requireNonNull(name, 'Name cannot be null');
 
       this.name = name;
     }
 
-    public HttpResponseMockStaticResourceBody withKey(String value) {
+    global HttpResponseMockStaticResourceBody withKey(String value) {
       key = value;
       return this;
     }
 
-    public HttpResponseMockStaticResourceBody withVariables(List<String> values) {
+    global HttpResponseMockStaticResourceBody withVariables(List<String> values) {
       variables = values;
       return this;
     }
@@ -246,6 +246,7 @@ global class TestUtils {
     private final Map<Schema.SObjectField, Object> defaults;
     private final List<Schema.SObjectField> enumerables;
     private final Map<Integer, Map<Schema.SObjectField, Object>> specifics;
+    private final List<Schema.SObjectField> randoms;
 
     private Boolean autoInsert;
     private Integer count;
@@ -263,6 +264,7 @@ global class TestUtils {
       this.defaults = new Map<Schema.SObjectField, Object>();
       this.enumerables = new List<Schema.SObjectField>();
       this.specifics = new Map<Integer, Map<Schema.SObjectField, Object>>();
+      this.randoms = new List<Schema.SObjectField>();
 
       this.autoInsert = true;
     }
@@ -309,13 +311,32 @@ global class TestUtils {
       }
 
       for (Schema.SObjectField field : defaults.keySet()) {
-        instance.put(
-          field,
-          enumerables.contains(field) ? (String) defaults.get(field) + index : defaults.get(field)
-        );
+        Object value = defaults.get(field);
+
+        if (enumerables.contains(field)) {
+          value = (String) value + index;
+        }
+
+        instance.put(field, value);
       }
 
-      Map<Schema.SObjectField, Object> specs = specifics.get(index);
+      for (Schema.SObjectField field : randoms) {
+        Object value = instance.get(field);
+
+        final DescribeFieldResult dfr = Describer.getInstance().getFieldDescribe(field);
+
+        if (dfr.getType() == Schema.DisplayType.PICKLIST) {
+          final List<Schema.PicklistEntry> entries = dfr.getPicklistValues();
+
+          value = entries.get(Randomizer.getRandomNumber(0, entries.size() - 1)).getValue();
+        } else {
+          value = (value != null ? value : '') + Randomizer.getRandomLetter();
+        }
+
+        instance.put(field, value);
+      }
+
+      final Map<Schema.SObjectField, Object> specs = specifics.get(index);
 
       if (specs != null) {
         for (Schema.SObjectField field : specs.keySet()) {
@@ -324,6 +345,19 @@ global class TestUtils {
       }
 
       return instance;
+    }
+
+    /**
+     * @description It flags the given field to randomize the value for the field.
+     * The enumeration will be applied once the <code>make()</code> is invoked.
+     *
+     * @param field the field
+     * @return the maker instance
+     * @since 1.1
+     */
+    global SObjectMaker randomize(Schema.SObjectField field) {
+      randoms.add(field);
+      return this;
     }
 
     /**
@@ -442,7 +476,7 @@ global class TestUtils {
       return this;
     }
 
-    global EventMaker setSubject(Id value) {
+    global EventMaker setSubject(String value) {
       return (EventMaker) set(Schema.Event.Subject, value);
     }
 
@@ -606,6 +640,36 @@ global class TestUtils {
     private ProductPricePair(Schema.Product2 product, Schema.PricebookEntry price) {
       this.price = price;
       this.product = product;
+    }
+  }
+
+  global class TaskMaker extends SObjectMaker {
+    global TaskMaker() {
+      super(Schema.Task.SObjectType);
+    }
+
+    global TaskMaker setActivityDate(Date activityDate) {
+      set(Schema.Task.ActivityDate, activityDate);
+
+      return this;
+    }
+
+    global TaskMaker setEntryActivityDate(Integer index, Date activityDate) {
+      setEntry(index, Schema.Task.ActivityDate, activityDate);
+
+      return this;
+    }
+
+    global TaskMaker setSubject(String value) {
+      return (TaskMaker) set(Schema.Task.Subject, value);
+    }
+
+    global TaskMaker setWhatId(Id value) {
+      return (TaskMaker) set(Schema.Task.WhatId, value);
+    }
+
+    global TaskMaker setWhoId(Id value) {
+      return (TaskMaker) set(Schema.Task.WhoId, value);
     }
   }
 

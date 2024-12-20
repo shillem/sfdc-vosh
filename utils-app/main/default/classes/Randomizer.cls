@@ -157,15 +157,38 @@ global class Randomizer {
     return value;
   }
 
-  private String getRandomLetter() {
+  /**
+   * @description It returns a random alphabet letter.
+   *
+   * @return the randomly generated string value
+   * @since 1.0.1
+   */
+  global static String getRandomLetter() {
     return String.fromCharArray(new List<Integer>{ getRandomNumber(0, 25) + 65 });
   }
 
-  private Integer getRandomNumber() {
+  /**
+   * @description It returns a random number between 0 and 9.
+   *
+   * @return the randomly generated number
+   * @since 1.0.1
+   */
+  global static Integer getRandomNumber() {
     return getRandomNumber(0, 9);
   }
 
-  private Integer getRandomNumber(Integer min, Integer max) {
+  /**
+   * @description It returns a random number between the given min and max values.
+   *
+   * @param min the minimum value
+   * @param max the maximum value
+   * @return the randomly generated number
+   * @since 1.0.1
+   */
+  global static Integer getRandomNumber(Integer min, Integer max) {
+    Utils.requireNonNull(min, 'Min cannot be null');
+    Utils.requireNonNull(max, 'Max cannot be null');
+
     return (Integer) ((Math.random() * ((max - min) + 1)) + min);
   }
 }
