@@ -455,6 +455,10 @@ global class TestUtils {
       super(Schema.Contact.SObjectType);
     }
 
+    global ContactMaker setAccountId(Id value) {
+      return (ContactMaker) set(Schema.Contact.AccountId, value);
+    }
+
     global ContactMaker setFirstName(String value) {
       return (ContactMaker) set(Schema.Contact.FirstName, value);
     }
