@@ -575,6 +575,17 @@ global inherited sharing class Describer {
   }
 
   /**
+   * @description It tells whether the org the code is running in has Shared Activities feature enabled.
+   * For more info visit: https://help.salesforce.com/s/articleView?id=sf.activities_enable_shared_activities.htm&language=en_US&type=5
+   *
+   * @return true if Shared Activities feature is enabled
+   * @since 1.1
+   */
+  global Boolean isSharedActivitiesEnabled() {
+    return getInstance().getObjectFieldMap(Schema.Event.SObjectType).containsKey('WhoCount');
+  }
+
+  /**
    * @description It allows to query for and return any <code>SObjectField</code>
    * that matches the passed filter.
    *
