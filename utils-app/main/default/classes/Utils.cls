@@ -420,6 +420,16 @@ global inherited sharing class Utils {
     /**
      * @description It checks whether the map contains the given key.
      *
+     * @return the underlying map representation for the Mapper
+     * @since 1.0.1
+     */
+    global Map<String, Object> asMap() {
+      return values;
+    }
+
+    /**
+     * @description It checks whether the map contains the given key.
+     *
      * @param key the key
      * @return true if the key is present, otherwise false
      * @since 1.0.1
