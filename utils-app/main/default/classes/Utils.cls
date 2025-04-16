@@ -549,6 +549,18 @@ global inherited sharing class Utils {
     }
 
     /**
+     * @description It associates the specified value with the specified key in the map.
+     *
+     * @param key the key
+     * @param value the value
+     * @return if the map previously contained a mapping for this key, the old value is returned by the method and then replaced.
+     * @since 1.0.1
+     */
+    global Object put(String key, Object value) {
+      return values.put(key);
+    }
+
+    /**
      * @description It serializes the values in JSON format.
      *
      * @return the serialized map
