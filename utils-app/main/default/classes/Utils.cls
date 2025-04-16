@@ -547,6 +547,16 @@ global inherited sharing class Utils {
 
       return values;
     }
+
+    /**
+     * @description It serializes the values in JSON format.
+     *
+     * @return the serialized map
+     * @since 1.0.1
+     */
+    global String serialize() {
+      return JSON.serialize(values);
+    }
   }
 
   /**
