@@ -567,7 +567,7 @@ global inherited sharing class Utils {
      * @since 1.0.1
      */
     global Object put(String key, Object value) {
-      return values.put(key);
+      return values.put(key, value);
     }
 
     /**
