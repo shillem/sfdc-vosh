@@ -232,8 +232,7 @@ global inherited sharing class SchemaUtils {
     {
       final Soqler soql = new Soqler(Schema.PermissionSet.SObjectType);
       soql.fields().add(Schema.PermissionSet.Id);
-
-      permissionSetNameAddClause(name, soql);
+      soql.wheres().addAnd(permissionSetNameClauseCreate(name));
 
       records = (List<Schema.PermissionSet>) soql.query();
     }
@@ -257,24 +256,46 @@ global inherited sharing class SchemaUtils {
    * @since 1.1
    */
   global static Boolean permissionSetAssigned(Id userId, String name) {
+    return permissionSetAssignedAny(userId, new List<String>{ name });
+  }
+
+  /**
+   * @description It checks whether a user has any of the permission sets provided.
+   *
+   * @param userId the user id
+   * @param names the permission set names
+   * @return whether the user has permission set or not
+   * @since 1.1
+   */
+  public static Boolean permissionSetAssignedAny(Id userId, List<String> names) {
     Utils.requireNonNull(userId, 'User Id cannot be null');
-    Utils.requireNonNull(name, 'Name cannot be null');
+    Utils.requireNonNull(names, 'Names cannot be null');
 
     final Soqler soql = new Soqler(Schema.PermissionSetAssignment.SObjectType);
     soql.fields().add(Schema.PermissionSetAssignment.Id);
     soql.wheres()
       .addAnd(new Soqler.IWhereName(Schema.PermissionSetAssignment.AssigneeId, '=', userId));
 
-    permissionSetNameAddClause(name, soql);
+    if (names.size() > 1) {
+      final Soqler.IWhereGroup grp = new Soqler.IWhereGroup();
+
+      for (String name : names) {
+        grp.wheres().addOr(permissionSetNameClauseCreate(name));
+      }
+    } else {
+      soql.wheres().addAnd(permissionSetNameClauseCreate(names[0]));
+    }
 
     return soql.queryCount() > 0;
   }
 
-  private static void permissionSetNameAddClause(String name, Soqler soql) {
+  private static Soqler.IWhere permissionSetNameClauseCreate(String name) {
     final String[] parts = name.split('\\.');
 
     if (parts.size() > 1) {
-      soql.wheres()
+      final Soqler.IWhereGroup grp = new Soqler.IWhereGroup();
+
+      grp.wheres()
         .addAnd(
           new Soqler.IWhereName(
             'PermissionSet',
@@ -284,9 +305,10 @@ global inherited sharing class SchemaUtils {
           )
         )
         .addAnd(new Soqler.IWhereName('PermissionSet', Schema.PermissionSet.Name, '=', parts[1]));
-    } else {
-      soql.wheres()
-        .addAnd(new Soqler.IWhereName('PermissionSet', Schema.PermissionSet.Name, '=', parts[0]));
+
+      return grp;
     }
+
+    return new Soqler.IWhereName('PermissionSet', Schema.PermissionSet.Name, '=', parts[0]);
   }
 }
