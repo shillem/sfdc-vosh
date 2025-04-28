@@ -463,6 +463,18 @@ global inherited sharing class Utils {
     }
 
     /**
+     * @description It returns the map value cast as <code>Long</code>.
+     *
+     * @param key the key
+     * @throws TypeException if the value associated with the key is not <code>Long</code>
+     * @return the <code>Long</code> value associated with the key if present, otherwise null
+     * @since 1.1
+     */
+    global Long getLong(String key) {
+      return (Long) getObject(key);
+    }
+
+    /**
      * @description It returns the map value cast as <code>Map&lt;String, Object&gt;</code>.
      *
      * @param key the key
