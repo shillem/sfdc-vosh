@@ -996,4 +996,10 @@ global inherited sharing class Utils {
       start = System.currentTimeMillis();
     }
   }
+
+  public static String toSnakeCase(String value) {
+    return String.isEmpty(value)
+      ? value
+      : value.replaceAll('([a-z])([A-Z])', '$1_$2').toLowerCase();
+  }
 }

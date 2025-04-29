@@ -192,6 +192,13 @@ public class UtilsTest {
   }
 
   @isTest
+  static void stringConversions() {
+    final String value = 'TestClass';
+
+    Assert.areEqual('test_class', Utils.toSnakeCase(value));
+  }
+
+  @isTest
   static void uniquifiers() {
     Utils.ValueUniquifier uni = new Utils.ValueUniquifier();
 
