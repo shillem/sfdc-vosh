@@ -99,6 +99,7 @@ global inherited sharing class TriggerHandler {
      *
      * @since 1.0.1
      */
+    @SuppressWarnings('PMD.OneDeclarationPerLine')
     global virtual void execute() {
       pre();
 

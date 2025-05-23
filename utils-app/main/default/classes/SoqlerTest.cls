@@ -42,10 +42,10 @@ public class SoqlerTest {
       .make();
 
     // Generating contacts
-    List<SObject> cnts = new TestUtils.ContactMaker().setLastName('Dummy').setCount(3).make();
+    new TestUtils.ContactMaker().setLastName('Dummy').setCount(3).make();
 
     // Generating events
-    List<SObject> evts = new TestUtils.EventMaker()
+    new TestUtils.EventMaker()
       .setEntryTime(0, Datetime.now().addMinutes(10), Datetime.now().addMinutes(20))
       .setEntryTime(1, Datetime.now().addMinutes(30), Datetime.now().addMinutes(40))
       .setEntryTime(2, Datetime.now().addMinutes(50), Datetime.now().addMinutes(60))
@@ -208,7 +208,8 @@ public class SoqlerTest {
   @isTest
   static void syntax() {
     // Composing SELECT
-    Soqler query, subquery;
+    Soqler query;
+    Soqler subquery;
 
     // Composing COUNT()
     query = new Soqler(Schema.Organization.SObjectType);

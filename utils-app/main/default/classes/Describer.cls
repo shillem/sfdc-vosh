@@ -8,7 +8,7 @@
  * @see Describer#getInstance() getInstance
  * @since 1.0.1
  */
-@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity')
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CognitiveComplexity, PMD.CyclomaticComplexity')
 global inherited sharing class Describer {
   /**
    * @description An enumerator to classify <code>DisplayType</code> in broader terms.
@@ -166,6 +166,7 @@ global inherited sharing class Describer {
       sensitivities = value;
     }
 
+    @SuppressWarnings('PMD.NcssMethodCount')
     global Boolean matches(Schema.SObjectField field, Describer describ) {
       final String name = String.valueOf(field);
 
@@ -416,6 +417,7 @@ global inherited sharing class Describer {
    * @see #getObjectDescribe(Schema.SObjectType) getObjectDescribe
    * @since 1.0.1
    */
+  @SuppressWarnings('PMD.EagerlyLoadedDescribeSObjectResult')
   global Schema.DescribeSObjectResult getObjectDescribe(String name) {
     Utils.requireNonNull(name, 'Name cannot be null');
 

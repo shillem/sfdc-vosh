@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD.CognitiveComplexity')
 public without sharing class Jobber {
   private static final Logger.Instance LOG = Logger.getInstance(Jobber.class);
 

@@ -2,10 +2,7 @@
 public class BatchableDeletableTest {
   @isTest
   static void batchableDeletable() {
-    List<Schema.Account> acct = (List<Schema.Account>) new TestUtils.AccountMaker()
-      .setName('Dummy')
-      .setCount(3)
-      .make();
+    new TestUtils.AccountMaker().setName('Dummy').setCount(3).make();
 
     String q = 'SELECT COUNT() FROM Account';
 

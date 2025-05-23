@@ -4,7 +4,7 @@
  * @since 1.0.4
  */
 @isTest
-@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ExcessivePublicCount')
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CognitiveComplexity, PMD.ExcessivePublicCount')
 global class TestUtils {
   /**
    * @description

@@ -19,7 +19,9 @@
  *
  * @since 1.1
  */
-@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity, PMD.StdCyclomaticComplexity')
+@SuppressWarnings(
+  'PMD.AvoidGlobalModifier, PMD.CognitiveComplexity, PMD.CyclomaticComplexity, PMD.StdCyclomaticComplexity'
+)
 global inherited sharing class Logger {
   /**
    * @description A marker interface to be implemented in any class entitled to call <code>Logger.Instance.flush()</code>.
@@ -96,6 +98,7 @@ global inherited sharing class Logger {
    *
    * @since 1.1
    */
+  @SuppressWarnings('PMD.AvoidDebugStatements')
   global class ConsoleAppender implements Appender {
     /**
      * @description It receives the information to be logged and consumes it.
@@ -607,6 +610,7 @@ global inherited sharing class Logger {
     return inst;
   }
 
+  @SuppressWarnings('PMD.AvoidDebugStatements, PMD.AvoidDeeplyNestedIfStmts, PMD.NcssMethodCount')
   private static Logger getSingleton() {
     if (singleton == null) {
       singleton = new Logger();

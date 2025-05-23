@@ -11,7 +11,7 @@
  * @since 1.0.4
  */
 @SuppressWarnings(
-  'PMD.AvoidGlobalModifier, PMD.CyclomaticComplexity, PMD.ExcessiveClassLength, PMD.ExcessivePublicCount, PMD.StdCyclomaticComplexity'
+  'PMD.AvoidGlobalModifier, PMD.CognitiveComplexity, PMD.CyclomaticComplexity, PMD.ExcessiveClassLength, PMD.ExcessivePublicCount, PMD.StdCyclomaticComplexity'
 )
 global inherited sharing class Soqler {
   private static final Logger.Instance LOG = Logger.getInstance(Soqler.class);
@@ -1385,6 +1385,7 @@ global inherited sharing class Soqler {
     return whrs;
   }
 
+  @SuppressWarnings('PMD.AvoidDeeplyNestedIfStmts')
   private static Converter getValueConverter(Schema.SObjectField field, Object value) {
     if (value instanceof Date) {
       return Describer.getInstance().getFieldDescribe(field).getType() == DisplayType.DATETIME

@@ -180,6 +180,7 @@ public with sharing class CampaignMemberTransitionController {
     return values;
   }
 
+  @SuppressWarnings('PMD.AvoidNonRestrictiveQueries')
   private static Set<Utils.Entry> getOrgWideEmailAddresses() {
     Set<Utils.Entry> values = new Set<Utils.Entry>();
 

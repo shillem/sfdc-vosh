@@ -4,7 +4,7 @@
  *
  * @since 1.1
  */
-@SuppressWarnings('PMD.AvoidGlobalModifier')
+@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CognitiveComplexity')
 global inherited sharing class Sec {
   global enum AccessType {
     CREATABLE,

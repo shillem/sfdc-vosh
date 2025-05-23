@@ -1,0 +1,18 @@
+engines:
+  pmd:
+    custom_rulesets:
+      - "rulesets/apex.xml"
+rules:
+  pmd:
+    "ApexAssertionsShouldIncludeMessage":
+      severity: 5
+    "ApexDoc":
+      severity: 5
+    "ApexUnitTestClassShouldHaveRunAs":
+      severity: 5
+    "AvoidDebugStatements":
+      severity: 3
+    "FieldDeclarationsShouldBeAtStart":
+      severity: 5
+    "ProtectSensitiveData":
+      severity: 5

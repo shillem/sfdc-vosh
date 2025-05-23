@@ -19,8 +19,6 @@ public with sharing class SObjectCollectorTest {
     System.assertEquals(2, lists.size());
     System.assert(lists.containsKey('Italy'));
 
-    List<Schema.Account> castAccounts = (List<Schema.Account>) lists.get('Italy');
-
     insert accts;
 
     Map<Object, Map<Id, SObject>> maps = soc.makeMapOfMaps(criteria1);

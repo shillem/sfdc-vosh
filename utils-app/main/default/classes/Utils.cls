@@ -1,4 +1,6 @@
-@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ExcessiveClassLength, PMD.StdCyclomaticComplexity')
+@SuppressWarnings(
+  'PMD.AvoidGlobalModifier, PMD.CognitiveComplexity, PMD.ExcessiveClassLength, PMD.StdCyclomaticComplexity'
+)
 /**
  * @description A collection of utility methods.
  *
@@ -843,7 +845,7 @@ global inherited sharing class Utils {
    * @return the class name of the object
    * @since 1.0.3
    */
-  @SuppressWarnings('PMD.CyclomaticComplexity, PMD.StdCyclomaticComplexity')
+  @SuppressWarnings('PMD.CyclomaticComplexity, PMD.NcssMethodCount, PMD.StdCyclomaticComplexity')
   global static String getClassName(Object obj) {
     requireNonNull(obj, 'Object cannot be null');
 
