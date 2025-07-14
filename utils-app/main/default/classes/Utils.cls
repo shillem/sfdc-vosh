@@ -785,11 +785,47 @@ global inherited sharing class Utils {
     global UrlQuery(Map<String, Object> values) {
       requireNonNull(values, 'Parameters cannot be null');
 
-      this.values = values;
+      this.values = new Map<String, Object>(values);
     }
 
     private String encode(Object value) {
       return EncodingUtil.urlEncode(String.valueOf(value), 'UTF-8');
+    }
+
+    /**
+     * @description Returns the Boolean value associated with the given parameter name, or the default if not present or null.
+     *
+     * @param name the parameter name
+     * @param defaultValue the default value to return if the parameter is not present or null
+     * @return the Boolean value associated with the parameter name, or the default value
+     * @since 1.1
+     */
+    global Boolean getBooleanOrDefault(String name, Boolean defaultValue) {
+      final Object value = values.get(name);
+
+      if (value == null) {
+        return defaultValue;
+      }
+
+      return value instanceof Boolean ? (Boolean) value : Boolean.valueOf(value);
+    }
+
+    /**
+     * @description Returns the String value associated with the given parameter name, or the default if not present or null.
+     *
+     * @param name the parameter name
+     * @param defaultValue the default value to return if the parameter is not present or null
+     * @return the String value associated with the parameter name, or the default value
+     * @since 1.1
+     */
+    global String getStringOrDefault(String name, String defaultValue) {
+      final Object value = values.get(name);
+
+      if (value == null) {
+        return defaultValue;
+      }
+
+      return value instanceof String ? (String) value : String.valueOf(value);
     }
 
     /**
