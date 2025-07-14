@@ -1,4 +1,4 @@
-@SuppressWarnings('PMD.ApexCRUDViolation, PMD.ApexSharingViolations')
+@SuppressWarnings('PMD.ApexCRUDViolation,PMD.ApexSharingViolations')
 public with sharing class CampaignMemberTransitionController {
   private class DescriptorRequest {
     private final Id campaignId;

@@ -1,4 +1,4 @@
-@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.ApexCRUDViolation, PMD.ApexSharingViolations')
+@SuppressWarnings('PMD.AvoidGlobalModifier,PMD.ApexCRUDViolation,PMD.ApexSharingViolations')
 global class CmsmTriggerHandler extends TriggerHandler.Routine {
   private class Rejiggler {
     private final Id campaignId;

@@ -20,7 +20,7 @@
  * @since 1.1
  */
 @SuppressWarnings(
-  'PMD.AvoidGlobalModifier, PMD.CognitiveComplexity, PMD.CyclomaticComplexity, PMD.StdCyclomaticComplexity'
+  'PMD.AvoidGlobalModifier,PMD.CognitiveComplexity,PMD.CyclomaticComplexity,PMD.StdCyclomaticComplexity'
 )
 global inherited sharing class Logger {
   /**
@@ -610,7 +610,7 @@ global inherited sharing class Logger {
     return inst;
   }
 
-  @SuppressWarnings('PMD.AvoidDebugStatements, PMD.AvoidDeeplyNestedIfStmts, PMD.NcssMethodCount')
+  @SuppressWarnings('PMD.AvoidDebugStatements,PMD.AvoidDeeplyNestedIfStmts,PMD.NcssMethodCount')
   private static Logger getSingleton() {
     if (singleton == null) {
       singleton = new Logger();

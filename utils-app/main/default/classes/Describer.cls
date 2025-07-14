@@ -8,7 +8,7 @@
  * @see Describer#getInstance() getInstance
  * @since 1.0.1
  */
-@SuppressWarnings('PMD.AvoidGlobalModifier, PMD.CognitiveComplexity, PMD.CyclomaticComplexity')
+@SuppressWarnings('PMD.AvoidGlobalModifier,PMD.CognitiveComplexity,PMD.CyclomaticComplexity')
 global inherited sharing class Describer {
   /**
    * @description An enumerator to classify <code>DisplayType</code> in broader terms.
