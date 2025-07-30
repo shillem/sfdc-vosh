@@ -1,8 +1,23 @@
 engines:
+  eslint:
+    disable_javascript_base_config: true
+    disable_lwc_base_config: true
+    eslint_config_file: "eslint.config.js"
   pmd:
     custom_rulesets:
       - "rulesets/apex.xml"
 rules:
+  eslint:
+    "max-lines-per-function":
+      severity: 4
+    "no-console":
+      severity: 4
+    "no-unused-vars":
+      severity: 4
+    "one-var":
+      severity: 4
+    "sort-imports":
+      severity: 4
   pmd:
     "ApexAssertionsShouldIncludeMessage":
       severity: 5
@@ -10,9 +25,13 @@ rules:
       severity: 5
     "ApexUnitTestClassShouldHaveRunAs":
       severity: 5
+    "AvoidUnescapedHtmlInAura":
+      severity: 4
+    "AvoidUnauthorizedApiSessionIdInVisualforce":
+      severity: 4
     "AvoidDebugStatements":
       severity: 3
     "FieldDeclarationsShouldBeAtStart":
       severity: 5
     "ProtectSensitiveData":
-      severity: 5
+      severity: 4
