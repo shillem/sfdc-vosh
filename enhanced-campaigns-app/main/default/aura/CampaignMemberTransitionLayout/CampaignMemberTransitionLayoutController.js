@@ -3,46 +3,46 @@
     helper.asyncLoadDescriptor(cmp);
   },
   handleEmailTemplateChange: function (cmp, event, helper) {
-    const record = cmp.get("v.record");
+    var record = cmp.get("v.record");
 
     record.vosh__Email_Template_Id__c = event.getParam("value");
 
     cmp.set("v.record", record);
   },
   handleEmailTemplateLookup: function (cmp, event, helper) {
-    const { failure, success, term } = event.getParams();
+    var params = event.getParams();
 
     cmp
       .find("utils")
       .auraAction($A, {
         jsonify: true,
         method: cmp.get("c.auraGetEmailTemplates"),
-        params: { payload: { term } }
+        params: { payload: { term: params.term } }
       })
       .then(
         $A.getCallback(function (results) {
-          success(results);
+          params.success(results);
         })
       )
       .catch(function (error) {
-        failure(error[0].message);
+        params.failure(error[0].message);
       });
   },
   handleRecordIdChange: function (cmp, event, helper) {
     helper.asyncLoadDescriptor(cmp);
   },
   handleSave: function (cmp, event, helper) {
-    const valid = cmp.find("field").reduce((flag, input) => {
+    var valid = cmp.find("field").reduce(function (flag, input) {
       input.setCustomValidity("");
 
       return input.reportValidity() ? flag : false;
-    });
+    }, true);
 
     if (!valid) {
       return;
     }
 
-    const utils = cmp.find("utils");
+    var utils = cmp.find("utils");
 
     return utils
       .auraAction($A, {
@@ -60,7 +60,7 @@
 
           $A.get("e.force:showToast")
             .setParams({
-              message: `${cmp.get("v.descriptor").label} was saved.`,
+              message: cmp.get("v.descriptor").label + " was saved.",
               type: "success"
             })
             .fire();
@@ -80,8 +80,8 @@
       });
   },
   handleSetNewRecord: function (cmp, event, helper) {
-    const { campaignId } = event.getParam("arguments");
+    var params = event.getParam("arguments");
 
-    helper.asyncLoadDescriptor(cmp, campaignId);
+    helper.asyncLoadDescriptor(cmp, params.campaignId);
   }
 });

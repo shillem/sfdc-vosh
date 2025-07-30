@@ -3,7 +3,7 @@
     return cmp.find("navigator");
   },
   goToObject: function (cmp) {
-    const props = {
+    var props = {
       type: "standard__objectPage",
       attributes: {
         actionName: cmp.get("v.actionName"),
@@ -23,7 +23,7 @@
     this.getNavigator(cmp).navigate(props);
   },
   goToRecord: function (cmp) {
-    const props = {
+    var props = {
       type: "standard__recordPage",
       attributes: {
         actionName: cmp.get("v.actionName"),
@@ -42,7 +42,7 @@
     this.getNavigator(cmp).navigate(props);
   },
   goToRecordRelationship: function (cmp) {
-    const props = {
+    var props = {
       type: "standard__recordRelationshipPage",
       attributes: {
         actionName: cmp.get("v.actionName"),
@@ -66,7 +66,7 @@
     this.getNavigator(cmp).navigate(props);
   },
   goToWeb: function (cmp) {
-    const props = {
+    var props = {
       type: "standard__webPage",
       attributes: {
         url: cmp.get("v.url")

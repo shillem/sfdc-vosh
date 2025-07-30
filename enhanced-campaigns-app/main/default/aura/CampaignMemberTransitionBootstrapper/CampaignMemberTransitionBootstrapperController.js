@@ -1,23 +1,21 @@
 ({
   doInit: function (cmp, event, helper) {
-    const utils = cmp.find("utils");
-    const pageReference = cmp.get("v.pageReference");
+    var utils = cmp.find("utils");
+    var pageReference = cmp.get("v.pageReference");
 
     if (pageReference) {
-      const {
-        attributes: { recordId: campaignId }
-      } = utils.untanglePageReference(pageReference);
+      var untangled = utils.untanglePageReference(pageReference);
 
-      cmp.set("v.campaignId", campaignId);
+      cmp.set("v.campaignId", untangled.attributes.campaignId);
 
       if (!cmp.get("v.recordId")) {
-        cmp.find("form").setNewRecord(campaignId);
+        cmp.find("form").setNewRecord(untangled.attributes.campaignId);
       }
     }
 
     utils.auraAction($A, { method: cmp.get("c.auraGetObjectLabel") }).then(
       $A.getCallback(function (label) {
-        const modal = cmp.find("modal");
+        var modal = cmp.find("modal");
 
         modal.set("v.loading", false);
         modal.set("v.title", label);
@@ -25,9 +23,9 @@
     );
   },
   handleModalAction: function (cmp, event, helper) {
-    const { name } = event.getParam("value");
+    var param = event.getParam("value");
 
-    switch (name) {
+    switch (param.name) {
       case "close":
         helper.navigateToCampaign(cmp);
 
@@ -45,6 +43,8 @@
           );
 
         break;
+      default:
+        console.warn("Unhandled modal action: " + param.name);
     }
   }
 });

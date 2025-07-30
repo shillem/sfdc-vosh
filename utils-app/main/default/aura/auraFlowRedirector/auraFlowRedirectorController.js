@@ -1,6 +1,6 @@
 ({
   invoke: function (cmp, event, helper) {
-    const type = cmp.get("v.type");
+    var type = cmp.get("v.type");
 
     switch (type) {
       case "object":

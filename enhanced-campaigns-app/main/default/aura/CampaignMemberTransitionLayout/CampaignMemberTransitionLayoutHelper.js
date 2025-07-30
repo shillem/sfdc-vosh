@@ -1,7 +1,7 @@
 ({
   asyncLoadDescriptor: function (cmp, campaignId) {
-    const payload = {
-      campaignId,
+    var payload = {
+      campaignId: campaignId,
       recordId: cmp.get("v.recordId")
     };
 
@@ -9,23 +9,23 @@
       return;
     }
 
-    const utils = cmp.find("utils");
+    var utils = cmp.find("utils");
 
     return utils
       .auraAction($A, {
         jsonify: true,
         method: cmp.get("c.auraGetRecord"),
-        params: { payload }
+        params: { payload: payload }
       })
       .then(
-        $A.getCallback(function ({ campaignName, descriptor }) {
-          cmp.set("v.campaignName", campaignName);
-          cmp.set("v.descriptor", descriptor);
+        $A.getCallback(function (response) {
+          cmp.set("v.campaignName", response.campaignName);
+          cmp.set("v.descriptor", response.descriptor);
 
           cmp.set(
             "v.record",
-            Object.values(descriptor.fieldMap).reduce((acc, { name, value }) => {
-              acc[name] = value;
+            Object.values(response.descriptor.fieldMap).reduce(function (acc, field) {
+              acc[field.name] = field.value;
 
               return acc;
             }, {})
