@@ -45,6 +45,17 @@ global inherited sharing class Describer {
     global Schema.SObjectType getType() {
       return type;
     }
+
+    global override String toString() {
+      if (field == null) {
+        return String.valueOf(type);
+      }
+
+      return String.format(
+        'Hop [{0}.{1}]',
+        new List<Object>{ String.valueOf(type), String.valueOf(field) }
+      );
+    }
   }
 
   global abstract class SObjectFilter {
