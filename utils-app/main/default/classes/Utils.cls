@@ -800,6 +800,7 @@ global inherited sharing class Utils {
      * @return the Boolean value associated with the parameter name, or the default value
      * @since 1.1
      */
+    @SuppressWarnings('PMD.AvoidBooleanMethodParameters')
     global Boolean getBooleanOrDefault(String name, Boolean defaultValue) {
       final Object value = values.get(name);
 
@@ -939,6 +940,7 @@ global inherited sharing class Utils {
    * @return the value if not null otherwise the alternative
    * @since 1.0.23
    */
+  @SuppressWarnings('PMD.AvoidBooleanMethodParameters')
   global static Boolean optBooleanOrElse(Boolean value, Boolean alternative) {
     return value != null ? value : alternative;
   }

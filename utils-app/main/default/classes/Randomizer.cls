@@ -29,6 +29,7 @@ global class Randomizer {
      * @return the builder instance
      * @since 1.0.1
      */
+    @SuppressWarnings('PMD.AvoidBooleanMethodParameters')
     global Builder setCurrentTimeMillis(Boolean flag) {
       currentTimeMillis = flag != null && flag;
 

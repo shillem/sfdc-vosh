@@ -353,6 +353,7 @@ global inherited sharing class TriggerHandler {
       return disabled != null && disabled;
     }
 
+    @SuppressWarnings('PMD.AvoidBooleanMethodParameters')
     global Spec setDisabled(Boolean value) {
       disabled = value;
 

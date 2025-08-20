@@ -1,4 +1,4 @@
-@SuppressWarnings('PMD.AvoidGlobalModifier')
+@SuppressWarnings('PMD.AvoidGlobalModifier,PMD.AvoidBooleanMethodParameters')
 global class UI {
   @JsonAccess(serializable='always' deserializable='always')
   global virtual class Field {
