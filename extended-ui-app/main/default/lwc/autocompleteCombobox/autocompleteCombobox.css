@@ -1,5 +1,6 @@
 div.slds-input {
   display: block;
+  min-height: calc(1.875rem + (var(--lwc-borderWidthThin, 1px) * 2));
 }
 
 .slds-input .slds-text-color_weak {
