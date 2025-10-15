@@ -10,7 +10,8 @@ export default defineConfig([
     files: ["*.js"],
 
     languageOptions: {
-      ecmaVersion: 6
+      ecmaVersion: 2022,
+      sourceType: "module"
     },
 
     rules: {
