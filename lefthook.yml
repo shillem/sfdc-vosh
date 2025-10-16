@@ -1,0 +1,9 @@
+pre-commit:
+  commands:
+    prettier:
+      run: bunx prettier --write {staged_files}
+      glob: "*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}"
+      stage_fixed: true
+    analyze:
+      run: bun run code:analyze -- --target {staged_files}
+      glob: "*.{cls,trigger}"
