@@ -1,11 +1,11 @@
 import aura from "@salesforce/eslint-plugin-aura";
 import { defineConfig } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import jestPlugin from "eslint-plugin-jest";
 import lwcConfig from "@salesforce/eslint-config-lwc";
 import lwcPlugin from "@lwc/eslint-plugin-lwc";
-import prettierRecommended from "eslint-plugin-prettier/recommended";
 
 export default defineConfig([
-  prettierRecommended,
   {
     files: ["*.js"],
 
@@ -52,5 +52,25 @@ export default defineConfig([
     plugins: {
       "@lwc/lwc": lwcPlugin
     }
-  }
+  },
+  {
+    files: ["**/*.spec.js", "**/*.test.js"],
+
+    plugins: {
+      jest: jestPlugin
+    },
+
+    languageOptions: {
+      globals: jestPlugin.environments.globals.globals
+    },
+
+    rules: {
+      "jest/no-disabled-tests": "warn",
+      "jest/no-focused-tests": "error",
+      "jest/no-identical-title": "error",
+      "jest/prefer-to-have-length": "warn",
+      "jest/valid-expect": "error"
+    }
+  },
+  eslintConfigPrettier
 ]);
