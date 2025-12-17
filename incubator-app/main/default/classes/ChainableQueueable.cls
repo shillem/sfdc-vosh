@@ -1,10 +1,12 @@
 /**
  * @description An abstract extension of <code>Chainable</code> for implementation of
- * <code>Database.Batchable&lt;Object&gt;</code>.
+ * <code>System.Queueable</code>.
  *
  * @since 1.1
  */
 public abstract class ChainableQueueable extends Chainable implements Database.AllowsCallouts, System.Queueable {
+  private transient AsyncOptions options;
+
   /**
    * @description The method containing the logic.
    *
@@ -20,10 +22,22 @@ public abstract class ChainableQueueable extends Chainable implements Database.A
   }
 
   protected override void executeAsynchronously() {
-    System.enqueueJob(this);
+    if (options != null) {
+      System.enqueueJob(this, options);
+    } else {
+      System.enqueueJob(this);
+    }
   }
 
   protected override void executeSynchronously(Chainable.Context context) {
     execute(context);
+  }
+
+  protected AsyncOptions getOptions() {
+    if (options == null) {
+      options = new AsyncOptions();
+    }
+
+    return options;
   }
 }
