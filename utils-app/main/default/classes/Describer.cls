@@ -676,8 +676,7 @@ global inherited sharing class Describer {
    * @since 1.1
    */
   global List<Hop> traverse(String syntax) {
-    final List<String> breakdown = syntax.split('\\.');
-    final String objectName = breakdown.remove(0);
+    final String objectName = syntax.substringBefore('.');
 
     final Schema.SObjectType t;
 
@@ -687,7 +686,7 @@ global inherited sharing class Describer {
       throw new IllegalArgumentException(objectName + ' is not a valid SObject');
     }
 
-    return traverse(t, String.join(breakdown, '.'));
+    return traverse(t, syntax.substringAfter('.'));
   }
 
   /**
