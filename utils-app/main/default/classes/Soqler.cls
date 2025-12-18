@@ -25,7 +25,7 @@ global inherited sharing class Soqler {
     }
 
     void throwUnsupported(String message) {
-      throw new UnsupportedOperationException(
+      throw new System.UnsupportedOperationException(
         String.format('[{0}]: {1}', new List<String>{ Utils.getClassName(this), message })
       );
     }
@@ -1287,7 +1287,7 @@ global inherited sharing class Soqler {
    */
   global String queryToString() {
     if (subquery != null) {
-      throw new UnsupportedOperationException('Cannot run a query tagged as subquery');
+      throw new System.UnsupportedOperationException('Cannot run a query tagged as subquery');
     }
 
     final String q = build();
@@ -1307,7 +1307,7 @@ global inherited sharing class Soqler {
    */
   global String queryCountToString() {
     if (subquery != null) {
-      throw new UnsupportedOperationException('Cannot run a query tagged as subquery');
+      throw new System.UnsupportedOperationException('Cannot run a query tagged as subquery');
     }
 
     String wb = whrs != null ? whrs.build() : null;
@@ -1343,7 +1343,7 @@ global inherited sharing class Soqler {
    */
   global Soqler setMaxCount(Integer value) {
     if (value != null && value < 0) {
-      throw new UnsupportedOperationException('Query max count cannot be lower than 1');
+      throw new System.UnsupportedOperationException('Query max count cannot be lower than 1');
     }
 
     maxCount = value;
@@ -1362,7 +1362,7 @@ global inherited sharing class Soqler {
    */
   global Soqler setOffset(Integer value) {
     if (value != null && value < 1) {
-      throw new UnsupportedOperationException('Offset cannot be lower than 1');
+      throw new System.UnsupportedOperationException('Offset cannot be lower than 1');
     }
 
     offset = value;

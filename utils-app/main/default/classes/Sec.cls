@@ -87,7 +87,7 @@ global inherited sharing class Sec {
               (dfr.isUpdateable() || dfr.isCalculated()));
           }
           when else {
-            throw new UnsupportedOperationException(aType.name());
+            throw new System.UnsupportedOperationException(aType.name());
           }
         }
 
@@ -124,7 +124,7 @@ global inherited sharing class Sec {
           perm = dsr.isCreateable() && dsr.isUpdateable();
         }
         when else {
-          throw new UnsupportedOperationException(aType.name());
+          throw new System.UnsupportedOperationException(aType.name());
         }
       }
 
@@ -449,7 +449,7 @@ global inherited sharing class Sec {
     }
 
     if (req.eif != null) {
-      throw new UnsupportedOperationException(
+      throw new System.UnsupportedOperationException(
         'External Id Field can be specified only for upsert operations'
       );
     }
@@ -482,7 +482,7 @@ global inherited sharing class Sec {
     }
 
     if (req.eif != null) {
-      throw new UnsupportedOperationException(
+      throw new System.UnsupportedOperationException(
         'External Id Field can be specified only for upsert operations'
       );
     }
@@ -515,7 +515,7 @@ global inherited sharing class Sec {
     }
 
     if (req.eif != null) {
-      throw new UnsupportedOperationException(
+      throw new System.UnsupportedOperationException(
         'External Id Field can be specified only for upsert operations'
       );
     }

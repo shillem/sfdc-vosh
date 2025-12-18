@@ -103,7 +103,9 @@ public with sharing class CampaignMemberTransitionController {
           [SELECT Name FROM Campaign WHERE Id = :request.campaignId].Name
         );
       } else {
-        throw new UnsupportedOperationException('Either Campaign Id or Record Id must be present');
+        throw new System.UnsupportedOperationException(
+          'Either Campaign Id or Record Id must be present'
+        );
       }
 
       UI.SObjectDescriptor descr = new UI.SObjectDescriptor(

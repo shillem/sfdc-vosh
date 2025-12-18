@@ -252,7 +252,7 @@ global inherited sharing class Logger {
 
     private void checkAllowFlushes(String operation) {
       if (!AllowFlushes.class.isAssignableFrom(t)) {
-        throw new UnsupportedOperationException(
+        throw new System.UnsupportedOperationException(
           name +
             ' is not entitled to ' +
             operation +

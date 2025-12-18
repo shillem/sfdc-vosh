@@ -363,7 +363,9 @@ global inherited sharing class Utils {
      */
     global Hasher(String algorithm) {
       if (algorithm == null || !Pattern.matches('MD5|SHA1|SHA-256|SHA-512', algorithm)) {
-        throw new UnsupportedOperationException('Algorithm must be MD5, SHA1, SHA-256 or SHA-512');
+        throw new System.UnsupportedOperationException(
+          'Algorithm must be MD5, SHA1, SHA-256 or SHA-512'
+        );
       }
 
       this.algorithm = algorithm;
@@ -840,7 +842,7 @@ global inherited sharing class Utils {
      */
     global UrlQuery put(String name, Object value) {
       if (String.isEmpty(name)) {
-        throw new UnsupportedOperationException('Label cannot be empty');
+        throw new System.UnsupportedOperationException('Label cannot be empty');
       }
 
       values.put(name, value);

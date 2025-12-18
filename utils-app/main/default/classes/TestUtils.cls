@@ -66,7 +66,7 @@ global class TestUtils {
         }
       }
 
-      throw new UnsupportedOperationException(
+      throw new System.UnsupportedOperationException(
         String.format(
           'No response implementation for [{0}] {1}',
           new List<Object>{ req.getMethod(), req.getEndpoint() }
