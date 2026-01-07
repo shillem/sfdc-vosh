@@ -2,6 +2,177 @@
 public without sharing class Jobber {
   private static final Logger.Instance LOG = Logger.getInstance(Jobber.class);
 
+  public abstract class Filter {
+    private Filter next;
+
+    protected abstract void process(Soqler soql);
+
+    public Filter with(Filter f) {
+      next = f;
+
+      return f;
+    }
+  }
+
+  public class FilterCronName extends Filter {
+    private final String name;
+
+    public FilterCronName(String name) {
+      if (String.isEmpty(name)) {
+        throw new IllegalArgumentException('Name cannot be null or empty');
+      }
+
+      this.name = name;
+    }
+
+    protected override void process(Soqler soql) {
+      soql.wheres()
+        .addAnd(
+          new Soqler.IWhereName(
+            'CronTrigger.CronJobDetail',
+            Schema.CronJobDetail.Name,
+            name.contains('%') ? 'LIKE' : '=',
+            name
+          )
+        );
+    }
+  }
+
+  public class FilterJobId extends Filter {
+    private final Set<Id> jobIds;
+
+    public FilterJobId(Set<Id> jobIds) {
+      if (jobIds == null || jobIds.isEmpty()) {
+        throw new IllegalArgumentException('Job Ids cannot be null or empty');
+      }
+
+      this.jobIds = jobIds;
+    }
+
+    protected override void process(Soqler soql) {
+      soql.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.Id, 'IN', soql.bind(jobIds)));
+    }
+  }
+
+  public class FilterNamespace extends Filter {
+    private final List<String> namespaces;
+
+    public FilterNamespace(List<String> namespaces) {
+      if (namespaces == null || namespaces.isEmpty()) {
+        throw new IllegalArgumentException('Namespaces cannot be null or empty');
+      }
+
+      this.namespaces = namespaces;
+    }
+
+    protected override void process(Soqler soql) {
+      soql.wheres()
+        .addAnd(
+          new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, 'IN', namespaces)
+        );
+    }
+  }
+
+  public class FilterStatusActive extends Filter {
+    protected override void process(Soqler soql) {
+      final Soqler.IWhereGroup grp = new Soqler.IWhereGroup();
+
+      grp.wheres()
+        .addOr(new Soqler.IWhereName(Schema.AsyncApexJob.Status, 'IN', soql.bind(STATUSES_ACTIVE)))
+        .addOr(
+          new Soqler.IWhereName(
+            'CronTrigger',
+            Schema.CronTrigger.State,
+            'IN',
+            soql.bind(STATUSES_CRON_ACTIVE)
+          )
+        );
+
+      soql.wheres().addAnd(grp);
+    }
+  }
+
+  public class FilterSystemType extends Filter {
+    private final List<System.Type> classes;
+
+    public FilterSystemType(List<System.Type> classes) {
+      if (classes == null || classes.isEmpty()) {
+        throw new IllegalArgumentException('Classes cannot be null or empty');
+      }
+
+      this.classes = classes;
+    }
+
+    protected override void process(Soqler soql) {
+      final Map<String, List<String>> breakdown = new Map<String, List<String>>();
+
+      for (System.Type t : classes) {
+        final String[] n = t.getName().split('\\.');
+        final String namespace;
+        final String className;
+
+        if (n.size() > 1) {
+          namespace = n[0];
+          className = n[1];
+        } else {
+          namespace = '';
+          className = n[0];
+        }
+
+        final List<String> classNames = breakdown.get(namespace);
+
+        if (classNames == null) {
+          classNames = new List<String>();
+          breakdown.put(namespace, classNames);
+        }
+
+        classNames.add(className);
+      }
+
+      final Soqler.IWhereGroup classesGroup = new Soqler.IWhereGroup();
+
+      for (String namespace : breakdown.keySet()) {
+        final Soqler.IWhereGroup classGroup = new Soqler.IWhereGroup();
+
+        classGroup.wheres()
+          .addAnd(
+            new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, '=', namespace)
+          )
+          .addAnd(
+            new Soqler.IWhereName(
+              'ApexClass',
+              Schema.ApexClass.Name,
+              'IN',
+              breakdown.get(namespace)
+            )
+          );
+
+        classesGroup.wheres().addOr(classGroup);
+      }
+
+      soql.wheres().addAnd(classesGroup);
+    }
+  }
+
+  public class FilterTime extends Filter {
+    private final Integer minutes;
+
+    public FilterTime(Integer minutes) {
+      this.minutes = minutes;
+    }
+
+    protected override void process(Soqler soql) {
+      soql.wheres()
+        .addAnd(
+          new Soqler.IWhereName(
+            Schema.AsyncApexJob.CreatedDate,
+            '>=',
+            System.now().addMinutes(-minutes)
+          )
+        );
+    }
+  }
+
   public class Instance {
     public String className { get; private set; }
     public InstanceCron cron { get; private set; }
@@ -214,117 +385,28 @@ public without sharing class Jobber {
   }
 
   public static List<Schema.AsyncApexJob> getActiveByClasses(List<System.Type> classes) {
-    return getByClasses(classes, true);
+    return getWithFilter(new FilterStatusActive().with(new FilterSystemType(classes)));
   }
 
   public static List<Schema.AsyncApexJob> getActiveByNamespaces(List<String> namespaces) {
-    if (namespaces == null || namespaces.isEmpty()) {
-      throw new IllegalArgumentException('Namespaces cannot be null or empty');
-    }
-
-    final Soqler soql = getSoqler(true);
-
-    soql.wheres()
-      .addAnd(
-        new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, 'IN', namespaces)
-      );
-
-    return soql.query();
+    return getWithFilter(new FilterStatusActive().with(new FilterNamespace(namespaces)));
   }
 
   public static List<Schema.AsyncApexJob> getByCronName(String name) {
-    if (String.isEmpty(name)) {
-      throw new IllegalArgumentException('Name cannot be null or empty');
-    }
-
-    final Soqler soql = getSoqler(false);
-
-    soql.wheres()
-      .addAnd(
-        new Soqler.IWhereName(
-          'CronTrigger.CronJobDetail',
-          Schema.CronJobDetail.Name,
-          name.contains('%') ? 'LIKE' : '=',
-          name
-        )
-      );
-
-    return soql.query();
+    return getWithFilter(new FilterCronName(name));
   }
 
   public static List<Schema.AsyncApexJob> getByClasses(List<System.Type> classes) {
-    return getByClasses(classes, false);
+    return getWithFilter(new FilterSystemType(classes));
   }
 
-  private static List<Schema.AsyncApexJob> getByClasses(
-    List<System.Type> classes,
-    Boolean filterActiveStatuses
-  ) {
-    if (classes == null || classes.isEmpty()) {
-      throw new IllegalArgumentException('Classes cannot be null or empty');
-    }
-
-    final Soqler soql = getSoqler(filterActiveStatuses);
-
-    final Map<String, List<String>> breakdown = new Map<String, List<String>>();
-
-    for (System.Type t : classes) {
-      final String[] n = t.getName().split('\\.');
-      final String namespace;
-      final String className;
-
-      if (n.size() > 1) {
-        namespace = n[0];
-        className = n[1];
-      } else {
-        namespace = '';
-        className = n[0];
-      }
-
-      final List<String> classNames = breakdown.get(namespace);
-
-      if (classNames == null) {
-        classNames = new List<String>();
-        breakdown.put(namespace, classNames);
-      }
-
-      classNames.add(className);
-    }
-
-    final Soqler.IWhereGroup classesGroup = new Soqler.IWhereGroup();
-
-    for (String namespace : breakdown.keySet()) {
-      final Soqler.IWhereGroup classGroup = new Soqler.IWhereGroup();
-
-      classGroup.wheres()
-        .addAnd(
-          new Soqler.IWhereName('ApexClass', Schema.ApexClass.NamespacePrefix, '=', namespace)
-        )
-        .addAnd(
-          new Soqler.IWhereName('ApexClass', Schema.ApexClass.Name, 'IN', breakdown.get(namespace))
-        );
-
-      classesGroup.wheres().addOr(classGroup);
-    }
-
-    soql.wheres().addAnd(classesGroup);
-
-    return soql.query();
+  public static List<Schema.AsyncApexJob> getByJobIds(Set<Id> jobIds) {
+    return getWithFilter(new FilterJobId(jobIds));
   }
 
-  public static List<Schema.AsyncApexJob> getByIds(Set<Id> jobIds) {
-    if (jobIds == null || jobIds.isEmpty()) {
-      throw new IllegalArgumentException('Job Ids cannot be null or empty');
-    }
+  public static List<Schema.AsyncApexJob> getWithFilter(Filter f) {
+    Utils.requireNonNull(f, 'Filter cannot be null');
 
-    final Soqler soql = getSoqler(false);
-
-    soql.wheres().addAnd(new Soqler.IWhereName(Schema.AsyncApexJob.Id, 'IN', soql.bind(jobIds)));
-
-    return soql.query();
-  }
-
-  private static Soqler getSoqler(Boolean filterActiveStatuses) {
     final Soqler soql = new Soqler(Schema.AsyncApexJob.SObjectType);
 
     soql.fields()
@@ -338,6 +420,7 @@ public without sharing class Jobber {
       .add(new Soqler.IFieldName('CronTrigger.CreatedBy', Schema.User.Name))
       .add(new Soqler.IFieldName('CronTrigger.CronJobDetail', Schema.CronJobDetail.Name))
       .add(new Soqler.IFieldName('CronTrigger.CronJobDetail', Schema.CronJobDetail.JobType))
+      .add(Schema.AsyncApexJob.CreatedDate)
       .add(Schema.AsyncApexJob.ExtendedStatus)
       .add(Schema.AsyncApexJob.JobItemsProcessed)
       .add(Schema.AsyncApexJob.JobType)
@@ -345,21 +428,12 @@ public without sharing class Jobber {
       .add(Schema.AsyncApexJob.TotalJobItems)
       .add(Schema.AsyncApexJob.Status);
 
-    if (filterActiveStatuses) {
-      final Soqler.IWhereGroup grp = new Soqler.IWhereGroup();
+    Filter pf = f;
 
-      grp.wheres()
-        .addOr(new Soqler.IWhereName(Schema.AsyncApexJob.Status, 'IN', soql.bind(STATUSES_ACTIVE)))
-        .addOr(
-          new Soqler.IWhereName(
-            'CronTrigger',
-            Schema.CronTrigger.State,
-            'IN',
-            soql.bind(STATUSES_CRON_ACTIVE)
-          )
-        );
+    while (pf != null) {
+      pf.process(soql);
 
-      soql.wheres().addAnd(grp);
+      pf = pf.next;
     }
 
     soql.orders()
@@ -377,6 +451,6 @@ public without sharing class Jobber {
         )
       );
 
-    return soql;
+    return soql.query();
   }
 }

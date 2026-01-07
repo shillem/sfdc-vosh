@@ -179,7 +179,6 @@ global inherited sharing class Describer {
       sensitivities = value;
     }
 
-    @SuppressWarnings('PMD.NcssMethodCount')
     global Boolean matches(Schema.SObjectField field, Describer describ) {
       final String name = String.valueOf(field);
 

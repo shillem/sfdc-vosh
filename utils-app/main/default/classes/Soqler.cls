@@ -11,7 +11,7 @@
  * @since 1.0.4
  */
 @SuppressWarnings(
-  'PMD.AvoidGlobalModifier,PMD.CognitiveComplexity,PMD.CyclomaticComplexity,PMD.ExcessiveClassLength,PMD.ExcessivePublicCount,PMD.StdCyclomaticComplexity,PMD.AvoidBooleanMethodParameters'
+  'PMD.AvoidGlobalModifier,PMD.CognitiveComplexity,PMD.CyclomaticComplexity,PMD.ExcessiveClassLength,PMD.ExcessivePublicCount,PMD.NcssCount,PMD.StdCyclomaticComplexity,PMD.AvoidBooleanMethodParameters'
 )
 global inherited sharing class Soqler {
   private static final Logger.Instance LOG = Logger.getInstance(Soqler.class);

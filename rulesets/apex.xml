@@ -33,16 +33,15 @@
     </properties>
   </rule>
 
-  <rule ref="category/apex/design.xml/NcssMethodCount">
+  <rule ref="category/apex/design.xml/NcssCount">
     <properties>
-        <property name="minimum" value="50" />
+      <property name="methodReportLevel" value="50" />
     </properties>
-</rule>
+  </rule>
 
   <rule ref="category/apex/design.xml/StdCyclomaticComplexity">
     <properties>
       <property name="reportLevel" value="12" />
     </properties>
   </rule>
-
 </ruleset>

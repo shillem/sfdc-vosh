@@ -884,7 +884,7 @@ global inherited sharing class Utils {
    * @return the class name of the object
    * @since 1.0.3
    */
-  @SuppressWarnings('PMD.CyclomaticComplexity,PMD.NcssMethodCount,PMD.StdCyclomaticComplexity')
+  @SuppressWarnings('PMD.CyclomaticComplexity,PMD.StdCyclomaticComplexity')
   global static String getClassName(Object obj) {
     requireNonNull(obj, 'Object cannot be null');
 

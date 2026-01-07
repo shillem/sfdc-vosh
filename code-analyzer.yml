@@ -8,6 +8,8 @@ engines:
       - "rulesets/apex.xml"
 rules:
   eslint:
+    "@salesforce-ux/slds/lwc-token-to-slds-hook":
+      severity: 4
     "max-lines-per-function":
       severity: 4
     "no-console":

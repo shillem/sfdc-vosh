@@ -610,7 +610,7 @@ global inherited sharing class Logger {
     return inst;
   }
 
-  @SuppressWarnings('PMD.AvoidDebugStatements,PMD.AvoidDeeplyNestedIfStmts,PMD.NcssMethodCount')
+  @SuppressWarnings('PMD.AvoidDebugStatements,PMD.AvoidDeeplyNestedIfStmts')
   private static Logger getSingleton() {
     if (singleton == null) {
       singleton = new Logger();

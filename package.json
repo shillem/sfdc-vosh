@@ -11,9 +11,9 @@
     "prettier:verify": "prettier --list-different \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
     "test": "bun run test:unit",
     "test:unit": "sfdx-lwc-jest -- --passWithNoTests",
-    "test:unit:watch": "sfdx-lwc-jest --watch",
-    "test:unit:debug": "sfdx-lwc-jest --debug",
-    "test:unit:coverage": "sfdx-lwc-jest --coverage"
+    "test:unit:watch": "bun run test:unit --watch",
+    "test:unit:debug": "bun run test:unit --debug",
+    "test:unit:coverage": "bun run test:unit --coverage"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^3.2.0",
