@@ -8,9 +8,13 @@ public without sharing class Jobber {
     protected abstract void process(Soqler soql);
 
     public Filter with(Filter f) {
-      next = f;
+      if (next != null) {
+        next.with(f);
+      } else {
+        next = f;
+      }
 
-      return f;
+      return this;
     }
   }
 
