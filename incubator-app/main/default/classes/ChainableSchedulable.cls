@@ -5,10 +5,6 @@
  * @since 1.1
  */
 public abstract class ChainableSchedulable extends Chainable implements Database.AllowsCallouts, System.Schedulable {
-  @SuppressWarnings('PMD.EmptyStatementBlock')
-  protected virtual void beforeSchedule() {
-  }
-
   protected abstract String cronExpression();
 
   /**
@@ -29,8 +25,6 @@ public abstract class ChainableSchedulable extends Chainable implements Database
     final String expr = cronExpression();
 
     if (expr != null) {
-      beforeSchedule();
-
       System.schedule(name(), expr, this);
     }
   }
