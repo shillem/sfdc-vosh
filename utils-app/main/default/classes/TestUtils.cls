@@ -15,6 +15,7 @@ global class TestUtils {
    */
   global class HttpCalloutMock implements System.HttpCalloutMock {
     private final List<HttpResponseMock> responses;
+    private final List<System.HttpRequest> requests;
 
     /**
      * @description
@@ -23,6 +24,7 @@ global class TestUtils {
      */
     global HttpCalloutMock() {
       responses = new List<HttpResponseMock>();
+      requests = new List<System.HttpRequest>();
     }
 
     /**
@@ -46,6 +48,14 @@ global class TestUtils {
     }
 
     /**
+     * @description Returns requests in call order, including requests without a matching response.
+     * The list and request objects are live references, not snapshots.
+     */
+    global List<System.HttpRequest> getRequests() {
+      return requests;
+    }
+
+    /**
      * @description
      *
      * @since 1.1
@@ -60,6 +70,8 @@ global class TestUtils {
      * @since 1.0.4
      */
     global System.HTTPResponse respond(System.HTTPRequest req) {
+      requests.add(req);
+
       for (HttpResponseMock res : responses) {
         if (res.matches(req)) {
           return res.respond(req);
