@@ -402,19 +402,21 @@ global inherited sharing class Describer {
     Map<String, String> sub = fieldSensitivities.get(type);
 
     if (sub == null) {
-      sub = new Map<String, String>();
-
-      fieldSensitivities.put(type, sub);
-
       final String objectName = String.valueOf(type);
-
-      for (Schema.FieldDefinition d : [
+      // FieldDefinition does not support the queryMore used by SOQL for loops.
+      final List<Schema.FieldDefinition> definitions = [
         SELECT QualifiedApiName, SecurityClassification
         FROM FieldDefinition
         WHERE EntityDefinition.QualifiedApiName = :objectName
-      ]) {
-        sub.put(d.QualifiedApiName, d.SecurityClassification);
+      ];
+
+      sub = new Map<String, String>();
+
+      for (Schema.FieldDefinition definition : definitions) {
+        sub.put(definition.QualifiedApiName, definition.SecurityClassification);
       }
+
+      fieldSensitivities.put(type, sub);
     }
 
     return sub;
