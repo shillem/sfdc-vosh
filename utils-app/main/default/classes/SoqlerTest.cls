@@ -332,6 +332,14 @@ public class SoqlerTest {
       query.queryToString()
     );
 
+    // Composing FOR UPDATE
+    query = new Soqler(Schema.Account.SObjectType);
+
+    query.fields().add(Schema.Account.Id);
+    query.setMaxCount(1).forUpdate();
+
+    Assert.areEqual('SELECT Id FROM Account LIMIT 1 FOR UPDATE', query.queryToString());
+
     // Composing TypeOf
     query = new Soqler(Schema.Event.SObjectType);
 

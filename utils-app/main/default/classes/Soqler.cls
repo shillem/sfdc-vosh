@@ -1064,6 +1064,7 @@ global inherited sharing class Soqler {
   private LWhere hvgs;
   private Integer maxCount;
   private Integer offset;
+  private Boolean forUpdate = false;
 
   /**
    * @description It creates an instance that will produce a dynamic SOQL
@@ -1100,7 +1101,7 @@ global inherited sharing class Soqler {
     final String ob = ords != null ? ords.build() : null;
 
     return String.format(
-      'SELECT {0} FROM {1}{2}{3}{4}{5}{6}{7}',
+      'SELECT {0} FROM {1}{2}{3}{4}{5}{6}{7}{8}',
       new List<String>{
         fb,
         (subquery != null ? subquery : String.valueOf(type)),
@@ -1109,7 +1110,8 @@ global inherited sharing class Soqler {
         hv == null ? '' : ' HAVING ' + hv,
         ob == null ? '' : ' ORDER BY ' + ob,
         maxCount == null ? '' : ' LIMIT ' + maxCount,
-        offset == null ? '' : ' OFFSET ' + offset
+        offset == null ? '' : ' OFFSET ' + offset,
+        forUpdate ? ' FOR UPDATE' : ''
       }
     );
   }
@@ -1123,6 +1125,19 @@ global inherited sharing class Soqler {
    */
   global LField fields() {
     return flds;
+  }
+
+  /**
+   * @description It locks the returned records until the transaction ends.
+   * Salesforce rejects locking queries that also have an ORDER BY.
+   *
+   * @return the dynamic SOQL instance
+   * @since 1.1
+   */
+  global Soqler forUpdate() {
+    forUpdate = true;
+
+    return this;
   }
 
   /**
