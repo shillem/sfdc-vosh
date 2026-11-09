@@ -206,6 +206,7 @@ public class SoqlerTest {
   }
 
   @isTest
+  @SuppressWarnings('PMD.NcssCount')
   static void syntax() {
     // Composing SELECT
     Soqler query;
