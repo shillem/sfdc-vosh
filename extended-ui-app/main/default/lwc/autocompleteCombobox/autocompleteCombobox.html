@@ -1,5 +1,5 @@
 <template>
-  <label lwc:if={label} class="slds-form-element__label" for="combobox">
+  <label lwc:if={label} class={labelClass} id="label">
     <abbr lwc:if={required} class="slds-required" title="required">*</abbr>
     {label}
   </label>
@@ -8,7 +8,13 @@
 
   <div class="slds-form-element__control">
     <div class="slds-combobox_container">
-      <div class={dropdownClass} aria-expanded={expanded} aria-haspopup="listbox" role="combobox">
+      <div
+        class={dropdownClass}
+        aria-expanded={expanded}
+        aria-haspopup="listbox"
+        aria-labelledby="label"
+        role="combobox"
+      >
         <div
           class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
           role="none"
@@ -81,8 +87,21 @@
                 </span>
               </div>
             </li>
-            <template for:each={results} for:item="result">
-              <li key={result.value} role="presentation" class="slds-listbox__item">
+            <template for:each={items} for:item="result">
+              <li
+                lwc:if={result.header}
+                key={result.key}
+                role="presentation"
+                class="slds-listbox__item"
+              >
+                <div
+                  class="slds-media slds-listbox__option slds-listbox__option_plain"
+                  role="presentation"
+                >
+                  <h3 class="slds-listbox__option-header" role="presentation">{result.label}</h3>
+                </div>
+              </li>
+              <li lwc:else key={result.key} role="presentation" class="slds-listbox__item">
                 <div
                   aria-disabled={result.disabled}
                   aria-selected={result.selected}

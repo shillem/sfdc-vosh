@@ -59,6 +59,29 @@ export default class AutocompleteCombobox extends LightningElement {
     return !(typeof this.value === "string" && this.value.length > 0);
   }
 
+  // Inserts a header before each run of results sharing a group; callers order results by group.
+  get items() {
+    const items = [];
+    let group;
+
+    this.results.forEach((result) => {
+      if (result.group && result.group !== group) {
+        items.push({ header: true, key: `group:${result.group}`, label: result.group });
+      }
+
+      group = result.group;
+      items.push({ ...result, key: result.value });
+    });
+
+    return items;
+  }
+
+  get labelClass() {
+    return (
+      "slds-form-element__label" + (this.variant === "label-hidden" ? " slds-assistive-text" : "")
+    );
+  }
+
   get inputPlaceholder() {
     return this.minimum > 0 ? `Type at least ${this.minimum} chars to search` : "Type to search";
   }
@@ -221,12 +244,13 @@ export default class AutocompleteCombobox extends LightningElement {
     this.lookupTimeout = setTimeout(() => {
       const re = new RegExp(`(${term})`, "gi");
       const matcher = (value) => value.replace(re, "<mark>$1</mark>");
-      const transformResult = ({ disabled, icon, meta, label, value }) => {
+      const transformResult = ({ disabled, group, icon, meta, label, value }) => {
         return {
           containerClass: meta
             ? "slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
             : "slds-media slds-listbox__option slds-listbox__option_plain slds-media_small",
           disabled: typeof disabled === "boolean" ? disabled : false,
+          group,
           icon,
           iconClass: typeof disabled === "boolean" ? "slds-icon_disabled" : "",
           label,
