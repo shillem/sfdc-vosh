@@ -394,8 +394,7 @@ global inherited sharing class Describer {
 
   /**
    * @description It returns the security classification of each field of a given <code>SObject</code>,
-   * keyed by field API name. The map is cached for the transaction and shared between calls,
-   * so callers must not change it.
+   * keyed by field API name. The map is cached for the transaction.
    *
    * @param type the <code>SObject</code> type, not null
    * @return the field classifications, with null values for unclassified fields
