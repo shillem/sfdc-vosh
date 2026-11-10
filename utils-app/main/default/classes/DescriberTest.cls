@@ -128,6 +128,41 @@ public class DescriberTest {
   }
 
   @isTest
+  static void fieldSensitivities() {
+    final Describer describ = Describer.getInstance();
+    final Schema.SObjectType so = Schema.Account.SObjectType;
+    final String objectName = String.valueOf(so);
+    final Map<String, String> expected = new Map<String, String>();
+
+    for (Schema.FieldDefinition definition : [
+      SELECT QualifiedApiName, SecurityClassification
+      FROM FieldDefinition
+      WHERE EntityDefinition.QualifiedApiName = :objectName
+    ]) {
+      expected.put(definition.QualifiedApiName, definition.SecurityClassification);
+    }
+
+    Assert.areEqual(expected, describ.getFieldSensitivities(so));
+
+    final Integer queries = Limits.getQueries();
+
+    Assert.areEqual(expected, describ.getFieldSensitivities(so));
+    Assert.areEqual(queries, Limits.getQueries(), 'It should have used the cached classifications');
+
+    // Include only fields with the same classification as Account.Name
+    final String level = expected.get(String.valueOf(Schema.Account.Name));
+    final Describer.SObjectFieldFilter filter = new Describer.SObjectFieldFilter(objectName);
+    filter.setSensitivityLevel(level);
+    final List<Schema.SObjectField> fields = describ.querySObjectFields(filter);
+
+    Assert.isTrue(fields.contains(Schema.Account.Name), 'It should have contained Account.Name');
+
+    for (Schema.SObjectField field : fields) {
+      Assert.areEqual(level, expected.get(String.valueOf(field)));
+    }
+  }
+
+  @isTest
   static void queryObjectType() {
     final Describer describ = Describer.getInstance();
 

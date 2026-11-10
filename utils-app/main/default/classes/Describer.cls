@@ -316,6 +316,7 @@ global inherited sharing class Describer {
 
   private Map<String, Schema.SObjectType> globalDescriber;
   private Map<Schema.SObjectType, Schema.DescribeSObjectResult> objectDescribers;
+  private Map<String, Schema.SObjectType> objectTypesByName;
   private Map<Schema.SObjectType, Map<Schema.SObjectType, String>> objectRelationshipNames;
   private Map<Schema.SObjectField, Schema.DescribeFieldResult> fieldDescribers;
   private Map<Schema.SObjectType, Map<String, String>> fieldSensitivities;
@@ -391,6 +392,14 @@ global inherited sharing class Describer {
     return value;
   }
 
+  /**
+   * @description It returns the security classification of each field of a given <code>SObject</code>,
+   * keyed by field API name. The map is cached for the transaction and shared between calls,
+   * so callers must not change it.
+   *
+   * @param type the <code>SObject</code> type, not null
+   * @return the field classifications, with null values for unclassified fields
+   */
   @SuppressWarnings('PMD.ApexCRUDViolation')
   global Map<String, String> getFieldSensitivities(Schema.SObjectType type) {
     Utils.requireNonNull(type, 'Type cannot be null');
@@ -435,26 +444,37 @@ global inherited sharing class Describer {
   global Schema.DescribeSObjectResult getObjectDescribe(String name) {
     Utils.requireNonNull(name, 'Name cannot be null');
 
-    final List<Schema.DescribeSObjectResult> results = Schema.describeSObjects(
-      new List<String>{ name },
-      Schema.SObjectDescribeOptions.DEFERRED
-    );
-
-    if (results.isEmpty()) {
-      return null;
+    if (objectTypesByName == null) {
+      objectTypesByName = new Map<String, Schema.SObjectType>();
     }
 
-    final Schema.DescribeSObjectResult result = results.get(0);
+    Schema.SObjectType type = objectTypesByName.get(name);
 
-    if (objectDescribers == null) {
-      objectDescribers = new Map<Schema.SObjectType, Schema.DescribeSObjectResult>();
+    if (type == null) {
+      final List<Schema.DescribeSObjectResult> results = Schema.describeSObjects(
+        new List<String>{ name },
+        Schema.SObjectDescribeOptions.DEFERRED
+      );
+
+      if (results.isEmpty()) {
+        return null;
+      }
+
+      final Schema.DescribeSObjectResult result = results.get(0);
+      type = result.getSObjectType();
+
+      objectTypesByName.put(name, type);
+
+      if (objectDescribers == null) {
+        objectDescribers = new Map<Schema.SObjectType, Schema.DescribeSObjectResult>();
+      }
+
+      if (!objectDescribers.containsKey(type)) {
+        objectDescribers.put(type, result);
+      }
     }
 
-    if (!objectDescribers.containsKey(result.getSObjectType())) {
-      objectDescribers.put(result.getSObjectType(), result);
-    }
-
-    return result;
+    return getObjectDescribe(type);
   }
 
   /**
