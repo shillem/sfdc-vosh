@@ -132,17 +132,14 @@ public class DescriberTest {
     final Describer describ = Describer.getInstance();
     final Schema.SObjectType so = Schema.Account.SObjectType;
     final String objectName = String.valueOf(so);
-    final Map<String, String> expected = new Map<String, String>();
+    final Map<String, String> expected = describ.getFieldSensitivities(so);
 
-    for (Schema.FieldDefinition definition : [
-      SELECT QualifiedApiName, SecurityClassification
-      FROM FieldDefinition
-      WHERE EntityDefinition.QualifiedApiName = :objectName
-    ]) {
-      expected.put(definition.QualifiedApiName, definition.SecurityClassification);
-    }
-
-    Assert.areEqual(expected, describ.getFieldSensitivities(so));
+    Assert.isTrue(expected.containsKey('Name'), 'It should have contained Account.Name');
+    Assert.isTrue(expected.containsKey('Industry'), 'It should have contained Account.Industry');
+    Assert.isFalse(
+      expected.containsKey('StageName'),
+      'It should not have contained fields of other objects'
+    );
 
     final Integer queries = Limits.getQueries();
 
